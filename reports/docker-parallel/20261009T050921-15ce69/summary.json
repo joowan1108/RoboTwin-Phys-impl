@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "command": "freeze",
+  "gpus": [
+    "0"
+  ],
+  "episodes_per_task": 1,
+  "seed": 100000,
+  "results": [
+    {
+      "gpu": "0",
+      "task": "stack_blocks_two",
+      "exit_code": 0,
+      "log": "/home/guest/robotwin-workspace/reports/docker-parallel/20261009T050921-15ce69/gpu-0/stack_blocks_two.log"
+    },
+    {
+      "gpu": "0",
+      "task": "grab_roller",
+      "exit_code": 0,
+      "log": "/home/guest/robotwin-workspace/reports/docker-parallel/20261009T050921-15ce69/gpu-0/grab_roller.log"
+    }
+  ]
+}

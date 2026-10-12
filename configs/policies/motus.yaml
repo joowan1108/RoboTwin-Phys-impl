@@ -1,0 +1,19 @@
+name: motus_robotwin2
+adapter: vendor/Motus/inference/robotwin/Motus/deploy_policy.py
+working_directory: ${ROOT}/vendor/Motus/inference/robotwin/Motus
+python_paths: [vendor/Motus/inference/robotwin/Motus]
+requires_native_bf16: true
+minimum_vram_gb: 24
+code_revision: f771216802b8a1601599422f12088bee3c068c14
+checkpoint:
+  repo: motus-robotics/Motus_robotwin2
+  revision: ab74bc214f7fc5952c85198e062c5f8bf1dc47a7
+  file: mp_rank_00_model_states.pt
+required_paths:
+  - ${ROOT}/checkpoints/motus/mp_rank_00_model_states.pt
+  - ${ROOT}/checkpoints/backbones/Wan2.2-TI2V-5B
+  - ${ROOT}/checkpoints/backbones/Qwen3-VL-2B-Instruct
+args:
+  ckpt_setting: ${ROOT}/checkpoints/motus
+  wan_path: ${ROOT}/checkpoints/backbones/Wan2.2-TI2V-5B
+  vlm_path: ${ROOT}/checkpoints/backbones/Qwen3-VL-2B-Instruct

@@ -1,0 +1,152 @@
+[
+    {
+        "Id": "sha256:63a09e92f22e0aaa1a0f998044ccfdd0853dd30c8138875c24bba5cf5a35a178",
+        "RepoTags": [
+            "robotwin-phys:sim-cu128"
+        ],
+        "RepoDigests": [
+            "robotwin-phys@sha256:63a09e92f22e0aaa1a0f998044ccfdd0853dd30c8138875c24bba5cf5a35a178"
+        ],
+        "Comment": "buildkit.dockerfile.v0",
+        "Created": "2026-10-09T15:23:43.167523262+09:00",
+        "Config": {
+            "User": "robotwin",
+            "Env": [
+                "PATH=/home/guest/robotwin-workspace/.env/bin:/usr/local/cuda/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "NVARCH=x86_64",
+                "NVIDIA_REQUIRE_CUDA=cuda>=12.8 brand=unknown,driver>=470,driver<471 brand=grid,driver>=470,driver<471 brand=tesla,driver>=470,driver<471 brand=nvidia,driver>=470,driver<471 brand=quadro,driver>=470,driver<471 brand=quadrortx,driver>=470,driver<471 brand=nvidiartx,driver>=470,driver<471 brand=vapps,driver>=470,driver<471 brand=vpc,driver>=470,driver<471 brand=vcs,driver>=470,driver<471 brand=vws,driver>=470,driver<471 brand=cloudgaming,driver>=470,driver<471 brand=unknown,driver>=535,driver<536 brand=grid,driver>=535,driver<536 brand=tesla,driver>=535,driver<536 brand=nvidia,driver>=535,driver<536 brand=quadro,driver>=535,driver<536 brand=quadrortx,driver>=535,driver<536 brand=nvidiartx,driver>=535,driver<536 brand=vapps,driver>=535,driver<536 brand=vpc,driver>=535,driver<536 brand=vcs,driver>=535,driver<536 brand=vws,driver>=535,driver<536 brand=cloudgaming,driver>=535,driver<536 brand=unknown,driver>=550,driver<551 brand=grid,driver>=550,driver<551 brand=tesla,driver>=550,driver<551 brand=nvidia,driver>=550,driver<551 brand=quadro,driver>=550,driver<551 brand=quadrortx,driver>=550,driver<551 brand=nvidiartx,driver>=550,driver<551 brand=vapps,driver>=550,driver<551 brand=vpc,driver>=550,driver<551 brand=vcs,driver>=550,driver<551 brand=vws,driver>=550,driver<551 brand=cloudgaming,driver>=550,driver<551 brand=unknown,driver>=560,driver<561 brand=grid,driver>=560,driver<561 brand=tesla,driver>=560,driver<561 brand=nvidia,driver>=560,driver<561 brand=quadro,driver>=560,driver<561 brand=quadrortx,driver>=560,driver<561 brand=nvidiartx,driver>=560,driver<561 brand=vapps,driver>=560,driver<561 brand=vpc,driver>=560,driver<561 brand=vcs,driver>=560,driver<561 brand=vws,driver>=560,driver<561 brand=cloudgaming,driver>=560,driver<561 brand=unknown,driver>=565,driver<566 brand=grid,driver>=565,driver<566 brand=tesla,driver>=565,driver<566 brand=nvidia,driver>=565,driver<566 brand=quadro,driver>=565,driver<566 brand=quadrortx,driver>=565,driver<566 brand=nvidiartx,driver>=565,driver<566 brand=vapps,driver>=565,driver<566 brand=vpc,driver>=565,driver<566 brand=vcs,driver>=565,driver<566 brand=vws,driver>=565,driver<566 brand=cloudgaming,driver>=565,driver<566",
+                "NV_CUDA_CUDART_VERSION=12.8.90-1",
+                "CUDA_VERSION=12.8.1",
+                "LD_LIBRARY_PATH=/usr/local/cuda/lib64",
+                "NVIDIA_VISIBLE_DEVICES=all",
+                "NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics",
+                "NV_CUDA_LIB_VERSION=12.8.1-1",
+                "NV_NVTX_VERSION=12.8.90-1",
+                "NV_LIBNPP_VERSION=12.3.3.100-1",
+                "NV_LIBNPP_PACKAGE=libnpp-12-8=12.3.3.100-1",
+                "NV_LIBCUSPARSE_VERSION=12.5.8.93-1",
+                "NV_LIBCUBLAS_PACKAGE_NAME=libcublas-12-8",
+                "NV_LIBCUBLAS_VERSION=12.8.4.1-1",
+                "NV_LIBCUBLAS_PACKAGE=libcublas-12-8=12.8.4.1-1",
+                "NV_LIBNCCL_PACKAGE_NAME=libnccl2",
+                "NV_LIBNCCL_PACKAGE_VERSION=2.25.1-1",
+                "NCCL_VERSION=2.25.1-1",
+                "NV_LIBNCCL_PACKAGE=libnccl2=2.25.1-1+cuda12.8",
+                "NVIDIA_PRODUCT_NAME=CUDA",
+                "NV_CUDA_CUDART_DEV_VERSION=12.8.90-1",
+                "NV_NVML_DEV_VERSION=12.8.90-1",
+                "NV_LIBCUSPARSE_DEV_VERSION=12.5.8.93-1",
+                "NV_LIBNPP_DEV_VERSION=12.3.3.100-1",
+                "NV_LIBNPP_DEV_PACKAGE=libnpp-dev-12-8=12.3.3.100-1",
+                "NV_LIBCUBLAS_DEV_VERSION=12.8.4.1-1",
+                "NV_LIBCUBLAS_DEV_PACKAGE_NAME=libcublas-dev-12-8",
+                "NV_LIBCUBLAS_DEV_PACKAGE=libcublas-dev-12-8=12.8.4.1-1",
+                "NV_CUDA_NSIGHT_COMPUTE_VERSION=12.8.1-1",
+                "NV_CUDA_NSIGHT_COMPUTE_DEV_PACKAGE=cuda-nsight-compute-12-8=12.8.1-1",
+                "NV_NVPROF_VERSION=12.8.90-1",
+                "NV_NVPROF_DEV_PACKAGE=cuda-nvprof-12-8=12.8.90-1",
+                "NV_LIBNCCL_DEV_PACKAGE_NAME=libnccl-dev",
+                "NV_LIBNCCL_DEV_PACKAGE_VERSION=2.25.1-1",
+                "NV_LIBNCCL_DEV_PACKAGE=libnccl-dev=2.25.1-1+cuda12.8",
+                "LIBRARY_PATH=/usr/local/cuda/lib64/stubs",
+                "ROBOTWIN_PHYS_ROOT=/home/guest/robotwin-workspace",
+                "VIRTUAL_ENV=/home/guest/robotwin-workspace/.env",
+                "CUDA_HOME=/usr/local/cuda",
+                "HOME=/home/guest",
+                "PYTHONPATH=/home/guest/robotwin-workspace/src",
+                "TORCH_CUDA_ARCH_LIST=7.5;12.0",
+                "MAX_JOBS=2",
+                "CUDA_DEVICE_ORDER=PCI_BUS_ID",
+                "SAPIEN_RENDER_DEVICE=cuda:0",
+                "PYTHONHASHSEED=0",
+                "CUBLAS_WORKSPACE_CONFIG=:4096:8",
+                "OMP_NUM_THREADS=4",
+                "OPENBLAS_NUM_THREADS=4",
+                "PYTHONUNBUFFERED=1",
+                "PYTHONDONTWRITEBYTECODE=1",
+                "XDG_CACHE_HOME=/home/guest/.cache",
+                "TORCH_EXTENSIONS_DIR=/home/guest/.cache/torch_extensions",
+                "PIP_DISABLE_PIP_VERSION_CHECK=1"
+            ],
+            "Entrypoint": [
+                "/home/guest/robotwin-workspace/docker/entrypoint.sh"
+            ],
+            "Cmd": [
+                "robotwin-phys",
+                "tasks"
+            ],
+            "WorkingDir": "/home/guest/robotwin-workspace",
+            "Labels": {
+                "maintainer": "NVIDIA CORPORATION <cudatools@nvidia.com>",
+                "org.opencontainers.image.description": "CUDA 12.8 / torch 2.7.1 / SAPIEN 3.0.0b1; Blackwell sm120 and Turing sm75; policy images separate",
+                "org.opencontainers.image.ref.name": "ubuntu",
+                "org.opencontainers.image.title": "RoboTwin-Phys independent reproduction simulator",
+                "org.opencontainers.image.version": "22.04"
+            },
+            "ArgsEscaped": true,
+            "Shell": [
+                "/bin/bash",
+                "-o",
+                "pipefail",
+                "-c"
+            ]
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 30160019104,
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:270a1170e7e398434ff1b31e17e233f7d7b71aa99a40473615860068e86720af",
+                "sha256:fb456a9e7760e7e4481d3d9eddee3ef62358753326d669c3efe6b0cc254ab9c3",
+                "sha256:981a144d9fa2efffdbdfbdcfd3881dccb4fbf07867d4fa326a386126ca11b50f",
+                "sha256:583f1d6040fc90a1380cb4d11d46b78bbbd4ad7d6274b9656ab9832ef7ba6342",
+                "sha256:6020d84069cf575521faca653d2817e2195b8233b8c4e2d7bc65f3296296c2bb",
+                "sha256:eb0143fcce68bd06a29bf314125d30f2a1f44d606fc419e7a54ab602bc26b2d0",
+                "sha256:cb395f276e984728ca05fdee4e1dc203e1310a9e943a2d16d7aa87e5b2cf754b",
+                "sha256:70a158f70e3777a129c15ffe51399bb6c226218c08ff6819948b9b1f26a46277",
+                "sha256:9bb0510c7b4b74b056648f24e0a55c26f7521a1a1b766250a0776e14ce9d93f6",
+                "sha256:7215ae9b9700d9530f70dea6f546b7ebdaac0098e4436b4c99e3e8063170c274",
+                "sha256:acbc0d2ed199232b8f482ce41318ccd603e3c9a7731d39f0b08b88b253a6ca67",
+                "sha256:f1e11999dc2dbf422884c41eaa9ab064ff2cc6705070b25a80102890083e1f26",
+                "sha256:0a219c01a7f499b21b286addd64fd070f82ab22e93640581631b9215e954fd1c",
+                "sha256:a226864c60f6771988361bb1ad138a086d627605507b13dee6816c3c837e1d2c",
+                "sha256:455e6069d3a335f82696b07d36a8355cb17c68827c8656557297d17b072dec4f",
+                "sha256:70da991e3b8ce2acd383e00a99cbd9429d0cd5d6098ccebce63d79f9acaefc36",
+                "sha256:a3c8b3d7232100ce22bbe81aedcc177f55790f03943e706560812ae961178fea",
+                "sha256:1a6661536a0d129ad1e9e7d7003b3d18a2d5276c7508ca62c6eba52d83802930",
+                "sha256:208c2c817a034a671e058fb11aca6fc93d1fc95c6a2992b7061bbc2093a3a878",
+                "sha256:327edab11653bbfc7d88fd47324b94676af547177216ef58383eea4f00e0eecf",
+                "sha256:ba663a17e714c3c39e6d26d922e9b8b03f805c8b79fea227300dbca198915e7c",
+                "sha256:95530fe00ef30e7265d89174c21e5fa7177898b721d48b34b1d34055957f0c1f",
+                "sha256:6794c921b1a4f29dcaded34cbb4b1a2076ccf84b3ca248415f2bed1527b12d0b",
+                "sha256:2268fb5e01a8bb24ac71cdefe8b10ce02dafe4e7f4b0708561e8d94acb0017f5",
+                "sha256:3b5bcf5c1853dce3640b838d702b764bf5de0e770580f1e7116667d9c5067e57",
+                "sha256:a317cdf9d3b4a74ba6e1612642fbda70b249c6be5f67ca9eff0057658d7f8580",
+                "sha256:5945637363c4171aa1686b704d12ff6e238f9f09223d8c3759c2b9500b3f0f6b",
+                "sha256:dfa0ddd95da415920f5ba6abfe07a3d36dd6978c54730ffbef6943c90781bd80",
+                "sha256:9c0b037adc488ea8a7c5490a990bdcdca7a3c59c9a90f7b01abfcdbb28447c67",
+                "sha256:9eccbb39de4a8fe39eb2130dbc1019ee40c0e45d66c4a5eae535ee800cb0a006",
+                "sha256:38d3956ff70015ad5e2a661f90d696e50d584abaf6c1a78c9b2f4979dd86d7c1",
+                "sha256:cfa2141614361719b903a646ca5832dc68d9d3cdab8abc111a933fb0ab546004",
+                "sha256:3ef6077f19b6b75503ad8e159006e350546bf983596fdb3e0ddd41d24aa944f3"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "2026-10-09T06:23:44.54481398Z"
+        },
+        "Descriptor": {
+            "mediaType": "application/vnd.oci.image.index.v1+json",
+            "digest": "sha256:63a09e92f22e0aaa1a0f998044ccfdd0853dd30c8138875c24bba5cf5a35a178",
+            "size": 856
+        },
+        "Identity": {
+            "Build": [
+                {
+                    "Ref": "pt87363tqn1qds9z67yazeoi3",
+                    "CreatedAt": "2026-10-09T15:23:45.110030496+09:00"
+                }
+            ]
+        }
+    }
+]

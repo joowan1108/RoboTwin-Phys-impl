@@ -1,0 +1,6 @@
+{
+  "manifests/docker-dual-smoke/stack_blocks_two.json": "088dfecf841a0a464d1886079ca636db20d5ab580490219ef4c4e490b01f7fa9",
+  "manifests/docker-dual-smoke/stack_blocks_two.progress.json": "ccbd20f8af8cafbf6955575df49dd81e14336ac52f5ccfb61e562091fd76c283",
+  "manifests/docker-dual-smoke/grab_roller.json": "0b1c73aa9dcfc47fc14d4602eec122395219a59750d2c5c5d66670b4eafa1a02",
+  "manifests/docker-dual-smoke/grab_roller.progress.json": "9cd7ff1192ca0b8a2cd5e8ee532643322df69bdba89ef4a76e9e52e52aeef253"
+}

@@ -1,0 +1,2 @@
+0, NVIDIA GeForce RTX 2080 Ti, 4170 MiB, 22 %
+1, NVIDIA GeForce RTX 2080 Ti, 4347 MiB, 25 %

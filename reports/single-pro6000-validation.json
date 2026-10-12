@@ -1,0 +1,16 @@
+{
+  "base_image": "joowan1108/robotwin-phys:bundle-cu128-v4",
+  "validation": "Full tests with updated tools/tests/cluster mounted read-only; no GPU or model evaluation",
+  "test_result": "74 passed, 1 SAPIEN deprecation warning",
+  "test_log": "reports/pytest-single-pro6000-container.log",
+  "single_gpu_role": "one simulator and one policy process share the SLURM-allocated GPU",
+  "target_pro6000_inference_tested": false,
+  "v5_image_built_by_agent": false,
+  "protected_ood_tail_unchanged": true,
+  "source_sha256": {
+    "tools/parallel_eval.py": "ab7d0b7f209aa87e3821b37112a8c4a25a7abfb0667a12ed651928411fb22c99",
+    "tests/test_parallel_eval.py": "b960de1e8822339add33ac3fab11d9f9a41dce73c71f0d080c5287294ef17645",
+    "cluster/job-pro6000-single.sbatch": "1e547ccda80ad9052a0c0d5f9cd6158c3ec052f2f06d9cfb62de87dbadbed755",
+    "docker/Dockerfile.bundle": "60c23d10aebdef908446fa5171927b4fd35068f57fcd0d2fe435758ebe0cfe01"
+  }
+}

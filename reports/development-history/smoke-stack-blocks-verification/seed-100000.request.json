@@ -1,0 +1,118 @@
+{
+  "episode": {
+    "condition": {
+      "active_factors": [
+        "camera",
+        "com",
+        "force",
+        "friction",
+        "geometry",
+        "mass",
+        "object_damping",
+        "restitution",
+        "robot_damping",
+        "table_height",
+        "table_tilt"
+      ],
+      "arm_damping_scale": 1.770496514826047,
+      "camera": {
+        "direction": [
+          -0.9045046112031632,
+          0.38062929338976353,
+          0.1923349924632127
+        ],
+        "mode": "orbit",
+        "orbit_m": 0.05636649224241728,
+        "rotation_deg": 2.949106731670396,
+        "translation_m": 0.0014864619763528353
+      },
+      "com_offset_m": [
+        0.007951043559176967,
+        -0.011136953297537864,
+        -0.011717149230612818
+      ],
+      "domains": {
+        "camera_orbit_m": [
+          0.0,
+          0.1
+        ],
+        "camera_rotation_deg": [
+          0.0,
+          10.0
+        ],
+        "camera_translation_m": [
+          0.0,
+          0.03
+        ],
+        "com_offset_m": [
+          -0.015,
+          0.015
+        ],
+        "force_mg": [
+          0.0,
+          0.1
+        ],
+        "friction": [
+          0.01,
+          1.25
+        ],
+        "geometry_scale": [
+          0.85,
+          1.05
+        ],
+        "mass_scale": [
+          0.125,
+          4.0
+        ],
+        "object_joint_damping": [
+          0.0,
+          25.0
+        ],
+        "restitution": [
+          0.0,
+          0.5
+        ],
+        "robot_damping_scale": [
+          0.5,
+          3.0
+        ],
+        "table_height_offset_m": [
+          -0.08,
+          0.0
+        ],
+        "table_tilt_deg": [
+          0.0,
+          2.0
+        ]
+      },
+      "episode_seed": 100000,
+      "force_direction": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "force_mg": 0.030438510620449135,
+      "friction": 1.1358047128011792,
+      "geometry_scale": 0.9169546329173712,
+      "gripper_damping_scale": 1.770496514826047,
+      "mass_scale": 1.8534897874900862,
+      "object_joint_damping": 0.7832995966935902,
+      "protocol": "physical_random",
+      "restitution": 0.24106382681514732,
+      "table_height_offset_m": -0.02781989641113291,
+      "table_tilt_azimuth_deg": 90.0,
+      "table_tilt_deg": 1.2759546762437826,
+      "task": "stack_blocks_two"
+    },
+    "condition_sha256": "7df1f36b31c47b47b644d4e30989f59367ab141d126e365ef75dd79f46eb60d8",
+    "episode_index": 0,
+    "expert_success": false,
+    "seed": 100000
+  },
+  "instruction_type": "unseen",
+  "live": true,
+  "mode": "expert",
+  "port": 8765,
+  "video": "/home/guest/robotwin-workspace/manifests/smoke-stack-blocks-verification/seed-100000.mp4",
+  "viewer": false
+}

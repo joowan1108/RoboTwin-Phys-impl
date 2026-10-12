@@ -1,0 +1,22 @@
+name: fastwam_robotwin2
+adapter: vendor/FastWAM/experiments/robotwin/fastwam_policy/deploy_policy.py
+working_directory: ${ROOT}/vendor/FastWAM
+python_paths: [vendor/FastWAM, vendor/FastWAM/src]
+requires_native_bf16: true
+code_revision: 7faa71108368fbb3b6885649f112af607427a2d4
+checkpoint:
+  repo: yuanty/fastwam
+  revision: 8eaceeb24c3cc92ff2a9c9a9d266a4941b836705
+  file: robotwin_uncond_3cam_384.pt
+required_paths:
+  - ${ROOT}/checkpoints/fastwam/robotwin_uncond_3cam_384.pt
+  - ${ROOT}/checkpoints/fastwam/robotwin_uncond_3cam_384_dataset_stats.json
+args:
+  ckpt_setting: ${ROOT}/checkpoints/fastwam/robotwin_uncond_3cam_384.pt
+  dataset_stats_path: ${ROOT}/checkpoints/fastwam/robotwin_uncond_3cam_384_dataset_stats.json
+  sim_task: robotwin_uncond_3cam_384_1e-4
+  sim_cfg_name: sim_robotwin.yaml
+  device: cuda
+  mixed_precision: bf16
+  replan_steps: 24
+  seed: 0

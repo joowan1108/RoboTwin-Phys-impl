@@ -1,0 +1,12 @@
+.env/
+downloads/
+checkpoints/
+vendor/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+runs/
+manifests/
+*.log
+.container/
+docker/*.local.env

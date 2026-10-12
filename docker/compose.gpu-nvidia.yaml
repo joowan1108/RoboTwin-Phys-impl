@@ -1,0 +1,10 @@
+# Standard path when NVIDIA Container Toolkit is registered with Docker.
+services:
+  sim:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["${ROBOTWIN_GPU:-0}"]
+              capabilities: [gpu]

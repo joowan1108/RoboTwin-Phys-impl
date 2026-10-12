@@ -1,0 +1,7 @@
+{
+  "lbfgs_step_cu": "ELF file    1: lbfgs_step_cu.cpython-310-x86_64-linux-gnu.1.sm_120.cubin\nELF file    2: lbfgs_step_cu.cpython-310-x86_64-linux-gnu.2.sm_75.cubin\n",
+  "kinematics_fused_cu": "ELF file    1: kinematics_fused_cu.cpython-310-x86_64-linux-gnu.1.sm_120.cubin\nELF file    2: kinematics_fused_cu.cpython-310-x86_64-linux-gnu.2.sm_75.cubin\n",
+  "line_search_cu": "ELF file    1: line_search_cu.cpython-310-x86_64-linux-gnu.1.sm_120.cubin\nELF file    2: line_search_cu.cpython-310-x86_64-linux-gnu.2.sm_75.cubin\nELF file    3: line_search_cu.cpython-310-x86_64-linux-gnu.3.sm_120.cubin\nELF file    4: line_search_cu.cpython-310-x86_64-linux-gnu.4.sm_75.cubin\n",
+  "tensor_step_cu": "ELF file    1: tensor_step_cu.cpython-310-x86_64-linux-gnu.1.sm_120.cubin\nELF file    2: tensor_step_cu.cpython-310-x86_64-linux-gnu.2.sm_75.cubin\n",
+  "geom_cu": "ELF file    1: geom_cu.cpython-310-x86_64-linux-gnu.1.sm_120.cubin\nELF file    2: geom_cu.cpython-310-x86_64-linux-gnu.2.sm_75.cubin\nELF file    3: geom_cu.cpython-310-x86_64-linux-gnu.3.sm_120.cubin\nELF file    4: geom_cu.cpython-310-x86_64-linux-gnu.4.sm_75.cubin\nELF file    5: geom_cu.cpython-310-x86_64-linux-gnu.5.sm_120.cubin\nELF file    6: geom_cu.cpython-310-x86_64-linux-gnu.6.sm_75.cubin\n"
+}

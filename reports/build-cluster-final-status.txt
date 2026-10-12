@@ -1,0 +1,6 @@
+sim 0
+pi05 0
+fact 0
+motus 0
+fastwam 0
+g05 0

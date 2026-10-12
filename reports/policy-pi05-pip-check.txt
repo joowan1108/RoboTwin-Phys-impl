@@ -1,0 +1,36 @@
+
+==========
+== CUDA ==
+==========
+
+CUDA Version 12.8.1
+
+Container image Copyright (c) 2016-2023, NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+
+This container image and its contents are governed by the NVIDIA Deep Learning Container License.
+By pulling and using the container, you accept the terms and conditions of this license:
+https://developer.nvidia.com/ngc/nvidia-deep-learning-container-license
+
+A copy of this license is made available in this container at /NGC-DL-CONTAINER-LICENSE for your convenience.
+
+WARNING: The NVIDIA Driver was not detected.  GPU functionality will not be available.
+   Use the NVIDIA Container Toolkit to start this container with GPU support; see
+   https://docs.nvidia.com/datacenter/cloud-native/ .
+
+lerobot 0.1.0 requires cmake, which is not installed.
+lerobot 0.1.0 requires diffusers, which is not installed.
+lerobot 0.1.0 requires flask, which is not installed.
+lerobot 0.1.0 requires gdown, which is not installed.
+lerobot 0.1.0 requires gymnasium, which is not installed.
+lerobot 0.1.0 requires h5py, which is not installed.
+lerobot 0.1.0 requires numba, which is not installed.
+lerobot 0.1.0 requires omegaconf, which is not installed.
+lerobot 0.1.0 requires opencv-python-headless, which is not installed.
+lerobot 0.1.0 requires pymunk, which is not installed.
+lerobot 0.1.0 requires pynput, which is not installed.
+lerobot 0.1.0 requires pyzmq, which is not installed.
+lerobot 0.1.0 requires rerun-sdk, which is not installed.
+lerobot 0.1.0 requires termcolor, which is not installed.
+lerobot 0.1.0 requires torchcodec, which is not installed.
+lerobot 0.1.0 requires zarr, which is not installed.
+lerobot 0.1.0 has requirement torch<2.7,>=2.2.1, but you have torch 2.7.1+cu128.

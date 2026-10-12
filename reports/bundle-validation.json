@@ -1,0 +1,27 @@
+{
+  "recorded_at": "2026-10-09T12:09:20.037530+00:00",
+  "tests_passed": 53,
+  "protected_cache_and_tail_preserved": true,
+  "policy_environment_relocation_imports_passed": [
+    "pi05",
+    "fact",
+    "motus",
+    "fastwam",
+    "g05"
+  ],
+  "docker_verification_stage_passed": true,
+  "image_export": "cancelled: user is building on their own local PC",
+  "image_pushed": false,
+  "remote_gpu_or_apptainer_execution_tested": false,
+  "evidence": [
+    "reports/pytest-bundle.log",
+    "reports/build-bundle-cu128-v2.log"
+  ],
+  "source_sha256": {
+    "cluster/job.sbatch": "64e9e1ed24e5d2b2ecc1cd10a129f357be6c2a0ec37eb6555eb667392d93dda8",
+    "cluster/job-rtx5090x2.sbatch": "315dad4eaacf3ad7fe8d5a857d961fd7690040317be810925d17e1f05ffd75a1",
+    "cluster/run_bundle.sh": "abaf472f71f842fbe3b69a5a45b1d21af9845e6bc1b5f7a3023ff1087a1c1a0d",
+    "docker/Dockerfile.bundle": "5476e921093e422a089dfe7ab4dbd1405af665955270b79f70a1a8aeca91066f",
+    "docker/bundle_setup.py": "880a3de18731e690ee4b8b25214bdbf792d0c3baaca0ef75da88737b572f229a"
+  }
+}

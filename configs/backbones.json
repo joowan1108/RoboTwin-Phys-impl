@@ -1,0 +1,60 @@
+[
+  {
+    "name": "wan22",
+    "repo": "Wan-AI/Wan2.2-TI2V-5B",
+    "revision": "921dbaf3f1674a56f47e83fb80a34bac8a8f203e",
+    "destination": "backbones/Wan2.2-TI2V-5B",
+    "patterns": [
+      "*.json",
+      "*.pth",
+      "google/*",
+      "diffusion_pytorch_model*.safetensors"
+    ],
+    "models": [
+      "motus",
+      "fastwam"
+    ]
+  },
+  {
+    "name": "qwen3vl",
+    "repo": "Qwen/Qwen3-VL-2B-Instruct",
+    "revision": "89644892e4d85e24eaac8bacfd4f463576704203",
+    "destination": "backbones/Qwen3-VL-2B-Instruct",
+    "patterns": [
+      "*.json",
+      "*.txt",
+      "*.jinja"
+    ],
+    "models": [
+      "motus"
+    ]
+  },
+  {
+    "name": "wan22_diffusers",
+    "repo": "Wan-AI/Wan2.2-TI2V-5B-Diffusers",
+    "revision": "b8fff7315c768468a5333511427288870b2e9635",
+    "destination": "backbones/Wan2.2-TI2V-5B-Diffusers",
+    "patterns": [
+      "model_index.json",
+      "vae/*",
+      "text_encoder/*",
+      "tokenizer/*",
+      "scheduler/*"
+    ],
+    "models": [
+      "fact"
+    ]
+  },
+  {
+    "name": "wan21_tokenizer",
+    "repo": "Wan-AI/Wan2.1-T2V-1.3B",
+    "revision": "37ec512624d61f7aa208f7ea8140a131f93afc9a",
+    "destination": "backbones/Wan-AI/Wan2.1-T2V-1.3B",
+    "patterns": [
+      "google/umt5-xxl/*"
+    ],
+    "models": [
+      "fastwam"
+    ]
+  }
+]

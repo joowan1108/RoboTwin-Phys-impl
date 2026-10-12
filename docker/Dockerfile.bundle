@@ -1,0 +1,48 @@
+# syntax=docker/dockerfile:1
+# Reuse the six already-built images. Only this final image is pushed for OOD.
+ARG SIM_IMAGE=robotwin-phys:sim-cu128
+ARG PI05_IMAGE=robotwin-phys:policy-pi05-cu128
+ARG FACT_IMAGE=robotwin-phys:policy-fact-cu128
+ARG MOTUS_IMAGE=robotwin-phys:policy-motus-cu128
+ARG FASTWAM_IMAGE=robotwin-phys:policy-fastwam-cu128
+ARG G05_IMAGE=robotwin-phys:policy-g05-cu128
+FROM ${PI05_IMAGE} AS pi05
+FROM ${FACT_IMAGE} AS fact
+FROM ${MOTUS_IMAGE} AS motus
+FROM ${FASTWAM_IMAGE} AS fastwam
+FROM ${G05_IMAGE} AS g05
+FROM ${SIM_IMAGE} AS bundle
+USER root
+COPY --from=pi05 /opt/python/ /opt/python/
+COPY --from=motus /usr/lib/x86_64-linux-gnu/libaio.so* /usr/lib/x86_64-linux-gnu/
+COPY --from=motus /usr/include/libaio.h /usr/include/libaio.h
+COPY --from=pi05 /opt/policy/ /opt/robotwin-policies/pi05/venv/
+COPY --from=pi05 /home/guest/robotwin-workspace/ /opt/robotwin-policies/pi05/workspace/
+COPY --from=pi05 /opt/robotwin-build/ /opt/robotwin-policies/pi05/build/
+COPY --from=fact /opt/policy/ /opt/robotwin-policies/fact/venv/
+COPY --from=fact /home/guest/robotwin-workspace/ /opt/robotwin-policies/fact/workspace/
+COPY --from=fact /opt/robotwin-build/ /opt/robotwin-policies/fact/build/
+COPY --from=motus /opt/policy/ /opt/robotwin-policies/motus/venv/
+COPY --from=motus /home/guest/robotwin-workspace/ /opt/robotwin-policies/motus/workspace/
+COPY --from=motus /opt/robotwin-build/ /opt/robotwin-policies/motus/build/
+COPY --from=fastwam /opt/policy/ /opt/robotwin-policies/fastwam/venv/
+COPY --from=fastwam /home/guest/robotwin-workspace/ /opt/robotwin-policies/fastwam/workspace/
+COPY --from=fastwam /opt/robotwin-build/ /opt/robotwin-policies/fastwam/build/
+COPY --from=g05 /opt/policy/ /opt/robotwin-policies/g05/venv/
+COPY --from=g05 /home/guest/robotwin-workspace/ /opt/robotwin-policies/g05/workspace/
+COPY --from=g05 /opt/robotwin-build/ /opt/robotwin-policies/g05/build/
+WORKDIR /home/guest/robotwin-workspace
+COPY tools/ tools/
+COPY cluster/ cluster/
+COPY tests/ tests/
+COPY docs/ docs/
+COPY README.md README.md
+COPY docker/bundle_setup.py docker/bundle_setup.py
+COPY docker/policies/probe.py docker/policies/probe.py
+RUN python docker/bundle_setup.py \
+    && bash -n cluster/job.sbatch cluster/job-rtx5090x2.sbatch cluster/run_bundle.sh cluster/run_parallel.sh cluster/job-5060x2-pro6000.sbatch cluster/job-rtx5090x2-pro6000.sbatch cluster/job-pro6000-single.sbatch \
+    && python -m pytest -q -p no:cacheprovider
+LABEL org.opencontainers.image.title="RoboTwin-Phys single-container benchmark bundle" \
+      org.opencontainers.image.description="Simulator plus five isolated policy Python environments; one Apptainer exec; no nested containers"
+USER robotwin
+CMD ["bash", "/home/guest/robotwin-workspace/cluster/run_bundle.sh"]

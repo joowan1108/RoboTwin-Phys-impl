@@ -1,0 +1,377 @@
+{
+  "_id": "68873ce14fbe2915aea0add7",
+  "id": "Wan-AI/Wan2.2-TI2V-5B-Diffusers",
+  "private": false,
+  "pipeline_tag": "text-to-video",
+  "library_name": "diffusers",
+  "tags": [
+    "diffusers",
+    "safetensors",
+    "text-to-video",
+    "en",
+    "zh",
+    "arxiv:2503.20314",
+    "license:apache-2.0",
+    "diffusers:WanPipeline",
+    "region:us"
+  ],
+  "downloads": 155395,
+  "likes": 167,
+  "modelId": "Wan-AI/Wan2.2-TI2V-5B-Diffusers",
+  "author": "Wan-AI",
+  "sha": "b8fff7315c768468a5333511427288870b2e9635",
+  "lastModified": "2025-08-09T03:35:40.000Z",
+  "gated": false,
+  "disabled": false,
+  "model-index": null,
+  "config": {
+    "diffusers": {
+      "_class_name": "WanPipeline"
+    }
+  },
+  "cardData": {
+    "license": "apache-2.0",
+    "language": [
+      "en",
+      "zh"
+    ],
+    "pipeline_tag": "text-to-video"
+  },
+  "siblings": [
+    {
+      "rfilename": ".gitattributes",
+      "blobId": "75b8d68701da756cee0d6c9fe3bc7b5ed74955a6",
+      "size": 1860
+    },
+    {
+      "rfilename": "README.md",
+      "blobId": "f940f55ea91f0d5713b7fa7b42be2590ea17a9e7",
+      "size": 17633
+    },
+    {
+      "rfilename": "assets/comp_effic.png",
+      "blobId": "bdc26da30b575b80d78f5972a08811eca9a6c455",
+      "size": 202156,
+      "lfs": {
+        "sha256": "75ee012dcfb08365bec67a3ec7afc126fc2817f79b9f80e38711792d4770e32b",
+        "size": 202156,
+        "pointerSize": 131
+      }
+    },
+    {
+      "rfilename": "assets/logo.png",
+      "blobId": "0c55854cbd9692975f217714ffd83fd4b37f5dca",
+      "size": 56322
+    },
+    {
+      "rfilename": "assets/moe_2.png",
+      "blobId": "c788c691cf96bbf9c0598cb440c23935848e8619",
+      "size": 527914,
+      "lfs": {
+        "sha256": "4ea471ccb64349bd08bc9a78f336ae000e9ca3b40da9a652b8028b214a8c6093",
+        "size": 527914,
+        "pointerSize": 131
+      }
+    },
+    {
+      "rfilename": "assets/moe_arch.png",
+      "blobId": "7822af1e65215ee2a9449c9b7616afd713f67a01",
+      "size": 74900
+    },
+    {
+      "rfilename": "assets/performance.png",
+      "blobId": "ca558e3e33efc415814aeb3b103ae2e2b34ba233",
+      "size": 306535,
+      "lfs": {
+        "sha256": "97ef99c13c8ae717a8a11c8d8ec927b69077c647cc6689755d08fc38e7fbb830",
+        "size": 306535,
+        "pointerSize": 131
+      }
+    },
+    {
+      "rfilename": "assets/vae.png",
+      "blobId": "7d290425cf3f7ab20e2d80bece0d780259b24303",
+      "size": 165486,
+      "lfs": {
+        "sha256": "4aaea5e187f1c5908e15ade5bef24c9fb59882986bc3d2ad75f7fe820f3d772f",
+        "size": 165486,
+        "pointerSize": 131
+      }
+    },
+    {
+      "rfilename": "examples/i2v_input.JPG",
+      "blobId": "8c7fabd943752179587eb717362db32ce1eb4800",
+      "size": 250628,
+      "lfs": {
+        "sha256": "077e3d965090c9028c69c00931675f42e1acc815c6eb450ab291b3b72d211a8e",
+        "size": 250628,
+        "pointerSize": 131
+      }
+    },
+    {
+      "rfilename": "model_index.json",
+      "blobId": "fe52bfbdc8e5bbc8a6a607dd301f6e1ab0889cd1",
+      "size": 499
+    },
+    {
+      "rfilename": "scheduler/scheduler_config.json",
+      "blobId": "950d26faea717c8902ee197982026cb9c1b6463e",
+      "size": 820
+    },
+    {
+      "rfilename": "text_encoder/config.json",
+      "blobId": "ab4a73bce055c6e32e66133032dcb3adfb26ee8d",
+      "size": 855
+    },
+    {
+      "rfilename": "text_encoder/model-00001-of-00003.safetensors",
+      "blobId": "3e671d382b9dd6c7fff4cb11756526032d5e6f6c",
+      "size": 4935812536,
+      "lfs": {
+        "sha256": "a8e861969c7433e707cc5a74065d795d36cca07ec96eb6763eb4083df7248f58",
+        "size": 4935812536,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "text_encoder/model-00002-of-00003.safetensors",
+      "blobId": "b35fc9ac361a2b8ee0289121cd045e00cfe57e49",
+      "size": 4983103192,
+      "lfs": {
+        "sha256": "d57d948ece4837d850b7a859a4415121d57cacf8b9ee1d4db200c67f592902d7",
+        "size": 4983103192,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "text_encoder/model-00003-of-00003.safetensors",
+      "blobId": "a76bb7245d7e1cb456132b1a8abe2b1e48a87481",
+      "size": 1442935480,
+      "lfs": {
+        "sha256": "0da9ee284e21d1406df708788db1d502d95d75f69faa25cd26151bf8829b7c5f",
+        "size": 1442935480,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "text_encoder/model.safetensors.index.json",
+      "blobId": "f3d3d4da90eb33e14c92d88ea346370fa3c0b5b2",
+      "size": 22476
+    },
+    {
+      "rfilename": "tokenizer/special_tokens_map.json",
+      "blobId": "2ed25bf989a28d20b5d4b5822fbc24666d12a6f7",
+      "size": 7079
+    },
+    {
+      "rfilename": "tokenizer/spiece.model",
+      "blobId": "2fe5f347e9f9367585589ae89e997dfbd5cf802c",
+      "size": 4548313,
+      "lfs": {
+        "sha256": "e3909a67b780650b35cf529ac782ad2b6b26e6d1f849d3fbb6a872905f452458",
+        "size": 4548313,
+        "pointerSize": 132
+      }
+    },
+    {
+      "rfilename": "tokenizer/tokenizer.json",
+      "blobId": "9c6427ab2f801c942da4ee9740f1a750d3978a3b",
+      "size": 16837459,
+      "lfs": {
+        "sha256": "20a46ac256746594ed7e1e3ef733b83fbc5a6f0922aa7480eda961743de080ef",
+        "size": 16837459,
+        "pointerSize": 133
+      }
+    },
+    {
+      "rfilename": "tokenizer/tokenizer_config.json",
+      "blobId": "09d434f9457238f697f4c208aab47f58caa15bfe",
+      "size": 61758
+    },
+    {
+      "rfilename": "transformer/config.json",
+      "blobId": "8180887e8ed86e4fd842824fb15fcabf43d19512",
+      "size": 495
+    },
+    {
+      "rfilename": "transformer/diffusion_pytorch_model-00001-of-00005.safetensors",
+      "blobId": "5f2663afa6a380303681b8d56fb5420dc94a02a4",
+      "size": 4978254344,
+      "lfs": {
+        "sha256": "511bec832a201caa410d09c5ce7dbbf8ad2708c345d82038f684fc74cce982be",
+        "size": 4978254344,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "transformer/diffusion_pytorch_model-00002-of-00005.safetensors",
+      "blobId": "6a7b8f823a5056fc35ad31384444e82ef590d287",
+      "size": 4846784976,
+      "lfs": {
+        "sha256": "7c42724912b1911429125dc50c0e9a49ccbada5a601b657d4ed2e15e7597c193",
+        "size": 4846784976,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "transformer/diffusion_pytorch_model-00003-of-00005.safetensors",
+      "blobId": "ea8adff51d7c5af5bd35218cea9a71e7fb9575f8",
+      "size": 4972658392,
+      "lfs": {
+        "sha256": "e9c3d0c76de786566382f8258101fea973ae37681c6e9fe0e5fe1fb93b806424",
+        "size": 4972658392,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "transformer/diffusion_pytorch_model-00004-of-00005.safetensors",
+      "blobId": "560eb932bb3ca510154e7dbf06464d8deb1367ce",
+      "size": 4846785080,
+      "lfs": {
+        "sha256": "a331121771790939678db6f585553fd5184609f7d02593c699a4d241b0d834c5",
+        "size": 4846785080,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "transformer/diffusion_pytorch_model-00005-of-00005.safetensors",
+      "blobId": "f1e5de6d8c24ec7b760cde5e4459745dae3eb16d",
+      "size": 354751840,
+      "lfs": {
+        "sha256": "78b655685c47efdb2349f36826bb101264e9f212a16325d584aeb5f53c88e719",
+        "size": 354751840,
+        "pointerSize": 134
+      }
+    },
+    {
+      "rfilename": "transformer/diffusion_pytorch_model.safetensors.index.json",
+      "blobId": "4ced518ff3eb023a0477eeab55f2a4d45d6fd43a",
+      "size": 73297
+    },
+    {
+      "rfilename": "vae/config.json",
+      "blobId": "29f65bc63e9daadb95e4c1a8344d162be4b7d533",
+      "size": 1701
+    },
+    {
+      "rfilename": "vae/diffusion_pytorch_model.safetensors",
+      "blobId": "ce286de5e77fb7878058355c6dcee7be8308a83c",
+      "size": 2818777808,
+      "lfs": {
+        "sha256": "62cd18f19438e35b32ac63020e2852f566e9b02f46b6cdbd87972a356e3c6f4b",
+        "size": 2818777808,
+        "pointerSize": 135
+      }
+    }
+  ],
+  "spaces": [
+    "tardellirs/model-pulse",
+    "aquanode/gpu-vram-calculator",
+    "OpenKing/wan2-video-generation",
+    "KwabsHug/GameConfigIdea",
+    "rahul7star/InstaVideo",
+    "samsammysammy/wan2-video-generation-nsfw",
+    "Qualcomm-AI-Research/mobilewan-t2v",
+    "Artist89/wan2-video-generation",
+    "jbilcke-hf/FlashWorld-ZeroGPU",
+    "HikariDawn/FrameINO",
+    "laruss5/wan2-video-generation-nsfw",
+    "hugging-apps/rynnworld-4d",
+    "yuw3934/wan2-video-generation-nsfw",
+    "roman-talker/Wan2.2",
+    "BYTFITY/wan2-video-generation262515414142",
+    "build-small-hackathon/poetic",
+    "mimot/Image-Edit-Full-Wan",
+    "Mlihan2/Tripix-media-engine",
+    "Bariona/fact-world-action-model",
+    "bann/wan-studio",
+    "Frankie32/socialinfinix-motion",
+    "mycholechawal/InstaVideo",
+    "superrgod/test",
+    "Ujwaltheja/CF_Wan2.2",
+    "Smikke/wan2-video-generation",
+    "BhaveshPancholi/VideoGen",
+    "mrfalco/wan2-video-generation",
+    "levabo308/wan2-video-generation",
+    "ChanPoin/wan2-video-generation",
+    "keen007/wan2-video-generation",
+    "Franciscofelipemendoza/wan2-video-generation",
+    "s72329038/wan2-video-generation",
+    "avisha83/wan2-video-generation",
+    "Halford22/wan2-video-generation",
+    "LucasFayad/wan2-video-generation",
+    "Daudplscheck/wan2-video-generation",
+    "hanmm24/wan2-video-generation",
+    "illbegentleaf/wan2-video-generation",
+    "Weirdoinsa/wan2-video-generation",
+    "PBlok516/wan2-video-generation",
+    "Josephjojoa117/wan2-video-generation",
+    "Amarble1208/wan2-video-generation",
+    "sohebkh13/wan2-video-generation",
+    "rosastevens19917/wan2-video-generation",
+    "Mattie67/wan2-video-generation",
+    "D4M4G3/wan2-video-generation",
+    "Gyremo/wan2-video-generation",
+    "Laburthe/wan2-video-generation",
+    "zver5531/wan2-video-generation",
+    "DUK51/wan2-video-generation",
+    "OnlyHitachi/wan2-video-generation",
+    "piyush12user/wan2-video-generation",
+    "Stylique/t2v_facelessflowlai",
+    "McBman/wan2-video-generation",
+    "lawyer909/wan2-video-generation",
+    "kushan2/dgks",
+    "kushan2/shan-yt",
+    "wdwwerq/wan2-video-generation",
+    "lanceeeee/Lanceauaa",
+    "Luiscaraderato/wan2-video-generation",
+    "yukio-yukio/wan2-video-generation",
+    "Magulonek/wan2-video-generation",
+    "rodku/wan2-video-generation",
+    "tcruzrj/wan2-video-generation",
+    "jrodricerc1/wan2-video-generation",
+    "zzsdggfd/wan2-video-generation",
+    "dimjimdim/wan2-video-generation",
+    "truetraitor/wan2-video-generation",
+    "Tommy10-AI/wan2-video-generation",
+    "Jesustepez/wan2-video-generation",
+    "pandabreton/wan2-video-generation",
+    "nicknorth/wan2-video-generation",
+    "yuw3934/wan2-video-generation",
+    "Uborn76/wan2-video-generation",
+    "50rb3t/wan2.2-video-generation",
+    "pravin90/wan2-video-generation",
+    "geekyprateek/wan2-video-generation",
+    "Jbretghji/wan2-video-generation",
+    "carlos12365/wan2-video-generation",
+    "devindevine/wannsfw",
+    "Towla1940ma/wan2-video-generation",
+    "rorcvb/wan2-video-generation",
+    "Mrm97/InstaVideo",
+    "Sanio7791/wan2-video-generation",
+    "Trangiabao/wan-studio",
+    "Novastar1/nova-i2v",
+    "AriaVale2/minenotpublic-text-2-video-generator",
+    "RaptorSeer/wan2-video-generation",
+    "cedwyh/mythforge-ti2v",
+    "Elle56/wan2-video-generation",
+    "SEVAQWERTY/wan2-video-generation",
+    "karan912313/wan2-video-generation",
+    "brunosilva23/wan2-video-generation",
+    "Laeb66/wan2-video-generation",
+    "jose311/wan2-video-generation",
+    "Mostafa1641/aimo",
+    "tjdavies/video-gen-playground",
+    "mabsoutwassim/wan2.2",
+    "charlieai123/hp-video-gen",
+    "MSALab/loom-video"
+  ],
+  "createdAt": "2025-07-28T09:03:29.000Z",
+  "safetensors": {
+    "parameters": {
+      "F32": 4999787712
+    },
+    "total": 4999787712
+  },
+  "usedStorage": 34202702139
+}

@@ -1,0 +1,5 @@
+numpy==1.26.4
+PyYAML==6.0.2
+pillow==11.3.0
+huggingface-hub==0.34.4
+packaging==25.0

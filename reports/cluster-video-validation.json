@@ -1,0 +1,26 @@
+[
+  {
+    "file": "manifests/cluster-cu128-local-smoke-verification/seed-100000.mp4",
+    "streams": [
+      {
+        "width": 320,
+        "height": 240,
+        "r_frame_rate": "30/1",
+        "nb_read_frames": "520"
+      }
+    ],
+    "fully_decoded": true
+  },
+  {
+    "file": "runs/cluster-cu128-local-noop/episode-0000.mp4",
+    "streams": [
+      {
+        "width": 320,
+        "height": 240,
+        "r_frame_rate": "30/1",
+        "nb_read_frames": "8"
+      }
+    ],
+    "fully_decoded": true
+  }
+]

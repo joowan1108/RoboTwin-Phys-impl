@@ -1,0 +1,60 @@
+# syntax=docker/dockerfile:1
+ARG CUDA_IMAGE=nvidia/cuda:12.8.1-devel-ubuntu22.04@sha256:a99a1860ba8e2916e5c3e73b72ec4c4301653a84586e05bfc9a2aa2d58027e97
+FROM ${CUDA_IMAGE}
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ARG DEBIAN_FRONTEND=noninteractive
+ARG MODEL=pi05
+ARG MAX_JOBS=2
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 python3-pip python3-venv git curl ca-certificates build-essential \
+    ninja-build cmake pkg-config ffmpeg libgl1 libglib2.0-0 libaio-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip3 install --no-cache-dir uv==0.8.22
+ENV UV_PYTHON_INSTALL_DIR=/opt/python UV_LINK_MODE=copy
+RUN uv python install 3.10.18 3.11.13 \
+    && if [ "$MODEL" = pi05 ]; then uv venv --python 3.11.13 /opt/policy; else uv venv --python 3.10.18 /opt/policy; fi
+ENV PATH=/opt/policy/bin:/usr/local/cuda/bin:${PATH} \
+    VIRTUAL_ENV=/opt/policy CUDA_HOME=/usr/local/cuda \
+    TORCH_CUDA_ARCH_LIST="8.0;12.0" MAX_JOBS=${MAX_JOBS} \
+    PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PYTHONHASHSEED=0 \
+    ROBOTWIN_PHYS_ROOT=/home/guest/robotwin-workspace \
+    PYTHONPATH=/home/guest/robotwin-workspace/src \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility \
+    JAX_PLATFORMS=cpu XLA_PYTHON_CLIENT_PREALLOCATE=false \
+    OMP_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+WORKDIR /home/guest/robotwin-workspace
+RUN uv pip install pip==25.2 setuptools==75.8.0 wheel==0.45.1 \
+    && python -m pip install --no-cache-dir torch==2.7.1 torchvision==0.22.1 torchaudio==2.7.1 --index-url https://download.pytorch.org/whl/cu128
+COPY docker/policies/*.txt docker/policies/
+RUN DS_BUILD_OPS=0 python -m pip install --no-cache-dir -r docker/policies/${MODEL}.txt \
+    --extra-index-url https://download.pytorch.org/whl/cu128
+COPY docker/policies/install_flash.py docker/policies/flash-attn-wheel.json docker/policies/
+RUN if [ "$MODEL" = motus ]; then DS_BUILD_OPS=0 python -m pip install --no-cache-dir deepspeed==0.18.7 && python docker/policies/install_flash.py; fi
+COPY src/ src/
+COPY configs/ configs/
+COPY tools/ tools/
+COPY vendor/GalaxeaVLA/ vendor/GalaxeaVLA/
+COPY vendor/FastWAM/ vendor/FastWAM/
+COPY vendor/FACT/ vendor/FACT/
+COPY vendor/Motus/ vendor/Motus/
+COPY vendor/RoboTwin/policy/pi05/ vendor/RoboTwin/policy/pi05/
+COPY docker/ docker/
+COPY references/*-info.json references/
+RUN if [ "$MODEL" = pi05 ]; then \
+      python -m pip install --no-cache-dir pytest==8.3.5 pydantic==2.10.6 \
+      && \
+      python -m pip install --no-cache-dir --no-deps 'lerobot @ git+https://github.com/huggingface/lerobot.git@a445d9c9da6bea99a8972daa4fe1fdd053d711d2' \
+      && cp -r vendor/RoboTwin/policy/pi05/src/openpi/models_pytorch/transformers_replace/* /opt/policy/lib/python3.11/site-packages/transformers/; \
+    elif [ "$MODEL" = fact ]; then python docker/policies/patch_fact.py; fi \
+    && if [ "$MODEL" = fastwam ]; then sed -i "s/redirect_common_files: true/redirect_common_files: false/" vendor/FastWAM/configs/model/*.yaml; fi \
+    && if [ "$MODEL" = motus ]; then python docker/policies/patch_motus.py; fi \
+    && mkdir -p /opt/robotwin-build reports runs checkpoints \
+    && for repo in GalaxeaVLA FastWAM FACT Motus; do git config --system --add safe.directory "$ROBOTWIN_PHYS_ROOT/vendor/$repo"; done \
+    && python docker/policies/probe.py --model "$MODEL" \
+    && python -m pip freeze > /opt/robotwin-build/pip-freeze.txt \
+    && echo "$MODEL" > /opt/robotwin-build/model.txt
+# Apptainer uses the submitting user's UID, not this Docker USER.
+RUN useradd --uid 1001 --create-home robotwin && chown -R 1001:1001 reports runs checkpoints
+USER robotwin
+CMD ["python", "tools/serve_policy.py", "--help"]

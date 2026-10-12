@@ -1,0 +1,16 @@
+# This bridge connects to FACT's own inference server on 8093.
+# Run that server in FACT's environment, then this RPC bridge in that environment.
+name: fact_robotwin2
+adapter: vendor/FACT/evaluation/robotwin/model2robotwin_interface.py
+python_paths: [vendor/FACT]
+code_revision: 5b299a2059f00c043fedc5c9dd17bf43fa14cbec
+checkpoint:
+  repo: Bariona/fact-wam
+  revision: 887f66bc0be860ede339bb2843fb3c79a8553278
+  file: transformer/diffusion_pytorch_model.bin
+args:
+  host: 127.0.0.1
+  port: 8093
+  execute_actions_per_plan: 48
+  low_frequency_rgb: false
+  skip_action_render_sync: false

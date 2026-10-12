@@ -1,0 +1,26 @@
+# Python 3.10, torch 2.4.1+cu121 and torchvision 0.19.1+cu121 installed separately.
+numpy==1.26.4
+scipy==1.10.1
+scikit-image==0.22.0
+numpy-quaternion==2023.0.4
+sapien==3.0.0b1
+mplib==0.2.1
+transforms3d==0.4.2
+gymnasium==0.29.1
+trimesh==4.4.3
+open3d==0.18.0
+imageio==2.34.2
+imageio-ffmpeg==0.5.1
+opencv-python==4.10.0.84
+PyYAML==6.0.2
+h5py==3.12.1
+zarr==2.18.3
+numcodecs==0.12.1
+toppra==0.6.3
+termcolor==2.5.0
+einops==0.8.0
+omegaconf==2.3.0
+yourdfpy==0.0.56
+warp-lang==1.12.0
+setuptools==69.5.1
+pytest==8.3.5

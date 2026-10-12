@@ -1,0 +1,121 @@
+diff --git a/envs/_base_task.py b/envs/_base_task.py
+index 982e6ec..a3558ba 100644
+--- a/envs/_base_task.py
++++ b/envs/_base_task.py
+@@ -218,7 +218,9 @@ class Base_Task(gym.Env):
+ 
+         # declare sapien scene
+         scene_config = sapien.SceneConfig()
+-        self.scene = self.engine.create_scene(scene_config)
++        sapien.physx.set_scene_config(scene_config)
++        self.scene = sapien.Scene([sapien.physx.PhysxCpuSystem(),
++            sapien.render.RenderSystem(os.environ.get('SAPIEN_RENDER_DEVICE', 'cuda:0'))])
+         # set simulation timestep
+         self.scene.set_timestep(kwargs.get("timestep", 1 / 250))
+         # add ground to scene
+@@ -315,6 +317,7 @@ class Base_Task(gym.Env):
+         )
+ 
+     def get_cluttered_table(self, cluttered_numbers=10, xlim=[-0.59, 0.59], ylim=[-0.34, 0.34], zlim=[0.741]):
++        xlim, ylim, zlim = list(xlim), list(ylim), list(zlim)
+         self.record_cluttered_objects = []  # record cluttered objects
+ 
+         xlim[0] += self.table_xy_bias[0]
+diff --git a/envs/utils/create_actor.py b/envs/utils/create_actor.py
+index 67c8c66..90ca0aa 100644
+--- a/envs/utils/create_actor.py
++++ b/envs/utils/create_actor.py
+@@ -7,6 +7,7 @@ import json
+ import os, re
+ 
+ from .actor_utils import Actor, ArticulationActor
++from robotwin_phys.hooks import geometry_size, geometry_model, object_pose
+ 
+ 
+ class UnStableError(Exception):
+@@ -18,9 +19,9 @@ class UnStableError(Exception):
+ def preprocess(scene, pose: sapien.Pose) -> tuple[sapien.Scene, sapien.Pose]:
+     """Add entity to scene. Add bias to z axis if scene is not sapien.Scene."""
+     if isinstance(scene, sapien.Scene):
+-        return scene, pose
++        return scene, object_pose(pose)
+     else:
+-        return scene.scene, sapien.Pose([pose.p[0], pose.p[1], pose.p[2] + scene.table_z_bias], pose.q)
++        return scene.scene, object_pose(sapien.Pose([pose.p[0], pose.p[1], pose.p[2] + scene.table_z_bias], pose.q))
+ 
+ 
+ # create box
+@@ -87,6 +88,7 @@ def create_box(
+     texture_id=None,
+     boxtype="default",
+ ) -> Actor:
++    half_size = geometry_size(half_size)
+     entity = create_entity_box(
+         scene=scene,
+         pose=pose,
+@@ -207,6 +209,7 @@ def create_sphere(
+     name="",
+     texture_id=None,
+ ) -> sapien.Entity:
++    radius = geometry_size(radius)
+     scene, pose = preprocess(scene, pose)
+     entity = sapien.Entity()
+     entity.set_name(name)
+@@ -259,6 +262,8 @@ def create_cylinder(
+     color=None,
+     name="",
+ ) -> sapien.Entity:
++    radius = geometry_size(radius)
++    half_length = geometry_size(half_length)
+     scene, pose = preprocess(scene, pose)
+ 
+     entity = sapien.Entity()
+@@ -301,6 +306,7 @@ def create_visual_box(
+     color=None,
+     name="",
+ ) -> sapien.Entity:
++    half_size = geometry_size(half_size)
+     scene, pose = preprocess(scene, pose)
+ 
+     entity = sapien.Entity()
+@@ -417,6 +423,7 @@ def create_obj(
+     except:
+         model_data = None
+ 
++    scale, model_data = geometry_model(scale, model_data)
+     builder = scene.create_actor_builder()
+     if is_static:
+         builder.set_physx_body_type("static")
+@@ -463,6 +470,7 @@ def create_glb(
+     except:
+         model_data = None
+ 
++    scale, model_data = geometry_model(scale, model_data)
+     builder = scene.create_actor_builder()
+     if is_static:
+         builder.set_physx_body_type("static")
+@@ -538,6 +546,7 @@ def create_actor(
+     except:
+         model_data = None
+ 
++    scale, model_data = geometry_model(scale, model_data)
+     builder = scene.create_actor_builder()
+     if is_static:
+         builder.set_physx_body_type("static")
+@@ -575,6 +584,8 @@ def create_urdf_obj(scene, pose: sapien.Pose, modelname: str, scale=1.0, fix_roo
+     except:
+         model_data = None
+ 
++    scale, model_data = geometry_model(loader.scale, model_data)
++    loader.scale = scale
+     loader.fix_root_link = fix_root_link
+     loader.load_multiple_collisions_from_file = True
+     object: sapien.Articulation = loader.load(str(modeldir / "mobility.urdf"))
+@@ -627,6 +638,7 @@ def create_sapien_urdf_obj(
+         trans_mat = np.eye(4)
+ 
+     loader: sapien.URDFLoader = scene.create_urdf_loader()
++    scale, model_data = geometry_model(scale, model_data)
+     loader.scale = scale
+     loader.fix_root_link = fix_root_link
+     loader.load_multiple_collisions_from_file = True

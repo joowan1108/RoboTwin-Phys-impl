@@ -1,0 +1,16 @@
+[
+  {
+    "path": "manifests/docker-dual-smoke/grab_roller-verification/seed-100000.mp4",
+    "width": 320,
+    "height": 240,
+    "r_frame_rate": "30/1",
+    "nb_read_frames": "184"
+  },
+  {
+    "path": "manifests/docker-dual-smoke/stack_blocks_two-verification/seed-100000.mp4",
+    "width": 320,
+    "height": 240,
+    "r_frame_rate": "30/1",
+    "nb_read_frames": "522"
+  }
+]

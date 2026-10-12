@@ -1,0 +1,56 @@
+name: robotwin-phys
+services:
+  sim:
+    image: ${ROBOTWIN_IMAGE:-robotwin-phys:cuda12.1}
+    build:
+      context: .
+      args:
+        CUDA_IMAGE: ${CUDA_IMAGE:-nvidia/cuda:12.1.1-devel-ubuntu22.04@sha256:7012e535a47883527d402da998384c30b936140c05e2537158c80b8143ee7425}
+        TORCH_CUDA_ARCH_LIST: ${ROBOTWIN_CUDA_ARCH:-7.5}
+        MAX_JOBS: ${ROBOTWIN_BUILD_JOBS:-4}
+        ROBOTWIN_UID: ${ROBOTWIN_UID:-1001}
+        ROBOTWIN_GID: ${ROBOTWIN_GID:-1001}
+    user: "${ROBOTWIN_UID:-1001}:${ROBOTWIN_GID:-1001}"
+    working_dir: /home/guest/robotwin-workspace
+    # The existing live server and remote-policy SSH tunnels use localhost.
+    # On Linux this preserves their bindings without changing evaluator code.
+    network_mode: host
+    init: true
+    shm_size: 2gb
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      NVIDIA_DRIVER_CAPABILITIES: compute,utility,graphics
+      CUDA_VISIBLE_DEVICES: "0"
+      SAPIEN_RENDER_DEVICE: cuda:0
+      OMP_NUM_THREADS: "${ROBOTWIN_CPU_THREADS:-4}"
+      OPENBLAS_NUM_THREADS: "${ROBOTWIN_CPU_THREADS:-4}"
+    volumes:
+      - type: bind
+        source: ./vendor/RoboTwin/assets
+        target: /home/guest/robotwin-workspace/vendor/RoboTwin/assets
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ./checkpoints
+        target: /home/guest/robotwin-workspace/checkpoints
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ./manifests
+        target: /home/guest/robotwin-workspace/manifests
+        bind: {create_host_path: false}
+      - type: bind
+        source: ./runs
+        target: /home/guest/robotwin-workspace/runs
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${ROBOTWIN_REPORTS_DIR:-./reports}
+        target: /home/guest/robotwin-workspace/reports
+        bind: {create_host_path: false}
+      - type: bind
+        source: ${ROBOTWIN_CACHE_DIR:-./.container/cache}
+        target: /home/guest/.cache
+        bind: {create_host_path: false}

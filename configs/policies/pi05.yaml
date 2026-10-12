@@ -1,0 +1,19 @@
+name: pi05_robotwin2
+adapter: src/robotwin_phys/pi05_policy.py
+python_paths:
+  - vendor/RoboTwin/policy/pi05/src
+  - vendor/RoboTwin/policy/pi05/packages/openpi-client/src
+requires_native_bf16: true
+checkpoint:
+  repo: motus-robotics/pi0.5_robotwin2
+  revision: effc6e1a99bd4d0edf9447e8ba313def67649cfe
+  file: model.safetensors
+required_paths:
+  - ${ROOT}/checkpoints/pi05/model.safetensors
+  - ${ROOT}/checkpoints/pi05/assets/pi0.5_clean_randomize_joint_training/norm_stats.json
+args:
+  checkpoint_dir: ${ROOT}/checkpoints/pi05
+  norm_stats_dir: ${ROOT}/checkpoints/pi05/assets/pi0.5_clean_randomize_joint_training
+  device: cuda
+  replan_steps: 32
+  num_inference_steps: 10

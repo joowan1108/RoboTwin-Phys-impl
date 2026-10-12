@@ -1,0 +1,23 @@
+name: g05_robotwin2
+adapter: vendor/GalaxeaVLA/experiments/robotwin/galaxeafm_policy/deploy_policy.py
+working_directory: ${ROOT}/vendor/GalaxeaVLA
+python_paths: [vendor/GalaxeaVLA, vendor/GalaxeaVLA/src]
+requires_native_bf16: true
+code_revision: 89f2322b4ad016e192437adc1a2c253b05bab246
+checkpoint:
+  repo: OpenGalaxea/G05
+  revision: e312be81e90c56a55bcb26b57429bd39a335b449
+  file: g05-robotwin20/checkpoints/model_state_dict.pt
+required_paths:
+  - ${ROOT}/checkpoints/g05-runtime/checkpoints/model_state_dict.pt
+  - ${ROOT}/checkpoints/g05-runtime/dataset_stats.json
+  - ${ROOT}/checkpoints/g05-runtime/.hydra/config.yaml
+  - ${ROOT}/checkpoints/g05/action_tokenizer.pt
+args:
+  ckpt_setting: ${ROOT}/checkpoints/g05-runtime/checkpoints/model_state_dict.pt
+  dataset_stats_path: ${ROOT}/checkpoints/g05-runtime/dataset_stats.json
+  sim_cfg_name: sim_robotwin.yaml
+  device: cuda
+  mixed_precision: bf16
+  replan_steps: 24
+  seed: 0

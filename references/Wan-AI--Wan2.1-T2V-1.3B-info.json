@@ -1,0 +1,346 @@
+{
+  "_id": "67bda5ec3a3a100900815991",
+  "id": "Wan-AI/Wan2.1-T2V-1.3B",
+  "private": false,
+  "pipeline_tag": "text-to-video",
+  "library_name": "diffusers",
+  "tags": [
+    "diffusers",
+    "safetensors",
+    "t2v",
+    "video",
+    "video-generation",
+    "text-to-video",
+    "en",
+    "zh",
+    "license:apache-2.0",
+    "region:us"
+  ],
+  "downloads": 49906,
+  "likes": 614,
+  "modelId": "Wan-AI/Wan2.1-T2V-1.3B",
+  "author": "Wan-AI",
+  "sha": "37ec512624d61f7aa208f7ea8140a131f93afc9a",
+  "lastModified": "2025-03-01T09:31:33.000Z",
+  "gated": false,
+  "disabled": false,
+  "model-index": null,
+  "config": {
+    "model_type": "t2v"
+  },
+  "cardData": {
+    "license": "apache-2.0",
+    "language": [
+      "en",
+      "zh"
+    ],
+    "pipeline_tag": "text-to-video",
+    "library_name": "diffusers",
+    "tags": [
+      "video",
+      "video-generation"
+    ]
+  },
+  "siblings": [
+    {
+      "rfilename": ".gitattributes",
+      "blobId": "0a1f66aea84e17cbf6a60c51431723062f87df8a",
+      "size": 2232
+    },
+    {
+      "rfilename": "LICENSE.txt",
+      "blobId": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+      "size": 11357
+    },
+    {
+      "rfilename": "README.md",
+      "blobId": "fbbf7c13900d37f3179c546d09372aeb52e0fae1",
+      "size": 16913
+    },
+    {
+      "rfilename": "Wan2.1_VAE.pth",
+      "blobId": "5897fba405232a6b07a947d6188d19a8e050ccfb",
+      "size": 507609880,
+      "lfs": {
+        "sha256": "38071ab59bd94681c686fa51d75a1968f64e470262043be31f7a094e442fd981",
+        "size": 507609880,
+        "pointerSize": 134
+      }
+    },
+    {
+      "rfilename": "assets/.DS_Store",
+      "blobId": "5fb1c8b280ac9469398d13ebd725488399c532e7",
+      "size": 6148,
+      "lfs": {
+        "sha256": "d65165279105ca6773180500688df4bdc69a2c7b771752f0a46ef120b7fd8ec3",
+        "size": 6148,
+        "pointerSize": 129
+      }
+    },
+    {
+      "rfilename": "assets/comp_effic.png",
+      "blobId": "741f12abd4bc11efd6177e7c59765d87eaf7e395",
+      "size": 1793594,
+      "lfs": {
+        "sha256": "b0e225caffb4b31295ad150f95ee852e4c3dde4a00ac8f79a2ff500f2ce26b8d",
+        "size": 1793594,
+        "pointerSize": 132
+      }
+    },
+    {
+      "rfilename": "assets/data_for_diff_stage.jpg",
+      "blobId": "a7ba97f116a3e3304d9960069344019787181368",
+      "size": 528268,
+      "lfs": {
+        "sha256": "59aec08409f2d46b0e640e4e120dc7cca52c08c3de56d026602dbcff1ebf241a",
+        "size": 528268,
+        "pointerSize": 131
+      }
+    },
+    {
+      "rfilename": "assets/i2v_res.png",
+      "blobId": "98470f121ae318c11d25fd3728cd5c93e0c6993d",
+      "size": 891681,
+      "lfs": {
+        "sha256": "6823b3206d8d0cb18d3b5b949dec1217f1178109ba11f14e977b67e1f7b8a248",
+        "size": 891681,
+        "pointerSize": 131
+      }
+    },
+    {
+      "rfilename": "assets/logo.png",
+      "blobId": "14cea40a9ec4c2aa8de3b46806b25d766980d909",
+      "size": 56322,
+      "lfs": {
+        "sha256": "96cddc0f667293436d0b9f92a299b6346b65b231d38ee49719a33d46c91fe1e3",
+        "size": 56322,
+        "pointerSize": 130
+      }
+    },
+    {
+      "rfilename": "assets/t2v_res.jpg",
+      "blobId": "7549a1f66d7aa8fb90b6e6181188efc1be0edc28",
+      "size": 301030,
+      "lfs": {
+        "sha256": "91db579092446be2a834bc67721a8e4346936f38c4edb912f459ca3e10f8f439",
+        "size": 301030,
+        "pointerSize": 131
+      }
+    },
+    {
+      "rfilename": "assets/vben_1.3b_vs_sota.png",
+      "blobId": "2d14bab7f9fb058a71ce70a78b25afb8d482079f",
+      "size": 515765,
+      "lfs": {
+        "sha256": "b7705db79f2e1428ec7a1e6fff8c4fbde062fb95bb233516ddbd04b20007c845",
+        "size": 515765,
+        "pointerSize": 131
+      }
+    },
+    {
+      "rfilename": "assets/vben_vs_sota.png",
+      "blobId": "cded47bc519dc2aeae2f370228209e8c9e74bc0b",
+      "size": 1552119,
+      "lfs": {
+        "sha256": "9a0e86ca85046d2675f97984b88b6e74df07bba8a62a31ab8a1aef50d4eda44e",
+        "size": 1552119,
+        "pointerSize": 132
+      }
+    },
+    {
+      "rfilename": "assets/video_dit_arch.jpg",
+      "blobId": "97d9c19d286b432c33d644d5b00061c2e2a3545a",
+      "size": 643369,
+      "lfs": {
+        "sha256": "195dceec6570289d8b01cc51d2e28a7786216f19de55b23978a52610d1646a66",
+        "size": 643369,
+        "pointerSize": 131
+      }
+    },
+    {
+      "rfilename": "assets/video_vae_res.jpg",
+      "blobId": "91ca92abf061f569b335f3b8ca63e796ce2f6103",
+      "size": 212586,
+      "lfs": {
+        "sha256": "d8f9e7f7353848056a615c8ef35ab86ec22976bb46cb27405008b4089701945c",
+        "size": 212586,
+        "pointerSize": 131
+      }
+    },
+    {
+      "rfilename": "config.json",
+      "blobId": "d203bef600b2f3c64fe1f5f53d70a2087f4ccd2f",
+      "size": 249
+    },
+    {
+      "rfilename": "diffusion_pytorch_model.safetensors",
+      "blobId": "d41b39ee6498ce3b18c1d6b01dfde531a97d5047",
+      "size": 5676070424,
+      "lfs": {
+        "sha256": "96b6b242ca1c2f24e9d02cd6596066fab6d310e2d7538f33ae267cb18d957e8f",
+        "size": 5676070424,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "examples/i2v_input.JPG",
+      "blobId": "8c7fabd943752179587eb717362db32ce1eb4800",
+      "size": 250628,
+      "lfs": {
+        "sha256": "077e3d965090c9028c69c00931675f42e1acc815c6eb450ab291b3b72d211a8e",
+        "size": 250628,
+        "pointerSize": 131
+      }
+    },
+    {
+      "rfilename": "google/umt5-xxl/special_tokens_map.json",
+      "blobId": "14855e7052ffbb595057dfd791d293c1c940db2c",
+      "size": 6623
+    },
+    {
+      "rfilename": "google/umt5-xxl/spiece.model",
+      "blobId": "2fe5f347e9f9367585589ae89e997dfbd5cf802c",
+      "size": 4548313,
+      "lfs": {
+        "sha256": "e3909a67b780650b35cf529ac782ad2b6b26e6d1f849d3fbb6a872905f452458",
+        "size": 4548313,
+        "pointerSize": 132
+      }
+    },
+    {
+      "rfilename": "google/umt5-xxl/tokenizer.json",
+      "blobId": "7bd4ee3cf5633e49c0e06a3aac2a621559e6222a",
+      "size": 16837417,
+      "lfs": {
+        "sha256": "6e197b4d3dbd71da14b4eb255f4fa91c9c1f2068b20a2de2472967ca3d22602b",
+        "size": 16837417,
+        "pointerSize": 133
+      }
+    },
+    {
+      "rfilename": "google/umt5-xxl/tokenizer_config.json",
+      "blobId": "4e1cc1cd85599ce0b47fd0a746af188fe4043ff2",
+      "size": 61728
+    },
+    {
+      "rfilename": "models_t5_umt5-xxl-enc-bf16.pth",
+      "blobId": "d5dad910304ab4b909a2c8a225a71840606e6de4",
+      "size": 11361920418,
+      "lfs": {
+        "sha256": "7cace0da2b446bbbbc57d031ab6cf163a3d59b366da94e5afe36745b746fd81d",
+        "size": 11361920418,
+        "pointerSize": 136
+      }
+    }
+  ],
+  "spaces": [
+    "tardellirs/model-pulse",
+    "hugging-apps/t3-video-4k",
+    "davideschiff1/StreamDiffusionV2-Realtime",
+    "aquanode/gpu-vram-calculator",
+    "hugging-apps/qwen-video-edit",
+    "SSyt/Wan-AI-Wan2.1-T2V-1.3B_video_generator_preview_unofficial",
+    "multimodalart/self-forcing",
+    "Heartsync/VEO3-RealTime",
+    "alexnasa/HuMo_local",
+    "fffiloni/Wan2.1",
+    "haodongli/DVD",
+    "alexnasa/ReCamMaster-ZEROGPU",
+    "fffiloni/Reward-Forcing",
+    "fffiloni/Stand-In",
+    "jbilcke-hf/OmniAvatar",
+    "Brian9999/game-editing",
+    "TencentARC/RollingForcing",
+    "hugging-apps/metaview-lightning",
+    "yujiwang0606/rCM-Wan",
+    "Daniellesry/DKT",
+    "Westlake-AGI-Lab/FlowDirector",
+    "123123aa123/UniGeo",
+    "hugging-apps/metaview",
+    "nazdridoy/inferoxy-hub",
+    "yujiwang0606/rCM-Wan-720p",
+    "multimodalart/LiveEdit",
+    "hugging-apps/moverse-world-demo",
+    "tsi-org/pixio-video-stream",
+    "Daniellesry/DKT-Depth",
+    "Daniellesry/DKT-Normal",
+    "princetaloot/Wan-AI-Wan2.1-T2V-1.3B",
+    "abalanescu/flow2",
+    "hugging-apps/cmd-i2v-demo",
+    "Codypr0/Wan-AI-Wan2.1-T2V-1.3B",
+    "iamrajharshit/Wan-AI-Wan2.1-T2V-1.3B",
+    "wynai/Wan-AI-Wan2.1-T2V-1.3B",
+    "dvlpr2003/Wan-AI-Wan2.1-T2V-1.3B-video",
+    "AlexMendes33/Wan-AI-Wan2.1-T2V-1.3B",
+    "maherfateh/maherfateh",
+    "fffiloni/Relit-LIVE-ZeroGPU-demo",
+    "mimot/Image-Edit-Full-Wan",
+    "Pensioner/shotplan-cinematic-t2v",
+    "drizzymedia/StreamDiffusionV2-Realtime",
+    "JonathanColetti/LiveWan",
+    "Oliver577/qwen-video-edit",
+    "happy0612/GeoNeXt",
+    "happyenix/Wan2.1",
+    "svjack/Wan2.1",
+    "Nayefleb/Wan21-T2V-Demo",
+    "Jfjfujjuu/Wan2.1",
+    "ArrheniusC/Wan2.1",
+    "Vomux/Wan2.1",
+    "K00B404/Wan2.1",
+    "alexcheung123/Wan-AI-Wan2.1-T2V-1.3B",
+    "Segizu/Text2Video",
+    "vasiache/Wan-AI-Wan2.1-T2V-1.3B",
+    "Priyanshu7159/video",
+    "emilalvaro/Wan-AI-Wan2.1-T2V-1.3B",
+    "praiseekzy/Wan-AI-Wan2.1-T2V-1.3B",
+    "keisanmono/Wan2.1",
+    "carloshsjr84/Wan-AI-Wan2.1-T2V-1.3B",
+    "niranjankumarnk/Wan-AI-Wan2.1-T2V-1.3B",
+    "hex7546/Wan-AI-Wan2.1-T2V-1.3B",
+    "2chch/Wan2.1",
+    "Asaferdman23/Wan-AI-Wan2.1-T2V-1.3B",
+    "gigabob/Wan-AI-Wan2.1-T2V-1.3B",
+    "ijtaba1234/Wan-AI-Wan2.1-T2V-1.3B",
+    "Ammu0786/Text-To-Anime-Video-Ai",
+    "Bayousi13/Wan-AI-Wan2.1-T2V-1.3B",
+    "c9newchar/Wan-AI-Wan2.1-T2V-1.3B",
+    "madhusanjayyt/Wan-AI-Wan2.1-T2V-1.3B",
+    "AEUPH/Wan-AI-Wan2.1-T2V-1.3B",
+    "Tesha050/Wan-AI-Wan2.1-T2V-1.3B",
+    "juleshill/Wan-AI-Wan2.1-T2V-1.3B",
+    "Ishaq-AI/Wan-AI-Wan2.1-T2V-1.3B",
+    "MetuPoi/Wan21respect",
+    "Saich1234/Wan-AI-Wan2.1-T2V-1.3B",
+    "BeamVee/Wan-AI-Wan2.1-T2V-1.3B",
+    "lonesafe/Wan-AI-Wan2.1-T2V-1.3B",
+    "Harshilforworks/Wan-AI-Wan2.1-T2V-1.3B",
+    "EternalDev1/Wan-AI-Wan2.1-T2V-14B",
+    "Endrooos/Wan-AI-Wan2.1-T2V-1.3B",
+    "jkepler83/Wan-AI-Wan2.1-T2V-1.3B",
+    "Jacooob/Wan-AI-Wan2.1-T2V-1.3B",
+    "IAMTFRMZA/Wan-AI-Wan2.1-T2V-1.3B",
+    "rammurmu/live-video-streaming",
+    "rammurmu/RunAsh-Real-Time-Video-Generation",
+    "AdnanM40/Wan-AI-Wan2.1-T2V-1.3B",
+    "bunnytaidai/video-subtitle-remover",
+    "freddyaboulton/self-forcing-private",
+    "iyedjb/self-forcing",
+    "raymerjacque/sf",
+    "fdfdfddsfdfdfd/Musicgen",
+    "uratmangun/OmniAvatar",
+    "gdgno/Wan-AI-Wan2.1-T2V-1.3B",
+    "bep40/OmniAvatar",
+    "Xenobd/Wan2.1",
+    "VIDraft/OmniAvatar",
+    "vakilrathod67/OmniAvatar",
+    "ALSv/self-forcing"
+  ],
+  "createdAt": "2025-02-25T11:13:48.000Z",
+  "safetensors": {
+    "parameters": {
+      "F32": 1418996800
+    },
+    "total": 1418996800
+  },
+  "usedStorage": 46519465450
+}
