@@ -78,17 +78,17 @@ fi
 export APPTAINERENV_VK_ICD_FILENAMES="$ROBOTWIN_NVIDIA_ICD"
 
 # Apply the reviewed simulator snapshot to the existing v5 image.
-ROBOTWIN_PATCH_DIR="$DATA/patches/robotwin-success-context-fix-v4"
-ROBOTWIN_PATCH_ARCHIVE="$DATA/patches/robotwin-success-context-fix-v4.zip"
+ROBOTWIN_PATCH_DIR="$DATA/patches/robotwin-success-context-fix-v5"
+ROBOTWIN_PATCH_ARCHIVE="$DATA/patches/robotwin-success-context-fix-v5.zip"
 mkdir -p "$DATA/patches"
 (
   flock -x 9
   if [[ ! -d "$ROBOTWIN_PATCH_DIR/src/robotwin_phys" ]]; then
     if [[ ! -r "$ROBOTWIN_PATCH_ARCHIVE" ]]; then
-      echo "Upload robotwin-success-context-fix-v4.zip through OOD Files to $DATA/patches/" >&2
+      echo "Upload robotwin-success-context-fix-v5.zip through OOD Files to $DATA/patches/" >&2
       exit 1
     fi
-    printf '%s  %s\n' 45c83feaa4882884a83fbdac3ffe9ae9b9fc875f4cc607fa6c0a0f85153d0416 "$ROBOTWIN_PATCH_ARCHIVE" | sha256sum -c -
+    printf '%s  %s\n' 342fc41e367155374a66bb8aa51ea909cd5b7d7b671376320f8f01dbcb8af531 "$ROBOTWIN_PATCH_ARCHIVE" | sha256sum -c -
     ROBOTWIN_PATCH_STAGE=$(mktemp -d "$DATA/patches/.expert-fix-XXXXXX")
     trap 'rm -rf -- "$ROBOTWIN_PATCH_STAGE"' EXIT
     if command -v unzip > /dev/null; then
@@ -99,7 +99,7 @@ mkdir -p "$DATA/patches"
       echo "Extract the ZIP through OOD Files into $DATA/patches/ before submitting." >&2
       exit 1
     fi
-    mv "$ROBOTWIN_PATCH_STAGE/robotwin-success-context-fix-v4" "$ROBOTWIN_PATCH_DIR"
+    mv "$ROBOTWIN_PATCH_STAGE/robotwin-success-context-fix-v5" "$ROBOTWIN_PATCH_DIR"
   fi
 ) 9> "$DATA/patches/.expert-fix.lock"
 export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/src:$ROOT/src:ro"
@@ -109,6 +109,27 @@ export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/vendor/planne
 # Fast-WAM profile with sigma_shift=5.0 (upstream released-checkpoint setting); the policy server reads its own workspace copy.
 export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/configs/policies/fastwam.yaml:$ROOT/configs/policies/fastwam.yaml:ro"
 export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/configs/policies/fastwam.yaml:/opt/robotwin-policies/fastwam/workspace/configs/policies/fastwam.yaml:ro"
+# Intel Open Image Denoise 2.3.3 for Blackwell: SAPIEN 3.0.0b1 bundles 2.0.1, whose CUDA device fails on
+# RTX PRO 6000 ("OIDN Error: invalid handle") and leaves the ray-traced policy observations un-denoised.
+ROBOTWIN_OIDN_DIR="$DATA/downloads/oidn-2.3.3"
+mkdir -p "$ROBOTWIN_OIDN_DIR"
+(
+  flock -x 9
+  if [[ ! -r "$ROBOTWIN_OIDN_DIR/oidn_library/libOpenImageDenoise_device_cuda.so.2.3.3" ]]; then
+    if [[ ! -r "$ROBOTWIN_OIDN_DIR/oidn.tar.gz" ]]; then
+      curl -fsSL -o "$ROBOTWIN_OIDN_DIR/oidn.tar.gz" "https://github.com/RenderKit/oidn/releases/download/v2.3.3/oidn-2.3.3.x86_64.linux.tar.gz"
+    fi
+    printf '%s  %s\n' 3c385230d9e6f63527ba72f2229594dbac5051674219d72e0044b5d0b841796f "$ROBOTWIN_OIDN_DIR/oidn.tar.gz" | sha256sum -c -
+    ROBOTWIN_OIDN_STAGE=$(mktemp -d "$ROBOTWIN_OIDN_DIR/.stage-XXXXXX")
+    tar -xzf "$ROBOTWIN_OIDN_DIR/oidn.tar.gz" -C "$ROBOTWIN_OIDN_STAGE"
+    rm -rf "$ROBOTWIN_OIDN_DIR/oidn_library"
+    mkdir -p "$ROBOTWIN_OIDN_DIR/oidn_library"
+    cp -a "$ROBOTWIN_OIDN_STAGE"/oidn-2.3.3.x86_64.linux/lib/*.so* "$ROBOTWIN_OIDN_DIR/oidn_library/"
+    rm -rf "$ROBOTWIN_OIDN_STAGE"
+  fi
+) 9> "$ROBOTWIN_OIDN_DIR/.lock"
+export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_OIDN_DIR/oidn_library:/home/guest/robotwin-workspace/.env/lib/python3.10/site-packages/sapien/oidn_library:ro"
+export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/oidn/_oidn_tricks.py:/home/guest/robotwin-workspace/.env/lib/python3.10/site-packages/sapien/_oidn_tricks.py:ro"
 
 # Existing v5 images need the official template-generation step after unzip.
 # Write the payload through the reports bind; no image rebuild is required.
@@ -133,7 +154,7 @@ def checksum(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 if checksum(hashes(root / 'src', ('.py',))) != '7260cb344bed020bd03f176960b005b281eb8057114c4600edc51cf53aab0dbe':
     raise SystemExit('Expert patch source differs; restore uploaded snapshot')
-if checksum(hashes(root / 'tools', ('.py', '.sh', '.json'))) != '3d84ef368ec0cca61d0b7c935229e7c14d234c71faedee1ceb9e3d2808eefff6':
+if checksum(hashes(root / 'tools', ('.py', '.sh', '.json'))) != '8c87389c99b7619ee516b9b1406f3d53fbb2a1dba31a55603775808a5173fcd9':
     raise SystemExit('Expert patch tools differ; restore uploaded snapshot')
 if hashlib.sha256((root / 'vendor/RoboTwin/envs/utils/transforms.py').read_bytes()).hexdigest() != '942ed2b255094190f7380df113b78daed687803732928d23f2d9823d18862c53':
     raise SystemExit('Shared transform repair was not bound correctly')
@@ -143,8 +164,38 @@ for copy in (root / 'configs/policies/fastwam.yaml', Path('/opt/robotwin-policie
     if hashlib.sha256(copy.read_bytes()).hexdigest() != '539432f2177fa117e7261d7d6652c9ed7279098d1b91dd5a9b21491d764b0f6d':
         raise SystemExit(f'Fast-WAM profile (sigma_shift=5.0) was not bound correctly: {copy}')
 print('FASTWAM_SIGMA_SHIFT: profile with sigma_shift=5.0 bound to evaluator and policy workspace', flush=True)
+sapien_pkg = Path('/home/guest/robotwin-workspace/.env/lib/python3.10/site-packages/sapien')
+for name in ('libOpenImageDenoise.so.2.3.3', 'libOpenImageDenoise_core.so.2.3.3', 'libOpenImageDenoise_device_cuda.so.2.3.3'):
+    if not (sapien_pkg / 'oidn_library' / name).exists():
+        raise SystemExit(f'OIDN 2.3.3 library was not bound: {name}')
+if hashlib.sha256((sapien_pkg / '_oidn_tricks.py').read_bytes()).hexdigest() != 'df1370664b1005fa0c658f910f64e3b24c3340480edf402fab738a01d8b10b48':
+    raise SystemExit('OIDN loader was not bound over sapien/_oidn_tricks.py')
 print('SUCCESS_CONTEXT_PATCH_SOURCE_PASS: reviewed simulator snapshot verified', flush=True)
 PY_EXPERT_PATCH
+# Prove the renderer actually loads OIDN 2.3.3 and denoises without errors before any episode.
+"$ROOT/.env/bin/python" - <<'PY_OIDN_PROBE' 2> "$ROOT/reports/launchers/$SLURM_JOB_ID/oidn-probe.stderr"
+import json, os, numpy as np, sapien
+sapien.render.set_camera_shader_dir("rt"); sapien.render.set_ray_tracing_samples_per_pixel(32)
+sapien.render.set_ray_tracing_path_depth(8); sapien.render.set_ray_tracing_denoiser("oidn")
+scene = sapien.Scene([sapien.physx.PhysxCpuSystem(), sapien.render.RenderSystem(os.environ.get("SAPIEN_RENDER_DEVICE", "cuda:0"))])
+scene.add_ground(0); scene.set_ambient_light([0.3, 0.3, 0.3]); scene.add_directional_light([0, 1, -1], [1, 1, 1])
+b = scene.create_actor_builder(); b.add_box_visual(half_size=[0.1, 0.1, 0.1]); box = b.build_static(name="box"); box.set_pose(sapien.Pose([0, 0, 0.1]))
+cam = scene.add_camera("c", 320, 240, 1.0, 0.1, 100); cam.set_entity_pose(sapien.Pose([-1.0, 0, 0.6], [0.966, 0, 0.259, 0]))
+for _ in range(3):
+    scene.update_render(); cam.take_picture()
+g = (cam.get_picture("Color")[..., :3] * 255).clip(0, 255).astype(np.float32).mean(-1)
+lap = -4 * g[1:-1, 1:-1] + g[:-2, 1:-1] + g[2:, 1:-1] + g[1:-1, :-2] + g[1:-1, 2:]
+mapped = sorted(set(l.split("/")[-1] for l in open("/proc/self/maps").read().split() if "OpenImageDenoise" in l))
+record = dict(oidn_libraries=mapped, ground_patch_laplacian_std=float(lap[150:230, 100:220].std()), sapien=sapien.__version__)
+json.dump(record, open(os.path.join("/home/guest/robotwin-workspace", "reports/launchers", os.environ["SLURM_JOB_ID"], "oidn-probe.json"), "w"), indent=2)
+if not any("2.3.3" in m for m in mapped) or "libOpenImageDenoise_device_cuda.so.2.3.3" not in mapped:
+    raise SystemExit(f"OIDN 2.3.3 CUDA device not loaded: {mapped}")
+print(f"OIDN_PASS: {mapped}; ground patch laplacian std {record['ground_patch_laplacian_std']:.2f}", flush=True)
+PY_OIDN_PROBE
+if grep -q "OIDN Error" "$ROOT/reports/launchers/$SLURM_JOB_ID/oidn-probe.stderr"; then
+  echo "OIDN denoiser reported errors in the probe; see reports/launchers/$SLURM_JOB_ID/oidn-probe.stderr" >&2
+  exit 1
+fi
 
 export XDG_CACHE_HOME="$HOME/.cache" XDG_CONFIG_HOME="$HOME/.config"
 export HF_HOME="$XDG_CACHE_HOME/huggingface" MPLCONFIGDIR="$XDG_CACHE_HOME/matplotlib"
@@ -178,7 +229,7 @@ cd "$ROOT"
 for model in $ROBOTWIN_MODELS; do
   case "$model" in fact) replicas=1 ;; motus) replicas=2 ;; *) replicas="$ROBOTWIN_POLICY_REPLICAS" ;; esac
   echo "MODEL_START: $model; replicas=$replicas"
-  "$ROOT/.env/bin/python" "$ROOT/tools/continue_success_context.py" --model "$model" --experiment "$ROBOTWIN_EXPERIMENT" --phase "$ROBOTWIN_PHASE" --episodes "$ROBOTWIN_EPISODES" --video "$ROBOTWIN_VIDEO_SELECTION" --replicas "$replicas" --seed 100000 --freeze-workers-per-gpu "$ROBOTWIN_FREEZE_WORKERS_PER_GPU"
+  "$ROOT/.env/bin/python" "$ROOT/tools/continue_success_context.py" --model "$model" --experiment "$ROBOTWIN_EXPERIMENT" --phase "$ROBOTWIN_PHASE" --episodes "$ROBOTWIN_EPISODES" --video "$ROBOTWIN_VIDEO_SELECTION" --replicas "$replicas" --seed 100000 --freeze-workers-per-gpu "$ROBOTWIN_FREEZE_WORKERS_PER_GPU" --timeout 3600
   echo "MODEL_DONE: $model"
 done
 ROBOTWIN_LAUNCH

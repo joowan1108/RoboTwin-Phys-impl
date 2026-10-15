@@ -16,7 +16,7 @@ ROOT = Path(__file__).parents[1]
 NAME = 'robotwin-fresh-pool-v1'
 CURRENT = 'robotwin-fresh-pool-v2'
 FRESH = {NAME: 'phys-pro6000-100-v5', CURRENT: 'phys-pro6000-100-v6'}
-CONTEXT = 'robotwin-success-context-fix-v4'
+CONTEXT = 'robotwin-success-context-fix-v5'
 
 
 @pytest.mark.parametrize('package,filename,marker,exec_prefix,gpus', [
@@ -52,6 +52,11 @@ Path(os.environ['TEST_RECORD']).write_text(json.dumps({
         path = bindir / name
         path.write_text(content)
         path.chmod(0o755)
+    # OIDN 2.3.3 is staged by the launcher from a pinned tarball; pre-stage it so the test never downloads.
+    oidn = data / 'downloads/oidn-2.3.3/oidn_library'
+    oidn.mkdir(parents=True)
+    for name in ('libOpenImageDenoise.so.2.3.3', 'libOpenImageDenoise_core.so.2.3.3', 'libOpenImageDenoise_device_cuda.so.2.3.3'):
+        (oidn / name).write_bytes(b'stub')
     icd = tmp_path / 'nvidia_icd.json'
     icd.write_text('{}')
     text = (ROOT / 'cluster' / filename).read_text()
@@ -78,6 +83,12 @@ Path(os.environ['TEST_RECORD']).write_text(json.dumps({
         for target in ('/home/guest/robotwin-workspace', '/opt/robotwin-policies/fastwam/workspace'):
             assert f'{patch}/configs/policies/fastwam.yaml:{target}/configs/policies/fastwam.yaml:ro' in metadata['binds']
         assert (patch / 'configs/policies/fastwam.yaml').read_bytes() == (ROOT / 'configs/policies/fastwam.yaml').read_bytes()
+        sapien_pkg = '/home/guest/robotwin-workspace/.env/lib/python3.10/site-packages/sapien'
+        assert f'{oidn}:{sapien_pkg}/oidn_library:ro' in metadata['binds']
+        assert f'{patch}/oidn/_oidn_tricks.py:{sapien_pkg}/_oidn_tricks.py:ro' in metadata['binds']
+        loader = (patch / 'oidn/_oidn_tricks.py').read_bytes()
+        assert loader == (ROOT / 'docker/oidn/_oidn_tricks.py').read_bytes() and b'libOpenImageDenoise.so.2.3.3' in loader and b'.so.2.0.1' not in loader
+        assert not (data / 'downloads/oidn-2.3.3/oidn.tar.gz').exists()  # pre-staged library: no download attempted
     launcher = (data / 'reports/launchers/fresh-test/run.sh').read_text()
     validation = launcher.split("<<'PY_EXPERT_PATCH'\n")[1].split('\nPY_EXPERT_PATCH')[0]
     validation = validation.replace("Path('/home/guest/robotwin-workspace')", f"Path({str(patch)!r})")
@@ -85,6 +96,14 @@ Path(os.environ['TEST_RECORD']).write_text(json.dumps({
     validation = validation.replace("root / 'vendor/RoboTwin/envs/robot/planner.py'", "root / 'vendor/planner.py'")
     validation = validation.replace("Path('/opt/robotwin-policies/fastwam/workspace/configs/policies/fastwam.yaml')",
                                     "root / 'configs/policies/fastwam.yaml'")
+    validation = validation.replace("Path('/home/guest/robotwin-workspace/.env/lib/python3.10/site-packages/sapien')", "patch_sapien")
+    validation = "from pathlib import Path\npatch_sapien = Path(" + repr(str(patch / 'sapien-stub')) + ")\n" + validation
+    if package == CONTEXT:  # the in-container check expects the OIDN 2.3.3 files under the sapien package
+        stub = patch / 'sapien-stub'
+        (stub / 'oidn_library').mkdir(parents=True, exist_ok=True)
+        for name in ('libOpenImageDenoise.so.2.3.3', 'libOpenImageDenoise_core.so.2.3.3', 'libOpenImageDenoise_device_cuda.so.2.3.3'):
+            (stub / 'oidn_library' / name).write_bytes(b'stub')
+        shutil.copyfile(patch / 'oidn/_oidn_tricks.py', stub / '_oidn_tricks.py')
     verified = subprocess.run(['python3', '-c', validation], capture_output=True, text=True)
     assert verified.returncode == 0 and marker in verified.stdout
     command = next(line for line in launcher.splitlines()
@@ -98,6 +117,7 @@ Path(os.environ['TEST_RECORD']).write_text(json.dumps({
         assert 'fact) replicas=1' in launcher and 'motus) replicas=2' in launcher
         assert 'tools/parallel_freeze_task.py' in launcher and 'PARALLEL_FREEZE_WORKERS=8' in text
         assert 'SUCCESS_CONTEXT_FIX' in launcher and 'FASTWAM_SIGMA_SHIFT' in verified.stdout
+        assert '--timeout 3600' in launcher and 'PY_OIDN_PROBE' in launcher and 'OIDN_PASS' in launcher
         assert '#SBATCH --cpus-per-task=32' in text and '#SBATCH --mem=96G' in text and '--time=3-00:00:00' in text
     elif package not in FRESH:
         assert 'tools/resume_contact_pool.py' in command and '--phase freeze' in command
@@ -171,6 +191,7 @@ def test_resume_archive_changes_only_reviewed_branches_and_adds_audited_continua
 
 
 DELIVERED_FRESH_V2 = '8e53a6f9f32591389c3026e7a33905d8c3452ddb555f038d6a6f9492be0ee594'
+DELIVERED_CONTEXT_V4 = '45c83feaa4882884a83fbdac3ffe9ae9b9fc875f4cc607fa6c0a0f85153d0416'
 DELIVERED_CONTEXT_V3 = '88c7734fbf4d4982721a9167d773a2d603b166dcdeb652c9d1960e77eac3d3ce'
 DELIVERED_CONTEXT_V2 = 'e5a80ed1d5bd4d64b7f6b47f8ae5dc0fb33f7c7d52d38c92b9b626640b24a35d'
 DELIVERED_CONTEXT_V1 = 'b88a9ba84d646c51ad5b5f91cbcea975d2b26e6b9ed145d501ada717f89203b9'
@@ -182,15 +203,25 @@ def test_delivered_context_archives_are_pinned_and_differ_only_in_tools():
     assert hashlib.sha256((ROOT / 'reports/robotwin-success-context-fix-v1.zip').read_bytes()).hexdigest() == DELIVERED_CONTEXT_V1
     assert hashlib.sha256((ROOT / 'reports/robotwin-success-context-fix-v2.zip').read_bytes()).hexdigest() == DELIVERED_CONTEXT_V2
     assert hashlib.sha256((ROOT / 'reports/robotwin-success-context-fix-v3.zip').read_bytes()).hexdigest() == DELIVERED_CONTEXT_V3
+    assert hashlib.sha256((ROOT / 'reports/robotwin-success-context-fix-v4.zip').read_bytes()).hexdigest() == DELIVERED_CONTEXT_V4
     with zipfile.ZipFile(ROOT / 'reports/robotwin-success-context-fix-v1.zip') as v1, \
             zipfile.ZipFile(ROOT / 'reports/robotwin-success-context-fix-v2.zip') as v2, \
             zipfile.ZipFile(ROOT / 'reports/robotwin-success-context-fix-v3.zip') as v3, \
-            zipfile.ZipFile(ROOT / f'reports/{CONTEXT}.zip') as v4:
+            zipfile.ZipFile(ROOT / 'reports/robotwin-success-context-fix-v4.zip') as v4, \
+            zipfile.ZipFile(ROOT / f'reports/{CONTEXT}.zip') as v5:
         m1 = json.loads(v1.read('robotwin-success-context-fix-v1/manifest.json'))
         m2 = json.loads(v2.read('robotwin-success-context-fix-v2/manifest.json'))
         m3 = json.loads(v3.read('robotwin-success-context-fix-v3/manifest.json'))
-        m4 = json.loads(v4.read(CONTEXT + '/manifest.json'))
-        assert m1['files'] == m2['files'] == m3['files'] == m4['files']
+        m4 = json.loads(v4.read('robotwin-success-context-fix-v4/manifest.json'))
+        m5 = json.loads(v5.read(CONTEXT + '/manifest.json'))
+        assert m1['files'] == m2['files'] == m3['files'] == m4['files'] == m5['files']
+        # v5: only the packager changed in tools; configs identical to v4; the OIDN 2.3.3 loader is shipped under oidn/.
+        assert {t for t in m4['tools'] if m4['tools'][t] != m5['tools'][t]} == {'package_success_context_fix.py'}
+        assert m5['configs'] == m4['configs'] and 'oidn' not in m4
+        assert m5['oidn']['version'] == '2.3.3' and m5['oidn']['tarball_sha256'] == '3c385230d9e6f63527ba72f2229594dbac5051674219d72e0044b5d0b841796f'
+        assert hashlib.sha256(v5.read(CONTEXT + '/oidn/_oidn_tricks.py')).hexdigest() == m5['oidn']['loader_sha256'] \
+            == hashlib.sha256((ROOT / 'docker/oidn/_oidn_tricks.py').read_bytes()).hexdigest()
+        assert m5['episode_timeout_seconds'] == 3600
         assert set(m2['tools']) - set(m1['tools']) == {'parallel_freeze_task.py'}
         assert {t for t in m1['tools'] if m1['tools'][t] != m2['tools'].get(t)} == {'package_success_context_fix.py'}
         assert set(m3['tools']) == set(m2['tools'])
@@ -198,9 +229,9 @@ def test_delivered_context_archives_are_pinned_and_differ_only_in_tools():
         # v4: only the packager changed in tools; the Fast-WAM profile (sigma_shift=5.0) is shipped under configs/.
         assert {t for t in m3['tools'] if m3['tools'][t] != m4['tools'][t]} == {'package_success_context_fix.py'}
         assert 'configs' not in m3 and list(m4['configs']) == ['policies/fastwam.yaml']
-        assert hashlib.sha256(v4.read(CONTEXT + '/configs/policies/fastwam.yaml')).hexdigest() == m4['configs']['policies/fastwam.yaml'] \
+        assert hashlib.sha256(v4.read('robotwin-success-context-fix-v4/configs/policies/fastwam.yaml')).hexdigest() == m4['configs']['policies/fastwam.yaml'] \
             == hashlib.sha256((ROOT / 'configs/policies/fastwam.yaml').read_bytes()).hexdigest()
-        assert b'sigma_shift: 5.0' in v4.read(CONTEXT + '/configs/policies/fastwam.yaml')
+        assert b'sigma_shift: 5.0' in v5.read(CONTEXT + '/configs/policies/fastwam.yaml')
 
 
 def test_delivered_v6_archive_is_pinned_and_declares_clutter_scope():

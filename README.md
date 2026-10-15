@@ -37,6 +37,7 @@ These are documented choices, not claims about the authors' code. Each is explai
 - Table height replaces the upstream random table height rather than adding to it ([docs/reproduction.md](docs/reproduction.md)).
 - Three official tasks read attributes in `check_success` that only the expert's `play_once` assigns. The evaluator derives them from the frozen initial scene instead of running the expert first ([docs/success-context-fix.md](docs/success-context-fix.md)).
 - Fast-WAM is evaluated with `sigma_shift=5.0`, the upstream setting for its released checkpoint ([docs/policies.md](docs/policies.md)).
+- On Blackwell GPUs the SAPIEN-bundled OIDN 2.0.1 denoiser fails silently and policies would see un-denoised frames; the cluster launcher binds OIDN 2.3.3 and proves it with a render probe ([docs/oidn-blackwell.md](docs/oidn-blackwell.md)).
 - `put_object_cabinet` has a very low expert acceptance rate under the paper's ranges; it is kept as specified ([docs/put-object-cabinet-feasibility.md](docs/put-object-cabinet-feasibility.md)).
 
 ## Repository layout

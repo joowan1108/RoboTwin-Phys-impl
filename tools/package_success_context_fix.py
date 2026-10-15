@@ -14,8 +14,14 @@ import re
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-NAME = 'robotwin-success-context-fix-v4'
-PREVIOUS_DELIVERY = 'robotwin-success-context-fix-v3'
+NAME = 'robotwin-success-context-fix-v5'
+PREVIOUS_DELIVERY = 'robotwin-success-context-fix-v4'
+OIDN_VERSION = '2.3.3'
+OIDN_URL = 'https://github.com/RenderKit/oidn/releases/download/v2.3.3/oidn-2.3.3.x86_64.linux.tar.gz'
+OIDN_SHA256 = '3c385230d9e6f63527ba72f2229594dbac5051674219d72e0044b5d0b841796f'
+OIDN_LOADER = 'docker/oidn/_oidn_tricks.py'
+SAPIEN_PKG = '/home/guest/robotwin-workspace/.env/lib/python3.10/site-packages/sapien'
+EPISODE_TIMEOUT = 3600
 CONFIGS = ('policies/fastwam.yaml',)  # policy profiles shipped with the snapshot (not in the pool fingerprint)
 FASTWAM_WORKSPACE = '/opt/robotwin-policies/fastwam/workspace'
 BASE = 'robotwin-fresh-pool-v2'
@@ -41,6 +47,9 @@ def main():
         prior = json.loads(base.read(prefix + 'manifest.json'))
     source = checksums(ROOT / 'src', ('.py',))
     configs = {rel: hashlib.sha256((ROOT / 'configs' / rel).read_bytes()).hexdigest() for rel in CONFIGS}
+    loader = (ROOT / OIDN_LOADER).read_bytes()
+    if b'libOpenImageDenoise.so.2.3.3' not in loader or b'.so.2.0.1' in loader:
+        raise SystemExit(f'{OIDN_LOADER} must preload the OIDN {OIDN_VERSION} libraries')
     import yaml
     if yaml.safe_load((ROOT / 'configs/policies/fastwam.yaml').read_text())['args'].get('sigma_shift') != 5.0:
         raise SystemExit('configs/policies/fastwam.yaml must set args.sigma_shift: 5.0 (upstream released-checkpoint setting)')
@@ -57,6 +66,11 @@ def main():
     manifest = dict(name=NAME, base=BASE, base_sha256=hashlib.sha256((ROOT / f'reports/{BASE}.zip').read_bytes()).hexdigest(),
                     files=source, tools=tools, configs=configs, source_sha256=digest(source), tools_sha256=digest(tools),
                     configs_sha256=digest(configs),
+                    oidn=dict(version=OIDN_VERSION, url=OIDN_URL, tarball_sha256=OIDN_SHA256,
+                              loader_sha256=hashlib.sha256(loader).hexdigest(), sapien_package=SAPIEN_PKG,
+                              reason='SAPIEN 3.0.0b1 bundles OIDN 2.0.1, which fails on Blackwell (OIDN Error: invalid handle); '
+                                     'policy observations were un-denoised ray-traced frames (job 1685/1686)'),
+                    episode_timeout_seconds=EPISODE_TIMEOUT,
                     policy_profile_fix='Fast-WAM args.sigma_shift=5.0: upstream README evaluates the original released checkpoints '
                                        'with EVALUATION.sigma_shift=5.0; unset, the action scheduler used infer_shift 1.0 (job 1685)',
                     experiment=EXPERIMENT, curobo_fix=prior['curobo_fix'],
@@ -80,6 +94,7 @@ def main():
             write('vendor/' + name, data)
         for relative in configs:
             write('configs/' + relative, (ROOT / 'configs' / relative).read_bytes())
+        write('oidn/_oidn_tricks.py', loader)
         write('manifest.json', json.dumps(manifest, indent=2) + '\n')
     archive = ROOT / 'reports' / (NAME + '.zip')
     data = output.getvalue()
@@ -121,7 +136,7 @@ def main():
         '  "$ROOT/.env/bin/python" "$ROOT/tools/continue_success_context.py" --model "$model" '
         '--experiment "$ROBOTWIN_EXPERIMENT" --phase "$ROBOTWIN_PHASE" --episodes "$ROBOTWIN_EPISODES" '
         '--video "$ROBOTWIN_VIDEO_SELECTION" --replicas "$replicas" --seed 100000 '
-        '--freeze-workers-per-gpu "$ROBOTWIN_FREEZE_WORKERS_PER_GPU"\n'
+        '--freeze-workers-per-gpu "$ROBOTWIN_FREEZE_WORKERS_PER_GPU" --timeout ' + str(EPISODE_TIMEOUT) + '\n'
         '  echo "MODEL_DONE: $model"\n'
         'done')
     planner_bind = 'export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/vendor/planner.py:$ROOT/vendor/RoboTwin/envs/robot/planner.py:ro"\n'
@@ -131,6 +146,32 @@ def main():
         + '# Fast-WAM profile with sigma_shift=5.0 (upstream released-checkpoint setting); the policy server reads its own workspace copy.\n'
         + 'export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/configs/policies/fastwam.yaml:$ROOT/configs/policies/fastwam.yaml:ro"\n'
         + f'export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/configs/policies/fastwam.yaml:{FASTWAM_WORKSPACE}/configs/policies/fastwam.yaml:ro"\n')
+    fastwam_bind = f'export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/configs/policies/fastwam.yaml:{FASTWAM_WORKSPACE}/configs/policies/fastwam.yaml:ro"\n'
+    if fastwam_bind not in text:
+        raise RuntimeError('Fast-WAM profile bind missing')
+    oidn_block = (
+        '# Intel Open Image Denoise ' + OIDN_VERSION + ' for Blackwell: SAPIEN 3.0.0b1 bundles 2.0.1, whose CUDA device fails on\n'
+        '# RTX PRO 6000 ("OIDN Error: invalid handle") and leaves the ray-traced policy observations un-denoised.\n'
+        'ROBOTWIN_OIDN_DIR="$DATA/downloads/oidn-' + OIDN_VERSION + '"\n'
+        'mkdir -p "$ROBOTWIN_OIDN_DIR"\n'
+        '(\n'
+        '  flock -x 9\n'
+        '  if [[ ! -r "$ROBOTWIN_OIDN_DIR/oidn_library/libOpenImageDenoise_device_cuda.so.' + OIDN_VERSION + '" ]]; then\n'
+        '    if [[ ! -r "$ROBOTWIN_OIDN_DIR/oidn.tar.gz" ]]; then\n'
+        '      curl -fsSL -o "$ROBOTWIN_OIDN_DIR/oidn.tar.gz" "' + OIDN_URL + '"\n'
+        '    fi\n'
+        "    printf '%s  %s\\n' " + OIDN_SHA256 + ' "$ROBOTWIN_OIDN_DIR/oidn.tar.gz" | sha256sum -c -\n'
+        '    ROBOTWIN_OIDN_STAGE=$(mktemp -d "$ROBOTWIN_OIDN_DIR/.stage-XXXXXX")\n'
+        '    tar -xzf "$ROBOTWIN_OIDN_DIR/oidn.tar.gz" -C "$ROBOTWIN_OIDN_STAGE"\n'
+        '    rm -rf "$ROBOTWIN_OIDN_DIR/oidn_library"\n'
+        '    mkdir -p "$ROBOTWIN_OIDN_DIR/oidn_library"\n'
+        '    cp -a "$ROBOTWIN_OIDN_STAGE"/oidn-' + OIDN_VERSION + '.x86_64.linux/lib/*.so* "$ROBOTWIN_OIDN_DIR/oidn_library/"\n'
+        '    rm -rf "$ROBOTWIN_OIDN_STAGE"\n'
+        '  fi\n'
+        ') 9> "$ROBOTWIN_OIDN_DIR/.lock"\n'
+        'export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_OIDN_DIR/oidn_library:' + SAPIEN_PKG + '/oidn_library:ro"\n'
+        'export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/oidn/_oidn_tricks.py:' + SAPIEN_PKG + '/_oidn_tricks.py:ro"\n')
+    text = text.replace(fastwam_bind, fastwam_bind + oidn_block)
     planner_check = "    raise SystemExit('Planner exception repair was not bound correctly')\n"
     if planner_check not in text:
         raise RuntimeError('Unexpected baseline planner check')
@@ -138,7 +179,42 @@ def main():
         + "for copy in (root / 'configs/policies/fastwam.yaml', Path('" + FASTWAM_WORKSPACE + "/configs/policies/fastwam.yaml')):\n"
         + "    if hashlib.sha256(copy.read_bytes()).hexdigest() != '" + configs['policies/fastwam.yaml'] + "':\n"
         + "        raise SystemExit(f'Fast-WAM profile (sigma_shift=5.0) was not bound correctly: {copy}')\n"
-        + "print('FASTWAM_SIGMA_SHIFT: profile with sigma_shift=5.0 bound to evaluator and policy workspace', flush=True)\n")
+        + "print('FASTWAM_SIGMA_SHIFT: profile with sigma_shift=5.0 bound to evaluator and policy workspace', flush=True)\n"
+        + "sapien_pkg = Path('" + SAPIEN_PKG + "')\n"
+        + "for name in ('libOpenImageDenoise.so." + OIDN_VERSION + "', 'libOpenImageDenoise_core.so." + OIDN_VERSION + "', 'libOpenImageDenoise_device_cuda.so." + OIDN_VERSION + "'):\n"
+        + "    if not (sapien_pkg / 'oidn_library' / name).exists():\n"
+        + "        raise SystemExit(f'OIDN " + OIDN_VERSION + " library was not bound: {name}')\n"
+        + "if hashlib.sha256((sapien_pkg / '_oidn_tricks.py').read_bytes()).hexdigest() != '" + hashlib.sha256(loader).hexdigest() + "':\n"
+        + "    raise SystemExit('OIDN loader was not bound over sapien/_oidn_tricks.py')\n")
+    probe = ('# Prove the renderer actually loads OIDN ' + OIDN_VERSION + ' and denoises without errors before any episode.\n'
+             '"$ROOT/.env/bin/python" - <<\'PY_OIDN_PROBE\' 2> "$ROOT/reports/launchers/$SLURM_JOB_ID/oidn-probe.stderr"\n'
+             'import json, os, numpy as np, sapien\n'
+             'sapien.render.set_camera_shader_dir("rt"); sapien.render.set_ray_tracing_samples_per_pixel(32)\n'
+             'sapien.render.set_ray_tracing_path_depth(8); sapien.render.set_ray_tracing_denoiser("oidn")\n'
+             'scene = sapien.Scene([sapien.physx.PhysxCpuSystem(), sapien.render.RenderSystem(os.environ.get("SAPIEN_RENDER_DEVICE", "cuda:0"))])\n'
+             'scene.add_ground(0); scene.set_ambient_light([0.3, 0.3, 0.3]); scene.add_directional_light([0, 1, -1], [1, 1, 1])\n'
+             'b = scene.create_actor_builder(); b.add_box_visual(half_size=[0.1, 0.1, 0.1]); box = b.build_static(name="box"); box.set_pose(sapien.Pose([0, 0, 0.1]))\n'
+             'cam = scene.add_camera("c", 320, 240, 1.0, 0.1, 100); cam.set_entity_pose(sapien.Pose([-1.0, 0, 0.6], [0.966, 0, 0.259, 0]))\n'
+             'for _ in range(3):\n'
+             '    scene.update_render(); cam.take_picture()\n'
+             'g = (cam.get_picture("Color")[..., :3] * 255).clip(0, 255).astype(np.float32).mean(-1)\n'
+             'lap = -4 * g[1:-1, 1:-1] + g[:-2, 1:-1] + g[2:, 1:-1] + g[1:-1, :-2] + g[1:-1, 2:]\n'
+             'mapped = sorted(set(l.split("/")[-1] for l in open("/proc/self/maps").read().split() if "OpenImageDenoise" in l))\n'
+             'record = dict(oidn_libraries=mapped, ground_patch_laplacian_std=float(lap[150:230, 100:220].std()), sapien=sapien.__version__)\n'
+             'json.dump(record, open(os.path.join("' + '/home/guest/robotwin-workspace' + '", "reports/launchers", os.environ["SLURM_JOB_ID"], "oidn-probe.json"), "w"), indent=2)\n'
+             'if not any("' + OIDN_VERSION + '" in m for m in mapped) or "libOpenImageDenoise_device_cuda.so.' + OIDN_VERSION + '" not in mapped:\n'
+             '    raise SystemExit(f"OIDN ' + OIDN_VERSION + ' CUDA device not loaded: {mapped}")\n'
+             'print(f"OIDN_PASS: {mapped}; ground patch laplacian std {record[\'ground_patch_laplacian_std\']:.2f}", flush=True)\n'
+             'PY_OIDN_PROBE\n'
+             'if grep -q "OIDN Error" "$ROOT/reports/launchers/$SLURM_JOB_ID/oidn-probe.stderr"; then\n'
+             '  echo "OIDN denoiser reported errors in the probe; see reports/launchers/$SLURM_JOB_ID/oidn-probe.stderr" >&2\n'
+             '  exit 1\n'
+             'fi\n')
+    probe_anchor = "PY_EXPERT_PATCH\n"
+    if text.count(probe_anchor) != 1:  # the opening marker is quoted (<<'PY_EXPERT_PATCH'); only the close matches
+        raise RuntimeError('Expected exactly one PY_EXPERT_PATCH heredoc close marker')
+    close = text.rfind(probe_anchor) + len(probe_anchor)
+    text = text[:close] + probe + text[close:]
     text = text.replace('export APPTAINERENV_ROBOTWIN_MODEL="fastwam"\n',
                         'export APPTAINERENV_ROBOTWIN_MODEL="fastwam"\n'
                         '# Models evaluated in this job, in order, all on the same pool (RoboTwin 2.0 fine-tuned checkpoints pinned in configs/policies).\n'
@@ -149,14 +225,15 @@ def main():
                   'tools/continue_success_context.py', 'SUCCESS_CONTEXT_FIX', 'spread over both GPUs', '--cpus-per-task=32', '--mem=96G',
                   'ROBOTWIN_MODELS="fastwam g05 pi05"', 'MODEL_START', 'MODEL_DONE', 'tools/parallel_freeze_task.py',
                   'PARALLEL_FREEZE_WORKERS=8', 'FASTWAM_SIGMA_SHIFT', configs['policies/fastwam.yaml'], FASTWAM_WORKSPACE,
+                  'OIDN_PASS', OIDN_URL, OIDN_SHA256, SAPIEN_PKG + '/oidn_library:ro', SAPIEN_PKG + '/_oidn_tricks.py:ro', '--timeout ' + str(EPISODE_TIMEOUT),
                   'FREEZE_WORKERS_PER_GPU=4', 'POLICY_REPLICAS=4', 'gpu:pro6000:2', '--time=3-00:00:00'):
         if check not in text:
             raise RuntimeError(f'Launcher substitution failed for {check}')
-    if BASE in text or any(f'robotwin-success-context-fix-v{n}' in text for n in (1, 2, 3)):
+    if BASE in text or any(f'robotwin-success-context-fix-v{n}' in text for n in (1, 2, 3, 4)):
         raise RuntimeError('Launcher still references a superseded snapshot')
     for filename in ('job-pro6000x2-fastwam-v6-context.sbatch', 'ood-fastwam-pro6000x2-v6-context.txt'):
         (ROOT / 'cluster' / filename).write_text(text)
-    print(f'Packaged {archive} ({archive_hash}): {EXPERIMENT}, success-context fix, Fast-WAM sigma_shift=5.0, pool preserved')
+    print(f'Packaged {archive} ({archive_hash}): {EXPERIMENT}, success-context fix, Fast-WAM sigma_shift=5.0, OIDN {OIDN_VERSION}, pool preserved')
 
 
 if __name__ == '__main__':

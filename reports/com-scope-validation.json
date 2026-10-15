@@ -215,7 +215,7 @@
   "doc": "docs/put-object-cabinet-feasibility.md"
  },
  "success_context_fix": {
-  "package": "robotwin-success-context-fix-v4.zip",
+  "package": "robotwin-success-context-fix-v5.zip",
   "sha256": "45c83feaa4882884a83fbdac3ffe9ae9b9fc875f4cc607fa6c0a0f85153d0416",
   "launcher": "cluster/ood-fastwam-pro6000x2-v6-context.txt",
   "continuation_tool": "tools/continue_success_context.py",
@@ -275,7 +275,8 @@
   "superseded_packages": {
    "robotwin-success-context-fix-v1.zip": "b88a9ba84d646c51ad5b5f91cbcea975d2b26e6b9ed145d501ada717f89203b9",
    "robotwin-success-context-fix-v2.zip": "e5a80ed1d5bd4d64b7f6b47f8ae5dc0fb33f7c7d52d38c92b9b626640b24a35d",
-   "robotwin-success-context-fix-v3.zip": "88c7734fbf4d4982721a9167d773a2d603b166dcdeb652c9d1960e77eac3d3ce"
+   "robotwin-success-context-fix-v3.zip": "88c7734fbf4d4982721a9167d773a2d603b166dcdeb652c9d1960e77eac3d3ce",
+   "robotwin-success-context-fix-v4.zip": "45c83feaa4882884a83fbdac3ffe9ae9b9fc875f4cc607fa6c0a0f85153d0416"
   },
   "v3_change": {
    "observed": "job 1684 (v2): put_object_cabinet finished by the parallel scanner, pool sealed, fastwam replicas 0-2 loaded on GPU 0 at 23.85 GiB each, replica 3 died with CUDA OOM (94.97 GiB total, 15.81 MiB free)",
@@ -293,6 +294,28 @@
     "data_robotwin_yaml": "num_frames 33 (32 actions, 9 video frames per chunk)"
    },
    "g05_check": "GalaxeaVLA sim_robotwin.yaml replan_steps 24, sigma_shift null, README command without overrides: profile consistent"
+  },
+  "v5_change": {
+   "observed": "every policy worker log on PRO 6000 prints \"[svulkan2] [error] OIDN Error: invalid handle\" per camera per step; bs1 (2080 Ti, same image) never does. First-frame Laplacian std of the 320x240 head camera: cluster job 1685 adjust_bottle 22.6 vs bs1 video 12.1 (reports/oidn-blackwell-noise-compare.png)",
+   "cause": "RoboTwin always enables rt shader + OIDN denoiser; SAPIEN 3.0.0b1 bundles OIDN 2.0.1 (pre-Blackwell); the CUDA device fails and frames stay un-denoised",
+   "fix": "launcher downloads OIDN 2.3.3 (sha256 3c385230d9e6f63527ba72f2229594dbac5051674219d72e0044b5d0b841796f), binds lib/*.so* over sapien/oidn_library and docker/oidn/_oidn_tricks.py over sapien/_oidn_tricks.py, verifies checksums and runs a rt+oidn render probe (OIDN_PASS, reports/launchers/<job>/oidn-probe.json)",
+   "bs1_validation": {
+    "bundled_2.0.1": {
+     "oidn_error_lines": 0,
+     "ground_patch_laplacian_std": 0.28
+    },
+    "override_2.3.3": {
+     "oidn_error_lines": 0,
+     "ground_patch_laplacian_std": 0.39,
+     "mapped": [
+      "libOpenImageDenoise.so.2.3.3",
+      "libOpenImageDenoise_core.so.2.3.3",
+      "libOpenImageDenoise_device_cuda.so.2.3.3"
+     ]
+    }
+   },
+   "also": "episode timeout 1800 -> 3600 s after job 1686 aborted on place_bread_basket episode-0001 timeout",
+   "consequence": "Fast-WAM results of jobs 1685 and 1686 discarded; pool, provenance and policy identity unchanged; OIDN version recorded per job by the probe"
   }
  }
 }
