@@ -1,0 +1,27 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  cpu-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Pin RoboTwin 2.0 (code only; assets are not needed for these tests)
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/RoboTwin-Platform/RoboTwin.git vendor/RoboTwin
+          git -C vendor/RoboTwin checkout 13c3c47ff4312dd62484bcd51be034af55c062d1
+      - name: Install test dependencies
+        run: pip install numpy==1.26.4 PyYAML==6.0.2 "Pillow>=10,<12" transforms3d pytest
+      - name: Run the CPU test suite
+        env:
+          PYTHONPATH: src
+        run: |
+          python -m pytest -q tests \
+            --ignore=tests/test_curobo_batch_results.py --ignore=tests/test_curobo_mask_compat.py \
+            -k 'not test_force_is_policy_only_and_scales_as_mg and not test_all_five_configs_reference_real_official_adapters and not test_mp4_is_decodable'

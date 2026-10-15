@@ -10,3 +10,7 @@ manifests/
 *.log
 .container/
 docker/*.local.env
+videos/
+*.lock
+.venv/
+.ci/
