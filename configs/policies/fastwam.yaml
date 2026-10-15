@@ -19,4 +19,8 @@ args:
   device: cuda
   mixed_precision: bf16
   replan_steps: 24
+  # Upstream README (revision above): "When evaluating the original released checkpoints, set
+  # EVALUATION.sigma_shift=5.0 to reproduce the original setting." Without it the action scheduler
+  # falls back to configs/model/fastwam.yaml infer_shift 1.0 (the newer training default).
+  sigma_shift: 5.0
   seed: 0

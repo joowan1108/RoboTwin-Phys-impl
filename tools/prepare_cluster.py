@@ -28,6 +28,14 @@ def main():
     a=p.parse_args()
     if a.assets:
         subprocess.run([sys.executable,str(ROOT/'tools/download_assets.py')],check=True)
+        # Asset ZIPs contain *_tmp.yml, not the concrete planner configs.
+        repo = ROOT / 'vendor/RoboTwin'
+        subprocess.run([sys.executable, str(repo/'script/update_embodiment_config_path.py')],
+                       cwd=repo, stdin=subprocess.DEVNULL, check=True)
+        for arm in ('left', 'right'):
+            path = repo / f'assets/embodiments/aloha-agilex/curobo_{arm}.yml'
+            if not path.is_file() or not path.stat().st_size:
+                raise FileNotFoundError(f'Planner configuration was not generated: {path}')
     if a.models:
         subprocess.run([sys.executable,str(ROOT/'tools/download_models.py'),'--models',*a.models],check=True)
     for spec in json.loads((ROOT/'configs/backbones.json').read_text()):

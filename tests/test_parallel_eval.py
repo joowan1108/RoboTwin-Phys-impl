@@ -56,8 +56,41 @@ def test_device_assignment_uses_allocation_not_host_order(sim_model):
         p.select_gpus(devices, ['GPU-sim1', 'host-0'], 'GPU-pro')
     with pytest.raises(ValueError, match='distinct'):
         p.select_gpus(devices, ['GPU-sim1', 'GPU-sim1'], 'GPU-pro')
-    with pytest.raises(ValueError, match='one or three'):
-        p.select_gpus({key: value for key, value in devices.items() if key != 'GPU-pro'})
+    # Two allocated GPUs: simulators on both, replicas on the first listed.
+    two = {key: value for key, value in devices.items() if key != 'GPU-pro'}
+    assert p.select_gpus(two) == (['GPU-sim2', 'GPU-sim1'], 'GPU-sim2')
+    with pytest.raises(ValueError, match='one, two or three'):
+        p.select_gpus({})
+
+
+def test_two_pro6000_dual_layout_and_replica_defaults():
+    devices = {'GPU-a': {'name': 'NVIDIA RTX PRO 6000 Blackwell'}, 'GPU-b': {'name': 'NVIDIA RTX PRO 6000 Blackwell'}}
+    assert p.select_gpus(devices) == (['GPU-a', 'GPU-b'], 'GPU-a')
+    assert p.select_gpus(devices, ['GPU-b', 'GPU-a'], 'GPU-b') == (['GPU-b', 'GPU-a'], 'GPU-b')
+    with pytest.raises(ValueError, match='simulators on both'):
+        p.select_gpus(devices, ['GPU-a'], 'GPU-a')
+    with pytest.raises(ValueError, match='outside'):
+        p.select_gpus(devices, ['GPU-a', 'GPU-b'], 'GPU-c')
+    assert p.gpu_layout(['GPU-a', 'GPU-b'], 'GPU-a') == 'dual'
+    assert p.gpu_layout(['GPU-a'], 'GPU-a') == 'shared'
+    assert p.gpu_layout(['GPU-a', 'GPU-b'], 'GPU-c') == 'split'
+    # Dual spreads replicas over both GPUs starting at the policy GPU; shared/split keep them on one.
+    assert p.replica_gpus(['GPU-a', 'GPU-b'], 'GPU-a', 4) == ['GPU-a', 'GPU-b', 'GPU-a', 'GPU-b']
+    assert p.replica_gpus(['GPU-a', 'GPU-b'], 'GPU-b', 3) == ['GPU-b', 'GPU-a', 'GPU-b']
+    assert p.replica_gpus(['GPU-a', 'GPU-b'], 'GPU-c', 2) == ['GPU-c', 'GPU-c']
+    assert p.replica_gpus(['GPU-a'], 'GPU-a', 1) == ['GPU-a']
+    ns = lambda model, replicas: argparse.Namespace(model=model, replicas=replicas)
+    assert p.policy_replica_count(ns('fastwam', None), ['GPU-a', 'GPU-b'], 'GPU-a') == 4
+    assert p.policy_replica_count(ns('fastwam', 6), ['GPU-a', 'GPU-b'], 'GPU-a') == 6
+    assert p.policy_replica_count(ns('fact', None), ['GPU-a', 'GPU-b'], 'GPU-a') == 1
+    assert p.policy_replica_count(ns('fastwam', None), ['GPU-a', 'GPU-b'], 'GPU-c') == 2
+    assert p.policy_replica_count(ns('fastwam', None), ['GPU-a'], 'GPU-a') == 1
+    with pytest.raises(ValueError, match='between 1 and 8'):
+        p.policy_replica_count(ns('fastwam', 9), ['GPU-a', 'GPU-b'], 'GPU-a')
+    with pytest.raises(ValueError, match='at most two'):
+        p.policy_replica_count(ns('fastwam', 3), ['GPU-a', 'GPU-b'], 'GPU-c')
+    with pytest.raises(ValueError, match='FACT'):
+        p.policy_replica_count(ns('fact', 2), ['GPU-a', 'GPU-b'], 'GPU-a')
 
 
 @pytest.mark.parametrize('gpu', ['3', 'GPU-allocated-pro'])
@@ -138,8 +171,9 @@ class FakeProcesses:
         self.cancelled.set()
 
 
-@pytest.mark.parametrize('sim_gpus,workers', [(['GPU-sim2', 'GPU-sim1'], 2), (['GPU-pro'], 1)])
-def test_same_conditions_next_model_and_resume_for_gpu_layouts(pool, monkeypatch, sim_gpus, workers):
+@pytest.mark.parametrize('sim_gpus,policy_gpu,workers', [(['GPU-sim2', 'GPU-sim1'], 'GPU-pro', 2), (['GPU-pro'], 'GPU-pro', 1),
+                                                          (['GPU-pro', 'GPU-sim1'], 'GPU-pro', 3)])  # dual: 3 replicas, 6 episodes = 2 full rounds
+def test_same_conditions_next_model_and_resume_for_gpu_layouts(pool, monkeypatch, sim_gpus, policy_gpu, workers):
     folder, suite, index, manifests = pool
     original = index.read_bytes()
     processes = FakeProcesses(workers)
@@ -150,23 +184,27 @@ def test_same_conditions_next_model_and_resume_for_gpu_layouts(pool, monkeypatch
                     port=23000 + slot*2, process=f'{args.model}-{slot}')
 
     monkeypatch.setattr(p, 'start_policy', start)
-    args = argparse.Namespace(model='fastwam', replicas=None, video='first', timeout=20)
-    base = {'CUDA_VISIBLE_DEVICES': ','.join(dict.fromkeys(['GPU-pro', *sim_gpus]))}
+    # Dual layout defaults to 4 replicas; the barrier harness needs the worker count to divide the 6 episodes.
+    args = argparse.Namespace(model='fastwam', replicas=workers if workers == 3 else None, video='first', timeout=20)
+    base = {'CUDA_VISIBLE_DEVICES': ','.join(dict.fromkeys([policy_gpu, *sim_gpus]))}
     job_dir = folder / 'test-job'
-    p.evaluate_pool(processes, args, suite, manifests, base, sim_gpus, 'GPU-pro', folder, job_dir)
-    assert processes.starts == [('fastwam', 'GPU-pro', i) for i in range(workers)]
+    p.evaluate_pool(processes, args, suite, manifests, base, sim_gpus, policy_gpu, folder, job_dir)
+    assert processes.starts == [('fastwam', gpu, i) for i, gpu in enumerate(p.replica_gpus(sim_gpus, policy_gpu, workers))]
     assert len(processes.requests) == 6
     assert {gpu for gpu, req in processes.requests} == set(sim_gpus)
+    if p.gpu_layout(sim_gpus, policy_gpu) == 'dual':  # each simulator runs on its replica's GPU
+        placement = {23000 + slot*2: gpu for slot, gpu in enumerate(p.replica_gpus(sim_gpus, policy_gpu, workers))}
+        assert all(placement[req['policy_port']] == gpu for gpu, req in processes.requests)
     assert len([req for gpu, req in processes.requests if 'video' in req]) == 2
     assert all(req['episode']['episode_index'] == 0 for gpu, req in processes.requests if 'video' in req)
     assert json.loads((job_dir/'timing.json').read_text())['newly_completed'] == 6
     assert index.read_bytes() == original
     # A completed run must not load models or rerun episodes.
-    p.evaluate_pool(processes, args, suite, manifests, base, sim_gpus, 'GPU-pro', folder, job_dir)
+    p.evaluate_pool(processes, args, suite, manifests, base, sim_gpus, policy_gpu, folder, job_dir)
     assert len(processes.starts) == workers and len(processes.requests) == 6
     # Another model uses the exact same pool on reversed worker/GPU ordering.
     args.model = 'pi05'
-    p.evaluate_pool(processes, args, suite, manifests, base, list(reversed(sim_gpus)), 'GPU-pro', folder, job_dir)
+    p.evaluate_pool(processes, args, suite, manifests, base, list(reversed(sim_gpus)), policy_gpu, folder, job_dir)
     first = {(r['episode']['condition']['task'], r['episode']['seed']): r['episode'] for g, r in processes.requests[:6]}
     second = {(r['episode']['condition']['task'], r['episode']['seed']): r['episode'] for g, r in processes.requests[6:]}
     assert first == second

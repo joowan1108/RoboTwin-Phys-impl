@@ -54,6 +54,8 @@ def fingerprint():
     gpu = {"name": torch.cuda.get_device_name(0), "capability": list(torch.cuda.get_device_capability(0)),
            "driver": subprocess.check_output(["nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader"], text=True).splitlines()[0],
            "torch_cuda": torch.version.cuda}
+    from .curobo_compat import compatibility_metadata
     return {"source_sha256": digest(files), "files": files, "versions": versions, "gpu": gpu,
+            "curobo": compatibility_metadata(),
             "robotwin_revision": subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip(),
             "assets": asset_fingerprint()}

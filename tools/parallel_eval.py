@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One model on a shared GPU or three GPUs, with immutable episode pools.
+"""Prepare pools on allocated GPUs, then evaluate one model on one or three GPUs.
 
 Run with the simulator Python inside the bundle image. No host installation,
 inference batching, precision change, or seed resampling during evaluation.
@@ -41,15 +41,24 @@ def lock(path):
 
 
 def select_gpus(devices, sim_gpus=None, policy_gpu=None):
-    """IDs refer only to the job/container allocation, never host GPU order."""
-    if len(devices) not in (1, 3):
-        raise ValueError('This evaluator requires one or three allocated/visible GPUs')
+    """IDs refer only to the job/container allocation, never host GPU order.
+
+    Layouts: one GPU shared by one simulator and one replica; two GPUs with
+    simulators and policy replicas spread over both, starting on policy_gpu
+    ("dual"); or two RTX 5060/5090 simulator GPUs plus a separate RTX PRO 6000
+    ("split", every replica on the inference GPU).
+    """
+    if len(devices) not in (1, 2, 3):
+        raise ValueError('This evaluator requires one, two or three allocated/visible GPUs')
     if (sim_gpus is None) != (policy_gpu is None):
         raise ValueError('Specify both --sim-gpus and --policy-gpu, or neither')
     if sim_gpus is None:
         if len(devices) == 1:
             policy_gpu = next(iter(devices))
             sim_gpus = [policy_gpu]
+        elif len(devices) == 2:
+            sim_gpus = list(devices)
+            policy_gpu = sim_gpus[0]
         else:
             sim_gpus = [key for key, value in devices.items() if re.search(r'RTX (?:5060|5090)\b', value['name'])]
             candidates = [key for key, value in devices.items() if 'PRO 6000' in value['name']]
@@ -61,19 +70,62 @@ def select_gpus(devices, sim_gpus=None, policy_gpu=None):
     if len(devices) == 1:
         if list(sim_gpus) != [policy_gpu]:
             raise ValueError('A single GPU must be shared by one simulator and one policy replica')
+    elif len(devices) == 2:
+        if len(sim_gpus) != 2 or len(set(sim_gpus)) != 2 or policy_gpu not in sim_gpus:
+            raise ValueError('Two GPUs run simulators on both and the policy replicas on one of them')
     elif len(sim_gpus) != 2 or len(set([*sim_gpus, policy_gpu])) != 3:
         raise ValueError('Two distinct simulation GPUs and a separate inference GPU are required')
     return list(sim_gpus), policy_gpu
 
 
+def gpu_layout(sim_gpus, policy_gpu):
+    if sim_gpus == [policy_gpu]:
+        return 'shared'
+    return 'dual' if policy_gpu in sim_gpus else 'split'
+
+
+MAX_REPLICAS = 8
+
+
+def replica_gpus(sim_gpus, policy_gpu, replicas):
+    """GPU of each policy replica. Dual: round robin over both GPUs starting at
+    policy_gpu, so replica i shares a GPU with simulator slot i (a Fast-WAM
+    replica holds about 24 GiB, four never fit on one 96 GiB GPU)."""
+    if gpu_layout(sim_gpus, policy_gpu) != 'dual':
+        return [policy_gpu] * replicas
+    order = [policy_gpu, *[gpu for gpu in sim_gpus if gpu != policy_gpu]]
+    return [order[i % len(order)] for i in range(replicas)]
+
+
 def policy_replica_count(args, sim_gpus, policy_gpu):
-    shared = sim_gpus == [policy_gpu]
-    replicas = args.replicas if args.replicas is not None else (1 if shared or args.model == 'fact' else 2)
-    if shared and replicas != 1:
+    layout = gpu_layout(sim_gpus, policy_gpu)
+    default = {'shared': 1, 'dual': 4, 'split': 2}[layout]
+    replicas = args.replicas if args.replicas is not None else (1 if args.model == 'fact' else default)
+    if not 1 <= replicas <= MAX_REPLICAS:
+        raise ValueError(f'Policy replicas must be between 1 and {MAX_REPLICAS}')
+    if layout == 'shared' and replicas != 1:
         raise ValueError('A shared GPU requires exactly one policy replica')
+    if layout == 'split' and replicas > 2:
+        raise ValueError('The split layout runs at most two policy replicas (one simulator GPU each)')
     if args.model == 'fact' and replicas != 1:
         raise ValueError('FACT currently uses one replica to keep its native-port policy identity fixed')
     return replicas
+
+
+def select_freeze_gpus(devices, sim_gpus=None, policy_gpu=None):
+    """Pool preparation needs no reserved policy GPU, including a two-GPU job."""
+    selected = list(devices) if sim_gpus is None else list(sim_gpus)
+    if not selected or len(set(selected)) != len(selected):
+        raise ValueError('Freeze requires distinct allocated simulation GPUs')
+    if not set(selected) <= set(devices) or (policy_gpu is not None and policy_gpu not in devices):
+        raise ValueError('GPU selection is outside the allocation')
+    return selected, None
+
+
+def freeze_slots(sim_gpus, workers_per_gpu=1):
+    if workers_per_gpu < 1:
+        raise ValueError('Freeze workers per GPU must be positive')
+    return [gpu for gpu in sim_gpus for _ in range(workers_per_gpu)]
 
 
 class Processes:
@@ -262,8 +314,8 @@ def discover_gpus(base):
         count = int(subprocess.check_output([sys.executable, '-c', code], env=base, text=True))
         allocated = ','.join(str(i) for i in range(count))
     ids = allocated.split(',')
-    if len(ids) not in (1, 3) or len(set(ids)) != len(ids) or any(not x for x in ids):
-        raise ValueError('Pass one or three distinct GPUs through the job/container allocation')
+    if not ids or len(set(ids)) != len(ids) or any(not x for x in ids):
+        raise ValueError('Pass distinct GPUs through the job/container allocation')
     code = ('import json,torch; p=torch.cuda.get_device_properties(0); '
             'print(json.dumps(dict(name=p.name,memory_gib=p.total_memory/2**30)))')
     return {gpu: json.loads(subprocess.check_output([sys.executable, '-c', code],
@@ -323,7 +375,15 @@ def freeze_pool(processes, args, suite, base, sim_gpus, fingerprints, job_dir):
         else:
             remaining.append(task)
 
+    completed = len(suite['tasks']) - len(remaining)
+    failures = []
+    progress_guard = threading.Lock()
+    slots = freeze_slots(sim_gpus, getattr(args, 'freeze_workers_per_gpu', 1))
+    print(f'Pool preparation: {len(slots)} workers on {len(sim_gpus)} GPUs; '
+          f'{completed}/{len(suite["tasks"])} tasks already frozen', flush=True)
+
     def work(gpu, task):
+        nonlocal completed
         path = experiment.manifest_path(suite, PROTOCOL, task)
         with lock(ROOT / 'runs' / suite['name'] / '.locks' / f'freeze-None-{PROTOCOL}-{task}.lock'):
             # Candidates remain sequential within each task, so timing cannot select seeds.
@@ -331,10 +391,47 @@ def freeze_pool(processes, args, suite, base, sim_gpus, fingerprints, job_dir):
                     '--protocol', PROTOCOL, '--episodes', suite['episodes'], '--seed', suite['seed'],
                     '--instruction-type', suite['instruction_type'], '--max-candidates', args.max_candidates,
                     '--timeout', args.timeout, '--resume', '--output', path]
-            processes.run(argv, simulator_environment(base, gpu), job_dir / f'freeze-{task}.log')
-            print(f'Frozen {task}: {suite["episodes"]} episodes', flush=True)
+            print(f'Freezing {task} on GPU {gpu}; log={job_dir / f"freeze-{task}.log"}', flush=True)
+            try:
+                previous = getattr(args, 'resume_from_experiment', None)
+                if previous and not path.exists() and not path.with_suffix('.progress.json').exists():
+                    sources = [previous, *getattr(args, 'fallback_experiment', [])]
+                    candidates = [ROOT / 'manifests' / name / PROTOCOL / f'{task}.json' for name in sources]
+                    old = next((old for old in candidates if old.exists() or old.with_suffix('.progress.json').exists()), None)
+                    if old is not None:
+                        processes.run([sys.executable, ROOT / 'tools/reverify_pool.py', '--source', old,
+                                       '--target', path, '--timeout', args.timeout],
+                                      simulator_environment(base, gpu), job_dir / f'reverify-{task}.log')
+                if not path.exists():
+                    processes.run(argv, simulator_environment(base, gpu), job_dir / f'freeze-{task}.log')
+                manifest = experiment.check_manifest(suite, PROTOCOL, task)
+                if manifest['provenance'] != fingerprints[0]:
+                    raise ValueError(f'New manifest runtime differs: {task}')
+            except Exception as exc:
+                # Keep other independent tasks running, but never mark this one
+                # frozen or seal/evaluate an incomplete pool.
+                error = dict(task=task, error=str(exc), log=str(job_dir / f'freeze-{task}.log'),
+                             reverify_log=str(job_dir / f'reverify-{task}.log'))
+                logfile = job_dir / f'freeze-{task}.log'
+                if not logfile.exists():
+                    logfile = job_dir / f'reverify-{task}.log'
+                if logfile.exists():
+                    error['log_tail'] = '\n'.join(logfile.read_text(errors='replace').splitlines()[-32:])
+                with progress_guard:
+                    failures.append(error)
+                    atomic_json(job_dir / 'freeze-errors.json', failures)
+                    print(f'FREEZE_TASK_ERROR {task}: {exc}\n{error.get("log_tail", "")}', flush=True)
+                return
+            with progress_guard:
+                completed += 1
+                print(f'Frozen {task}: {suite["episodes"]} episodes; '
+                      f'{completed}/{len(suite["tasks"])} tasks complete', flush=True)
 
-    dispatch(remaining, sim_gpus, work, processes)
+    dispatch(remaining, slots, work, processes)
+    if failures:
+        raise RuntimeError(f'{len(failures)} task(s) could not be frozen: '
+                           f'{", ".join(error["task"] for error in failures)}; see {job_dir / "freeze-errors.json"}. '
+                           'Other task progress is preserved; this incomplete pool is not eligible for evaluation.')
 
 
 def evaluate_pool(processes, args, suite, manifests, base, sim_gpus, policy_gpu, folder, job_dir):
@@ -347,16 +444,19 @@ def evaluate_pool(processes, args, suite, manifests, base, sim_gpus, policy_gpu,
         print('All episodes already complete and verified; no policy load needed.', flush=True)
         return
     replicas = policy_replica_count(args, sim_gpus, policy_gpu)
+    gpus = replica_gpus(sim_gpus, policy_gpu, replicas)
     servers = []
     try:
         # Sequential startup avoids concurrent checkpoint reads/initialization memory peaks.
-        for slot in range(replicas):
-            servers.append(start_policy(processes, base, args, policy_gpu, slot, job_dir))
+        for slot, gpu in enumerate(gpus):
+            servers.append(start_policy(processes, base, args, gpu, slot, job_dir))
         if any(server['identity'] != servers[0]['identity'] for server in servers):
             raise ValueError('Policy replicas have different identities; evaluation refused')
         identity = servers[0]['identity']
         jobs = pending_episodes(folder, suite, args.model, manifests, identity)
-        slots = [(sim_gpus[i % len(sim_gpus)], server) for i, server in enumerate(servers)]
+        # Simulator slot i runs on the GPU of replica i in the dual layout; otherwise alternates.
+        slots = [(gpus[i] if gpus[i] in sim_gpus else sim_gpus[i % len(sim_gpus)], server)
+                 for i, server in enumerate(servers)]
         begin, completed = time.monotonic(), []
         progress_lock = threading.Lock()
 
@@ -404,8 +504,13 @@ def main():
     parser.add_argument('--policy-seed', type=int, default=0)
     parser.add_argument('--tasks', nargs='+')
     parser.add_argument('--sim-gpus', nargs='+', help='One shared GPU or two simulator GPUs; defaults to allocation-based selection')
+    parser.add_argument('--freeze-workers-per-gpu', type=int, default=1,
+                        help='Independent task processes per simulator GPU during pool preparation')
+    parser.add_argument('--resume-from-experiment', help='Reverify saved expert episodes from an older experiment')
+    parser.add_argument('--fallback-experiment', action='append', default=[],
+                        help='Use this older experiment only when the primary source has no saved task pool')
     parser.add_argument('--policy-gpu')
-    parser.add_argument('--replicas', type=int, choices=[1, 2])
+    parser.add_argument('--replicas', type=int, help='Policy replicas (each drives one simulator); default 1 shared, 4 dual, 2 split')
     parser.add_argument('--video', choices=['first', 'none', 'all'], default='first')
     parser.add_argument('--max-candidates', type=int, default=10000)
     parser.add_argument('--timeout', type=int, default=1800)
@@ -427,6 +532,16 @@ def main():
         parser.error('Invalid task selection')
     if not 0 <= args.seed < 2**32 or args.episodes < 1 or args.max_candidates < args.episodes:
         parser.error('Invalid seed/episode/candidate count')
+    if args.freeze_workers_per_gpu < 1:
+        parser.error('Freeze workers per GPU must be positive')
+    if args.resume_from_experiment and (args.phase not in ('freeze', 'all') or
+            not re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9._-]*', args.resume_from_experiment) or
+            args.resume_from_experiment == args.experiment):
+        parser.error('Resume source must be a different experiment during freeze/all')
+    if args.fallback_experiment and (not args.resume_from_experiment or
+            any(not re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9._-]*', name) or name == args.experiment
+                for name in args.fallback_experiment)):
+        parser.error('Fallback requires valid older experiments and a primary resume source')
     suite = seal(dict(schema='robotwin-experiment-v1', name=args.experiment, tasks=tasks,
         protocols=[PROTOCOL], models=list(experiment.MODELS), episodes=args.episodes,
         seed=args.seed, policy_seed=args.policy_seed, instruction_type='unseen'))
@@ -452,16 +567,26 @@ def main():
                 atomic_json(folder / 'suite.json', suite)
             base = base_environment()
             devices = discover_gpus(base)
-            sim_gpus, policy_gpu = select_gpus(devices, args.sim_gpus, args.policy_gpu)
-            args.replicas = policy_replica_count(args, sim_gpus, policy_gpu)
+            if args.phase == 'freeze':
+                sim_gpus, policy_gpu = select_freeze_gpus(devices, args.sim_gpus, args.policy_gpu)
+                args.replicas = 0
+            else:
+                sim_gpus, policy_gpu = select_gpus(devices, args.sim_gpus, args.policy_gpu)
+                args.replicas = policy_replica_count(args, sim_gpus, policy_gpu)
+            freeze_gpu_slots = freeze_slots(sim_gpus, args.freeze_workers_per_gpu)
             atomic_json(job_dir / 'allocation.json', dict(devices=devices, sim_gpus=sim_gpus,
                         policy_gpu=policy_gpu, model=args.model, video=args.video, suite_sha256=suite['sha256'],
-                        gpu_layout='shared' if sim_gpus == [policy_gpu] else 'split', policy_replicas=args.replicas))
-            print(f'Model={args.model}; simulator GPUs={sim_gpus}; policy GPU={policy_gpu}; replicas={args.replicas}', flush=True)
+                        gpu_layout='freeze' if args.phase == 'freeze' else gpu_layout(sim_gpus, policy_gpu),
+                        policy_replicas=args.replicas, freeze_workers_per_gpu=args.freeze_workers_per_gpu,
+                        policy_gpus=[] if args.phase == 'freeze' else replica_gpus(sim_gpus, policy_gpu, args.replicas),
+                        freeze_workers=len(freeze_gpu_slots)))
+            print(f'Model={args.model}; simulator GPUs={sim_gpus}; policy GPU={policy_gpu}; replicas={args.replicas}'
+                  + ('' if args.phase == 'freeze' else f'; replica GPUs={replica_gpus(sim_gpus, policy_gpu, args.replicas)}'), flush=True)
             with lock(ROOT / 'downloads/.prepare.lock'):
                 argv = [sys.executable, ROOT / 'tools/prepare_cluster.py', '--assets']
                 processes.run(argv, base, job_dir / 'prepare-assets.log')
-            for i, gpu in enumerate(dict.fromkeys([*sim_gpus, policy_gpu])):
+            checked_gpus = list(dict.fromkeys([*sim_gpus] + ([policy_gpu] if policy_gpu is not None else [])))
+            for i, gpu in enumerate(checked_gpus):
                 processes.run([sys.executable, ROOT / 'tools/cluster_preflight.py', '--output',
                                job_dir / f'gpu-{i}.json'], simulator_environment(base, gpu), job_dir / f'gpu-{i}.log')
             fingerprints = [provenance_on_gpu(processes, base, gpu, job_dir / f'provenance-{i}.json')

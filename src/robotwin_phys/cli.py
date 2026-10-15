@@ -22,7 +22,10 @@ def worker(request, folder, label, timeout):
         child = subprocess.run([sys.executable, "-m", "robotwin_phys.worker", str(req), str(result)],
                                stdout=log, stderr=subprocess.STDOUT, timeout=timeout)
     if child.returncode:
-        raise RuntimeError(f"Episode worker failed; see {folder / (label + '.log')}. This error is not excluded as infeasible.")
+        logfile = folder / (label + '.log')
+        detail = "\n".join(logfile.read_text(errors="replace").splitlines()[-24:])
+        raise RuntimeError(f"Episode worker failed (exit {child.returncode}); see {logfile}. "
+                           f"This error is not excluded as infeasible.\nWorker log tail:\n{detail}")
     return json.loads(result.read_text())
 
 

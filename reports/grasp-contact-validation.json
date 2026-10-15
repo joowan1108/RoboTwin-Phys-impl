@@ -1,0 +1,42 @@
+{
+  "package": "robotwin-grasp-contact-fix-v2.zip",
+  "sha256": "1540f192866733ac05e8e1efa12a732747315abf16fa09c550353223711237cb",
+  "baseline_package": "robotwin-fresh-pool-v1.zip",
+  "baseline_sha256": "4b2b19ccbc2581411019ac6c3c6e42c38434708d45140afcead3bd9116583ce6",
+  "experiment": "phys-pro6000-100-v5",
+  "pool_tasks": 50,
+  "episodes_per_task": 100,
+  "phase": "freeze",
+  "gpu_count": 2,
+  "workers_per_gpu": 4,
+  "runtime_diff": [
+    "src/robotwin_phys/planning.py: previously fatal empty annotation and None contact branches, arm parameter for diagnostic context"
+  ],
+  "new_tool": "tools/resume_contact_pool.py",
+  "preservation": "Exact source transitions from original v5 or empty-grasp v1; original backups and receipts; saved accepted/rejected records unchanged; no expert replay",
+  "official_asset_review": "grasp-contact-index-review.json",
+  "case": "place_container_plate requests left contact 2; official cup variants 6 and 7 have only contacts 0 and 1",
+  "runtime_failure_kind": "unavailable_grasp_annotation",
+  "official_variant_arm_combinations_tested": 22,
+  "full_cpu_tests_passed": 279,
+  "full_cpu_tests_deselected": 3,
+  "test_command": "PYTHONPATH=src /tmp/robotwin-review-tests/bin/python -m pytest -q --tb=short -k 'not test_force_is_policy_only_and_scales_as_mg and not test_all_five_configs_reference_real_official_adapters and not test_mp4_is_decodable'",
+  "test_environment": "Python 3.12.3 / PyTorch 2.7.1+cpu",
+  "deselected_reasons": {
+    "test_force_is_policy_only_and_scales_as_mg": "SAPIEN not installed locally",
+    "test_all_five_configs_reference_real_official_adapters": "Policy vendor repositories not present locally",
+    "test_mp4_is_decodable": "ffmpeg/ffprobe not installed locally"
+  },
+  "guards": [
+    "Official metadata retrieved by range with CRC verification",
+    "Original assertion reproduced for cup 6/7 and unchanged action outputs for other combinations",
+    "Invalid metadata and runtime errors remain errors",
+    "Before/after AST equivalence outside fatal branches and diagnostic parameter",
+    "Record preservation and resume from both old source versions",
+    "Archive metadata audit identifies both unsupported fixed contacts",
+    "Immutable old ZIPs and deterministic new archive",
+    "OOD source binding/checksum verification; Bash syntax and protected footer",
+    "Python 3.10 parse for all 47 packaged Python files"
+  ],
+  "cuda_sapien_remote_verified": false
+}

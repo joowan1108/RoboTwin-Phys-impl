@@ -1,0 +1,6757 @@
+{
+ "date": "2026-10-13",
+ "source": "https://huggingface.co/datasets/TianxingChen/RoboTwin2.0/resolve/main/objects.zip",
+ "archive_sha256_pinned": "6aa56b3cf1e1064f7c809308144da36b00815f8b137fef2d7e4de856f8becf27",
+ "evidence": "All 694 model_data*.json / points_info.json members read by HTTP Range from the official ZIP; size and CRC verified per member. Task point requests extracted from the pinned RoboTwin revision 13c3c47 envs/*.py (50 tasks, 172 requests).",
+ "official_revision": "13c3c47ff4312dd62484bcd51be034af55c062d1",
+ "method": "For every task actor created from assets/objects with its sampled model ids, each fixed contact/functional index request (and each all-contact grasp) was compared with the annotation counts of every sampled variant. Built-in create_box/create_sphere actors carry synthetic annotations and were excluded.",
+ "mismatches": [
+  {
+   "task": "place_a2b_left",
+   "object": "086_woodenblock",
+   "variants": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "request": "grasp_actor all contacts (line 128)",
+   "available_contacts": 0,
+   "classification": "expert_failed/no_grasp_annotations"
+  },
+  {
+   "task": "place_a2b_right",
+   "object": "086_woodenblock",
+   "variants": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ],
+   "request": "grasp_actor all contacts (line 129)",
+   "available_contacts": 0,
+   "classification": "expert_failed/no_grasp_annotations"
+  },
+  {
+   "task": "place_container_plate",
+   "object": "021_cup",
+   "variants": [
+    6,
+    7
+   ],
+   "request": "left arm contact_point_id=2 (line 66)",
+   "available_contacts": 2,
+   "classification": "expert_failed/unavailable_grasp_annotation"
+  }
+ ],
+ "conclusion": "Only 086_woodenblock (no contact annotations) and 021_cup variants 6-7 (two contacts, left arm asks for index 2) mismatch; both are classified as expert_failed by src/robotwin_phys/planning.py. No other task requests a contact or functional index that its sampled official variants lack.",
+ "objects": {
+  "001_bottle": {
+   "0": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "10": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 1
+   },
+   "11": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 1
+   },
+   "12": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "13": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "14": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "15": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "16": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "17": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "18": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "19": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "20": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "21": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "22": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 1
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "7": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "8": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "9": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   }
+  },
+  "002_bowl": {
+   "1": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 1
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 1
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 1
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 1
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 1
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 0
+   },
+   "7": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "003_plate": {
+   "0": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 1
+   }
+  },
+  "004_fluted-block": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": 1
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": 1
+   }
+  },
+  "005_french-fries": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "006_hamburg": {
+   "0": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 5,
+    "functional": 1,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 3,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "007_shoe-box": {
+   "0": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 2,
+    "target": 1
+   }
+  },
+  "008_tray": {
+   "0": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 2,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 2,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 2,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 2,
+    "target": 0
+   }
+  },
+  "009_kettle": {
+   "102730": {
+    "kind": "articulation",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "102738": {
+    "kind": "articulation",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "102739": {
+    "kind": "articulation",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "010_pen": {
+   "101685": {
+    "kind": "articulation",
+    "contact": 16,
+    "functional": 0,
+    "target": 0
+   },
+   "101727": {
+    "kind": "articulation",
+    "contact": 16,
+    "functional": 0,
+    "target": 0
+   },
+   "101732": {
+    "kind": "articulation",
+    "contact": 0,
+    "functional": 0,
+    "target": 0
+   },
+   "101736": {
+    "kind": "articulation",
+    "contact": 0,
+    "functional": 0,
+    "target": 0
+   },
+   "101748": {
+    "kind": "articulation",
+    "contact": 16,
+    "functional": 0,
+    "target": 0
+   },
+   "101786": {
+    "kind": "articulation",
+    "contact": 16,
+    "functional": 0,
+    "target": 0
+   },
+   "101787": {
+    "kind": "articulation",
+    "contact": 16,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "011_dustbin": {
+   "0": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 0,
+    "target": 1
+   }
+  },
+  "012_plant-pot": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "013_dumbbell-rack": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "014_bookcase": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "015_laptop": {
+   "10040": {
+    "kind": "articulation",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "10098": {
+    "kind": "articulation",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "10101": {
+    "kind": "articulation",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "10125": {
+    "kind": "articulation",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "10211": {
+    "kind": "articulation",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "9748": {
+    "kind": "articulation",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "9912": {
+    "kind": "articulation",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "9960": {
+    "kind": "articulation",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "9968": {
+    "kind": "articulation",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "9992": {
+    "kind": "articulation",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "9996": {
+    "kind": "articulation",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "016_oven": {
+   "7332": {
+    "kind": "articulation",
+    "contact": 0,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "017_calculator": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "018_microphone": {
+   "0": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 1,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 1,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "019_coaster": {
+   "0": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 1
+   }
+  },
+  "020_hammer": {
+   "0": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 1
+   }
+  },
+  "021_cup": {
+   "0": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 1
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 1
+   },
+   "10": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "11": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "12": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 1
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 1
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 1
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 1
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "7": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "8": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "9": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "022_cup-with-liquid": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "023_tissue-box": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "024_scanner": {
+   "0": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 2,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 2,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 2,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 2,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 2,
+    "target": 0
+   }
+  },
+  "025_chips-tub": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "026_pet-collar": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "027_table-tennis": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "028_roll-paper": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "029_olive-oil": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "030_drill": {
+   "0": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 1
+   }
+  },
+  "031_jam-jar": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "032_screwdriver": {
+   "0": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   }
+  },
+  "033_fork": {
+   "0": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 1
+   }
+  },
+  "034_knife": {
+   "0": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 1
+   }
+  },
+  "035_apple": {
+   "0": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "036_cabinet": {
+   "46653": {
+    "kind": "articulation",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "037_box": {
+   "426": {
+    "kind": "articulation",
+    "contact": 0,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "038_milk-box": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "039_mug": {
+   "0": {
+    "kind": "rigid",
+    "contact": 6,
+    "functional": 2,
+    "target": 1
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 6,
+    "functional": 2,
+    "target": 1
+   },
+   "10": {
+    "kind": "rigid",
+    "contact": 6,
+    "functional": 2,
+    "target": 1
+   },
+   "11": {
+    "kind": "rigid",
+    "contact": 6,
+    "functional": 2,
+    "target": 1
+   },
+   "12": {
+    "kind": "rigid",
+    "contact": 6,
+    "functional": 2,
+    "target": 1
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 6,
+    "functional": 2,
+    "target": 1
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 6,
+    "functional": 2,
+    "target": 1
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 6,
+    "functional": 2,
+    "target": 1
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 6,
+    "functional": 2,
+    "target": 1
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 6,
+    "functional": 2,
+    "target": 1
+   },
+   "7": {
+    "kind": "rigid",
+    "contact": 6,
+    "functional": 2,
+    "target": 1
+   },
+   "8": {
+    "kind": "rigid",
+    "contact": 6,
+    "functional": 2,
+    "target": 1
+   },
+   "9": {
+    "kind": "rigid",
+    "contact": 6,
+    "functional": 2,
+    "target": 1
+   }
+  },
+  "040_rack": {
+   "0": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 1
+   }
+  },
+  "041_shoe": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 1
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 1
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 1
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 1
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 1
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 1
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 1
+   },
+   "7": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 1
+   },
+   "8": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 1
+   },
+   "9": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 1
+   }
+  },
+  "042_wooden_box": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "043_book": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "044_microwave": {
+   "7167": {
+    "kind": "articulation",
+    "contact": 6,
+    "functional": 1,
+    "target": 0
+   },
+   "7310": {
+    "kind": "articulation",
+    "contact": 6,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "045_sand-clock": {
+   "0": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "046_alarm-clock": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "047_mouse": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "048_stapler": {
+   "0": {
+    "kind": "rigid",
+    "contact": 3,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 3,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 3,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 3,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 3,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 3,
+    "functional": 0,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 3,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "049_shampoo": {
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "7": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "050_bell": {
+   "0": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "051_candlestick": {
+   "0": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "052_dumbbell": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "053_teanet": {
+   "1": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "7": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "054_baguette": {
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "055_small-speaker": {
+   "1": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "056_switch": {
+   "100880": {
+    "kind": "articulation",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "100901": {
+    "kind": "articulation",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "100905": {
+    "kind": "articulation",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "100906": {
+    "kind": "articulation",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "100907": {
+    "kind": "articulation",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "100914": {
+    "kind": "articulation",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "100933": {
+    "kind": "articulation",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "100937": {
+    "kind": "articulation",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "057_toycar": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "058_markpen": {
+   "0": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   }
+  },
+  "059_pencup": {
+   "0": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "060_kitchenpot": {
+   "100015": {
+    "kind": "articulation",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "100023": {
+    "kind": "articulation",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "100038": {
+    "kind": "articulation",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "100051": {
+    "kind": "articulation",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "100057": {
+    "kind": "articulation",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "100058": {
+    "kind": "articulation",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "100060": {
+    "kind": "articulation",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "061_battery": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "062_plasticbox": {
+   "0": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "10": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "7": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "8": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "9": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   }
+  },
+  "063_tabletrashbin": {
+   "0": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "10": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "7": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "8": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "9": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "064_msg": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "065_soy-sauce": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "066_vinegar": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "067_steamer": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "068_boxdrink": {
+   "0": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "069_vagetable": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "070_paymentsign": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "071_can": {
+   "0": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 0,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "072_electronicscale": {
+   "0": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "073_rubikscube": {
+   "0": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "074_displaystand": {
+   "0": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "075_bread": {
+   "0": {
+    "kind": "rigid",
+    "contact": 5,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 5,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 5,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 3,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "076_breadbasket": {
+   "0": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "077_phone": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "078_phonestand": {
+   "0": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "079_remotecontrol": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "080_pillbottle": {
+   "1": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 1,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 1,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 1,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "081_playingcards": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "082_smallshovel": {
+   "0": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": 1
+   }
+  },
+  "083_brush": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": 1
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": 1
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": 1
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": 1
+   }
+  },
+  "084_woodenmallet": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 2,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 2,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 2,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 2,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 2,
+    "target": 0
+   }
+  },
+  "085_gong": {
+   "0": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 3,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 3,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 3,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 3,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 3,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 3,
+    "target": 0
+   }
+  },
+  "086_woodenblock": {
+   "0": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "087_waterer": {
+   "0": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "7": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "088_wineglass": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "089_globe": {
+   "2": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "090_trophy": {
+   "0": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "091_kettle": {
+   "0": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "092_notebook": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 4,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 4,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 4,
+    "target": 0
+   }
+  },
+  "093_brush-pen": {
+   "0": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "094_rest": {
+   "0": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 2,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 2,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 2,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 2,
+    "target": 0
+   }
+  },
+  "095_glue": {
+   "0": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "096_cleaner": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "097_screen": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "098_speaker": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "099_fan": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "100_seal": {
+   "0": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "101_milk-tea": {
+   "0": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "102_roller": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "103_fruit": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "104_board": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "105_sauce-can": {
+   "0": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 0,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 16,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "106_skillet": {
+   "0": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 1,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "107_soap": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "108_block": {
+   "0": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": "ABSENT",
+    "functional": "ABSENT",
+    "target": "ABSENT"
+   }
+  },
+  "109_hydrating-oil": {
+   "0": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "110_basket": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 2,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 2,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 2,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 2,
+    "target": 0
+   }
+  },
+  "111_callbell": {
+   "0": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "112_tea-box": {
+   "0": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   }
+  },
+  "113_coffee-box": {
+   "0": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "5": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   },
+   "6": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 0,
+    "target": 0
+   }
+  },
+  "114_bottle": {
+   "1": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 1,
+    "target": 1
+   },
+   "4": {
+    "kind": "rigid",
+    "contact": 8,
+    "functional": 2,
+    "target": 0
+   }
+  },
+  "115_perfume": {
+   "0": {
+    "kind": "rigid",
+    "contact": 10,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 12,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 12,
+    "functional": 1,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 12,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "116_keyboard": {
+   "0": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "1": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "2": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   },
+   "3": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "117_whiteboard-eraser": {
+   "0": {
+    "kind": "rigid",
+    "contact": 2,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "118_tooth-paste": {
+   "0": {
+    "kind": "rigid",
+    "contact": 4,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "119_mini-chalkboard": {
+   "0": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "120_plant": {
+   "0": {
+    "kind": "rigid",
+    "contact": 0,
+    "functional": 1,
+    "target": 0
+   }
+  },
+  "sapien-block1": {},
+  "sapien-block2": {}
+ },
+ "task_requests": [
+  {
+   "task": "adjust_bottle",
+   "actors": [
+    {
+     "attr": "bottle",
+     "modelname": "001_bottle",
+     "model_ids": [
+      13,
+      16
+     ],
+     "kind": "rigid",
+     "creator": "rand_create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "bottle",
+     "type": "contact",
+     "indices": "all",
+     "where": "43",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "bottle",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "52",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "bottle",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "65",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "Arm and target pose chosen by qpose_tag (random 0/1) set in load_actors; place with is_open=False (bottle held up). model_id sampled from [13,16]."
+  },
+  {
+   "task": "beat_block_hammer",
+   "actors": [
+    {
+     "attr": "hammer",
+     "modelname": "020_hammer",
+     "model_ids": [
+      0
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "block",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "is_static": true,
+     "creator": "create_box(default)"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "block",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "58",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "hammer",
+     "type": "contact",
+     "indices": "all",
+     "where": "63",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "block",
+     "type": "functional",
+     "indices": [
+      1
+     ],
+     "where": "71",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "hammer",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "73",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "hammer",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "83",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "block",
+     "type": "functional",
+     "indices": [
+      1
+     ],
+     "where": "84",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "Hammer fixed to model_id=0 and hardcoded pose; block is a built-in create_box (4 contact pts, functional 0=bottom, 1=top); hammer.set_mass(0.001)."
+  },
+  {
+   "task": "blocks_ranking_rgb",
+   "actors": [
+    {
+     "attr": "block1",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "creator": "create_box(default)"
+    },
+    {
+     "attr": "block2",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "creator": "create_box(default)"
+    },
+    {
+     "attr": "block3",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "creator": "create_box(default)"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "block (block1/block2/block3 via pick_and_place_block)",
+     "type": "contact",
+     "indices": "all",
+     "where": "132",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "block (block1/block2/block3 via pick_and_place_block)",
+     "type": "contact",
+     "indices": "all",
+     "where": "136",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "block (block1/block2/block3 via pick_and_place_block)",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "145",
+     "how": "place_actor functional_point_id="
+    }
+   ],
+   "notes": "Helper pick_and_place_block called 3x; arm by block x sign; line 132 branch (arm switch) uses grasp_dis=0.01 plus back_to_origin of opposite arm, line 136 branch uses default grasp_dis. Random uniform cube size."
+  },
+  {
+   "task": "blocks_ranking_size",
+   "actors": [
+    {
+     "attr": "block1",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "creator": "create_box(default)"
+    },
+    {
+     "attr": "block2",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "creator": "create_box(default)"
+    },
+    {
+     "attr": "block3",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "creator": "create_box(default)"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "block (block3/block2/block1 via pick_and_place_block)",
+     "type": "contact",
+     "indices": "all",
+     "where": "126",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "block (block3/block2/block1 via pick_and_place_block)",
+     "type": "contact",
+     "indices": "all",
+     "where": "130",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "block (block3/block2/block1 via pick_and_place_block)",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "139",
+     "how": "place_actor functional_point_id="
+    }
+   ],
+   "notes": "Helper pick_and_place_block called in order block3, block2, block1; random colors and three size ranges; arm by block x sign."
+  },
+  {
+   "task": "click_alarmclock",
+   "actors": [
+    {
+     "attr": "alarm",
+     "modelname": "046_alarm-clock",
+     "model_ids": [
+      1,
+      3
+     ],
+     "kind": "rigid",
+     "is_static": true,
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "alarm",
+     "type": "contact",
+     "indices": [
+      0
+     ],
+     "where": "55",
+     "how": "get_grasp_pose contact_point_id="
+    },
+    {
+     "actor": "alarm",
+     "type": "contact",
+     "indices": [
+      0
+     ],
+     "where": "85",
+     "how": "get_contact_point("
+    }
+   ],
+   "notes": "Builds a custom Action from get_grasp_pose position + hardcoded quaternion [0.5,-0.5,0.5,0.5] then closes gripper; presses via z displacement -0.065; check_success invoked inside play_once and latches stage_success_tag. Fixed contact 0 on 2 variants."
+  },
+  {
+   "task": "click_bell",
+   "actors": [
+    {
+     "attr": "bell",
+     "modelname": "050_bell",
+     "model_ids": [
+      0,
+      1
+     ],
+     "kind": "rigid",
+     "is_static": true,
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "bell",
+     "type": "contact",
+     "indices": [
+      0
+     ],
+     "where": "51",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "bell",
+     "type": "contact",
+     "indices": [
+      0
+     ],
+     "where": "76",
+     "how": "get_contact_point("
+    }
+   ],
+   "notes": "grasp_actor with pre_grasp_dis==grasp_dis==0.1 (no approach move) to hover then press via z displacement -0.045; check_success latches stage_success_tag."
+  },
+  {
+   "task": "dump_bin_bigbin",
+   "actors": [
+    {
+     "attr": "dustbin",
+     "modelname": "011_dustbin",
+     "model_ids": null,
+     "kind": "rigid",
+     "is_static": true,
+     "creator": "create_actor"
+    },
+    {
+     "attr": "deskbin",
+     "modelname": "063_tabletrashbin",
+     "model_ids": [
+      0,
+      3,
+      7,
+      8,
+      9,
+      10
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "sphere_lst[0..4]",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "creator": "create_sphere(name='garbage')"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "deskbin",
+     "type": "contact",
+     "indices": [
+      3
+     ],
+     "where": "107",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "deskbin",
+     "type": "contact",
+     "indices": [
+      1
+     ],
+     "where": "129",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "deskbin",
+     "type": "contact",
+     "indices": [
+      1
+     ],
+     "where": "139",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "Conditional: if deskbin on right, right arm grasps contact 3, places at middle_pose (place_actor line 113 without functional_point_id), then left arm grasps contact 1; else left grasps contact 1 directly. Fixed contact ids 1 and 3 across 6 model variants. Hardcoded pour Actions for left arm; table_xy_bias=[0.3,0]."
+  },
+  {
+   "task": "grab_roller",
+   "actors": [
+    {
+     "attr": "roller",
+     "modelname": "102_roller",
+     "model_ids": [
+      0,
+      2
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "roller",
+     "type": "contact",
+     "indices": [
+      0
+     ],
+     "where": "41",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "roller",
+     "type": "contact",
+     "indices": [
+      1
+     ],
+     "where": "42",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "Dual-arm simultaneous grasp: left uses contact 0, right contact 1 (fixed across 2 variants). ori_qpos list indexed by model_id (ids 0 and 2 of a 3-entry list)."
+  },
+  {
+   "task": "handover_block",
+   "actors": [
+    {
+     "attr": "box",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "creator": "create_box(boxtype='long')"
+    },
+    {
+     "attr": "target_box",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "is_static": true,
+     "creator": "create_box(default)"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "box",
+     "type": "contact",
+     "indices": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "where": "62",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "box",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "72",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "box",
+     "type": "contact",
+     "indices": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "where": "86",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "target_box",
+     "type": "functional",
+     "indices": [
+      1
+     ],
+     "where": "99",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "box",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "101",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "box",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "112",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "target_box",
+     "type": "functional",
+     "indices": [
+      1
+     ],
+     "where": "113",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "Long box has 8 built-in contact points (groups [0-3] upper, [4-7] lower); box always spawns at x<0 so grasp arm is effectively always left; check_success only checks right gripper open."
+  },
+  {
+   "task": "handover_mic",
+   "actors": [
+    {
+     "attr": "microphone",
+     "modelname": "018_microphone",
+     "model_ids": [
+      0,
+      4,
+      5
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "microphone",
+     "type": "contact",
+     "indices": [
+      1,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+     ],
+     "where": "51",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "microphone",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "70",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "microphone",
+     "type": "contact",
+     "indices": [
+      0,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+     ],
+     "where": "81",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "microphone",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "100",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "Assumes 16 contact points (0..15) split into two handover groups on all 3 model variants; arm tags also cached in load_actors for check_success; hardcoded GRASP_DIRECTION_DIC quats."
+  },
+  {
+   "task": "hanging_mug",
+   "actors": [
+    {
+     "attr": "mug",
+     "modelname": "039_mug",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "kind": "rigid",
+     "creator": "rand_create_actor"
+    },
+    {
+     "attr": "rack",
+     "modelname": "040_rack",
+     "model_ids": null,
+     "kind": "rigid",
+     "is_static": true,
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "mug",
+     "type": "contact",
+     "indices": "all",
+     "where": "47",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "mug",
+     "type": "contact",
+     "indices": "all",
+     "where": "62",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "rack",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "66",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "mug",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "72",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "mug",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "82",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "rack",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "84",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "Arms hardcoded (left grasps, right hangs); intermediate place_actor at line 52 has no functional_point_id (uses actor pose); hang place uses dis=-0.05 and pre_dis_axis='fp'. rack model_id defaults to 0."
+  },
+  {
+   "task": "lift_pot",
+   "actors": [
+    {
+     "attr": "pot",
+     "modelname": "060_kitchenpot",
+     "model_ids": [
+      0,
+      1
+     ],
+     "kind": "urdf",
+     "creator": "rand_create_sapien_urdf_obj"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "pot",
+     "type": "contact",
+     "indices": [
+      0
+     ],
+     "where": "38",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "pot",
+     "type": "contact",
+     "indices": [
+      1
+     ],
+     "where": "39",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "pot",
+     "type": "contact",
+     "indices": [
+      0
+     ],
+     "where": "54",
+     "how": "get_contact_point("
+    },
+    {
+     "actor": "pot",
+     "type": "contact",
+     "indices": [
+      1
+     ],
+     "where": "55",
+     "how": "get_contact_point("
+    }
+   ],
+   "notes": "model_id = np.random.randint(0,2); dual-arm fixed contact 0 (left) / 1 (right) on articulation; grippers pre-closed to 0.5."
+  },
+  {
+   "task": "move_can_pot",
+   "actors": [
+    {
+     "attr": "pot",
+     "modelname": "060_kitchenpot",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "kind": "urdf",
+     "creator": "rand_create_sapien_urdf_obj"
+    },
+    {
+     "attr": "can",
+     "modelname": "105_sauce-can",
+     "model_ids": [
+      0,
+      2,
+      4,
+      5,
+      6
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "can",
+     "type": "contact",
+     "indices": "all",
+     "where": "75",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "pot_id = np.random.randint(0,7) (lift_pot only uses 0..1 of the same model); place_actor at line 80 has no functional_point_id; target pose computed in load_actors relative to pot."
+  },
+  {
+   "task": "move_pillbottle_pad",
+   "actors": [
+    {
+     "attr": "pillbottle",
+     "modelname": "080_pillbottle",
+     "model_ids": [
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "pad",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "is_static": true,
+     "creator": "create_box(default)"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "pillbottle",
+     "type": "contact",
+     "indices": "all",
+     "where": "73",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "pad",
+     "type": "functional",
+     "indices": [
+      1
+     ],
+     "where": "79",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "pillbottle",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "87",
+     "how": "place_actor functional_point_id="
+    }
+   ],
+   "notes": "pad functional 1 = top of built-in box; grasp with gripper_pos=0; pre_dis_axis='fp'."
+  },
+  {
+   "task": "move_playingcard_away",
+   "actors": [
+    {
+     "attr": "playingcards",
+     "modelname": "081_playingcards",
+     "model_ids": [
+      0,
+      1,
+      2
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "playingcards",
+     "type": "contact",
+     "indices": "all",
+     "where": "50",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "No place; moves x +/-0.3 then opens gripper. self.target_pose assigned from playingcards pose with '# TODO' and unused."
+  },
+  {
+   "task": "move_stapler_pad",
+   "actors": [
+    {
+     "attr": "stapler",
+     "modelname": "048_stapler",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "pad",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "creator": "create_box(default)"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "stapler",
+     "type": "contact",
+     "indices": "all",
+     "where": "91",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "place_actor at line 97 has no functional_point_id (constrain='align' to pad pose + hardcoded quat [0.707,0,0,0.707]); pad created with scene=self.scene and is not static."
+  },
+  {
+   "task": "open_laptop",
+   "actors": [
+    {
+     "attr": "laptop",
+     "modelname": "015_laptop",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+     ],
+     "kind": "urdf",
+     "creator": "rand_create_sapien_urdf_obj"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "laptop",
+     "type": "contact",
+     "indices": [
+      0
+     ],
+     "where": "38",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "laptop",
+     "type": "contact",
+     "indices": [
+      1
+     ],
+     "where": "48",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "laptop",
+     "type": "contact",
+     "indices": [
+      1
+     ],
+     "where": "64",
+     "how": "get_contact_point("
+    }
+   ],
+   "notes": "model_id = np.random.randint(0,11); fix_root_link; loop up to 15x re-grasping contact 1 with pre_grasp_dis=grasp_dis=0, breaking on plan failure or check_success(target=0.5). Fixed contact 0/1 across 11 variants."
+  },
+  {
+   "task": "open_microwave",
+   "actors": [
+    {
+     "attr": "microwave",
+     "modelname": "044_microwave",
+     "model_ids": [
+      0,
+      1
+     ],
+     "kind": "urdf",
+     "creator": "rand_create_sapien_urdf_obj"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "microwave",
+     "type": "contact",
+     "indices": [
+      0
+     ],
+     "where": "35",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "microwave",
+     "type": "contact",
+     "indices": [
+      4
+     ],
+     "where": "46",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "microwave",
+     "type": "contact",
+     "indices": [
+      1
+     ],
+     "where": "65",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "microwave",
+     "type": "contact",
+     "indices": [
+      1
+     ],
+     "where": "72",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "microwave",
+     "type": "contact",
+     "indices": [
+      2
+     ],
+     "where": "84",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "model_id = np.random.randint(0,2); always left arm; primary loop (50x) on contact 4, fallback branch resets plan_success=True, opens gripper, re-grasps contact 1 twice and loops (30x) on contact 2. Fixed contact ids 0,1,2,4 on 2 variants."
+  },
+  {
+   "task": "pick_diverse_bottles",
+   "actors": [
+    {
+     "attr": "bottle1",
+     "modelname": "001_bottle",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+     ],
+     "kind": "rigid",
+     "creator": "rand_create_actor"
+    },
+    {
+     "attr": "bottle2",
+     "modelname": "001_bottle",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+     ],
+     "kind": "rigid",
+     "creator": "rand_create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "bottle1",
+     "type": "contact",
+     "indices": "all",
+     "where": "56",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "bottle2",
+     "type": "contact",
+     "indices": "all",
+     "where": "57",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "bottle1",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "72",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "bottle2",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "81",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "bottle1",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "98",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "bottle2",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "99",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "Arms hardcoded left/right; ids drawn independently from range(20); dual simultaneous grasp/lift/place with is_open=False."
+  },
+  {
+   "task": "pick_dual_bottles",
+   "actors": [
+    {
+     "attr": "bottle1",
+     "modelname": "001_bottle",
+     "model_ids": [
+      13
+     ],
+     "kind": "rigid",
+     "creator": "rand_create_actor"
+    },
+    {
+     "attr": "bottle2",
+     "modelname": "001_bottle",
+     "model_ids": [
+      16
+     ],
+     "kind": "rigid",
+     "creator": "rand_create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "bottle1",
+     "type": "contact",
+     "indices": "all",
+     "where": "57",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "bottle2",
+     "type": "contact",
+     "indices": "all",
+     "where": "58",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "bottle1",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "73",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "bottle2",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "82",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "bottle1",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "96",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "bottle2",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "97",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "Fixed model ids 13 and 16; load_actors runs together_open_gripper 4x with render_freq temporarily 0."
+  },
+  {
+   "task": "place_a2b_left",
+   "actors": [
+    {
+     "attr": "object",
+     "modelname": [
+      "047_mouse",
+      "048_stapler",
+      "050_bell",
+      "057_toycar",
+      "073_rubikscube",
+      "075_bread",
+      "077_phone",
+      "081_playingcards",
+      "086_woodenblock",
+      "112_tea-box",
+      "113_coffee-box",
+      "107_soap"
+     ],
+     "model_ids": "all_available",
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "target_object",
+     "modelname": [
+      "047_mouse",
+      "048_stapler",
+      "050_bell",
+      "057_toycar",
+      "073_rubikscube",
+      "075_bread",
+      "077_phone",
+      "081_playingcards",
+      "086_woodenblock",
+      "112_tea-box",
+      "113_coffee-box",
+      "107_soap"
+     ],
+     "model_ids": "all_available",
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "object",
+     "type": "contact",
+     "indices": "all",
+     "where": "128",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "target_object modelname forced != object modelname; model ids from glob(model_data*.json); place_actor line 137 uses target_object pose x-0.13 with no functional_point_id; 'raise \"Actor create limit!\"' raises a str (TypeError)."
+  },
+  {
+   "task": "place_a2b_right",
+   "actors": [
+    {
+     "attr": "object",
+     "modelname": [
+      "047_mouse",
+      "048_stapler",
+      "050_bell",
+      "057_toycar",
+      "073_rubikscube",
+      "075_bread",
+      "077_phone",
+      "081_playingcards",
+      "086_woodenblock",
+      "112_tea-box",
+      "113_coffee-box",
+      "107_soap"
+     ],
+     "model_ids": "all_available",
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "target_object",
+     "modelname": [
+      "047_mouse",
+      "048_stapler",
+      "050_bell",
+      "057_toycar",
+      "073_rubikscube",
+      "075_bread",
+      "077_phone",
+      "081_playingcards",
+      "086_woodenblock",
+      "112_tea-box",
+      "113_coffee-box",
+      "107_soap"
+     ],
+     "model_ids": "all_available",
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "object",
+     "type": "contact",
+     "indices": "all",
+     "where": "129",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "Mirror of place_a2b_left (x+0.13); selected_model_id_A drawn (line 89) before the empty-list check (line 90); place_actor line 138 without functional_point_id."
+  },
+  {
+   "task": "place_bread_basket",
+   "actors": [
+    {
+     "attr": "breadbasket",
+     "modelname": "076_breadbasket",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "bread[0..1] (list, up to 2)",
+     "modelname": "075_bread",
+     "model_ids": [
+      0,
+      1,
+      3,
+      5,
+      6
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "bread[id]",
+     "type": "contact",
+     "indices": "all",
+     "where": "98",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "breadbasket",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "103",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "bread[id]",
+     "type": "contact",
+     "indices": "all",
+     "where": "126",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "bread[id^1]",
+     "type": "contact",
+     "indices": "all",
+     "where": "127",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "breadbasket",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "136",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "Number of breads can be 1 if random placement fails (try_num=-1 break); three branches: single bread, both same side (sequential remove_bread), opposite sides (dual-arm remove()). All place_actor calls (106, 139, 152) have no functional_point_id. Each bread id drawn independently."
+  },
+  {
+   "task": "place_bread_skillet",
+   "actors": [
+    {
+     "attr": "bread",
+     "modelname": "075_bread",
+     "model_ids": [
+      0,
+      1,
+      3,
+      5,
+      6
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "skillet",
+     "modelname": "106_skillet",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "skillet",
+     "type": "contact",
+     "indices": "all",
+     "where": "67",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "bread",
+     "type": "contact",
+     "indices": "all",
+     "where": "68",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "skillet",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "94",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "skillet",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "115",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "table_static=False; skillet moved via move_to_pose with hardcoded per-arm quaternions; place_actor line 98 has no functional_point_id; masses 0.001/0.01."
+  },
+  {
+   "task": "place_burger_fries",
+   "actors": [
+    {
+     "attr": "tray",
+     "modelname": "008_tray",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "kind": "rigid",
+     "is_static": true,
+     "creator": "create_actor(scale=2)"
+    },
+    {
+     "attr": "hamburg",
+     "modelname": "006_hamburg",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "frenchfries",
+     "modelname": "005_french-fries",
+     "model_ids": [
+      0,
+      1
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "hamburg",
+     "type": "contact",
+     "indices": "all",
+     "where": "78",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "frenchfries",
+     "type": "contact",
+     "indices": "all",
+     "where": "79",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "tray",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "89",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "tray",
+     "type": "functional",
+     "indices": [
+      1
+     ],
+     "where": "90",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "hamburg",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "97",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "frenchfries",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "109",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "tray",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "127",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "hamburg",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "127",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "tray",
+     "type": "functional",
+     "indices": [
+      1
+     ],
+     "where": "129",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "frenchfries",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "129",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "Tray functional 1 fixed across 4 tray variants; tray.set_mass on a static actor is a no-op; arms hardcoded left=hamburg, right=fries; tray scale (2,2,2) is overridden by model_data scale when json present."
+  },
+  {
+   "task": "place_can_basket",
+   "actors": [
+    {
+     "attr": "basket",
+     "modelname": "110_basket",
+     "model_ids": [
+      0,
+      1
+     ],
+     "kind": "rigid",
+     "creator": "rand_create_actor"
+    },
+    {
+     "attr": "can",
+     "modelname": "071_can",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      6
+     ],
+     "kind": "rigid",
+     "creator": "rand_create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "can",
+     "type": "contact",
+     "indices": "all",
+     "where": "71",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "basket",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "75",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "basket",
+     "type": "functional",
+     "indices": [
+      1
+     ],
+     "where": "76",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "basket",
+     "type": "contact",
+     "indices": "all",
+     "where": "113",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "basket",
+     "type": "contact",
+     "indices": "all",
+     "where": "123",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "Arm chosen randomly in load_actors; picks nearer of basket functional 0/1 and overwrites quaternion with hardcoded values; place_actor line 88 has no functional_point_id; if plan_success is False after place, resets plan_success=True and executes a fallback (move_to_pose, open, basket grasp pre_grasp_dis=0.02). Basket functional 1 fixed across 2 variants."
+  },
+  {
+   "task": "place_cans_plasticbox",
+   "actors": [
+    {
+     "attr": "plasticbox",
+     "modelname": "062_plasticbox",
+     "model_ids": [
+      3,
+      5
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "object1",
+     "modelname": "071_can",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      6
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "object2",
+     "modelname": "071_can",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      6
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "object1",
+     "type": "contact",
+     "indices": "all",
+     "where": "82",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "object2",
+     "type": "contact",
+     "indices": "all",
+     "where": "83",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "plasticbox",
+     "type": "functional",
+     "indices": [
+      1
+     ],
+     "where": "97",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "plasticbox",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "110",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "plasticbox",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "128",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "plasticbox",
+     "type": "functional",
+     "indices": [
+      1
+     ],
+     "where": "129",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "Arms hardcoded left=object1 -> functional 1, right=object2 -> functional 0; place_actor calls (94, 107) have no functional_point_id. Plasticbox functional 1 fixed across 2 variants."
+  },
+  {
+   "task": "place_container_plate",
+   "actors": [
+    {
+     "attr": "container",
+     "modelname": [
+      "002_bowl",
+      "021_cup"
+     ],
+     "model_ids": {
+      "002_bowl": [
+       1,
+       2,
+       3,
+       5
+      ],
+      "021_cup": [
+       1,
+       2,
+       3,
+       4,
+       5,
+       6,
+       7
+      ]
+     },
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "plate",
+     "modelname": "003_plate",
+     "model_ids": null,
+     "kind": "rigid",
+     "is_static": true,
+     "creator": "create_actor(scale=[0.025]*3)"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "container",
+     "type": "contact",
+     "indices": [
+      0,
+      2
+     ],
+     "where": "66",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "plate",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "76",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "container",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "78",
+     "how": "place_actor functional_point_id="
+    }
+   ],
+   "notes": "Contact index conditional on arm: [0,2][arm=='left'] -> 0 for right arm, 2 for left arm, applied to both bowl (4 ids) and cup (7 ids) model families; self.plate_id=0 is informational only (model_id not passed, default 0)."
+  },
+  {
+   "task": "place_dual_shoes",
+   "actors": [
+    {
+     "attr": "shoe_box",
+     "modelname": "007_shoe-box",
+     "model_ids": null,
+     "kind": "rigid",
+     "is_static": true,
+     "creator": "create_actor"
+    },
+    {
+     "attr": "left_shoe",
+     "modelname": "041_shoe",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "right_shoe",
+     "modelname": "041_shoe",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "left_shoe",
+     "type": "contact",
+     "indices": "all",
+     "where": "95",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "right_shoe",
+     "type": "contact",
+     "indices": "all",
+     "where": "96",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "shoe_box",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "104",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "shoe_box",
+     "type": "functional",
+     "indices": [
+      1
+     ],
+     "where": "105",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "left_shoe",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "111",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "right_shoe",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "120",
+     "how": "place_actor functional_point_id="
+    }
+   ],
+   "notes": "Both shoes share one sampled model id; table_height_bias=-0.1; both place action tuples are computed (lines 107-124) before the right arm's displacement move executes, then executed in later move() calls; check_success uses hardcoded target position/quaternion."
+  },
+  {
+   "task": "place_empty_cup",
+   "actors": [
+    {
+     "attr": "cup",
+     "modelname": "021_cup",
+     "model_ids": [
+      0
+     ],
+     "kind": "rigid",
+     "creator": "rand_create_actor"
+    },
+    {
+     "attr": "coaster",
+     "modelname": "019_coaster",
+     "model_ids": [
+      0
+     ],
+     "kind": "rigid",
+     "is_static": true,
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "cup",
+     "type": "contact",
+     "indices": [
+      0,
+      2
+     ],
+     "where": "69",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "coaster",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "75",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "cup",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "81",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "cup",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "93",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "coaster",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "94",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "Contact index conditional on arm: 0 for right, 2 for left; gripper pre-closed to 0.6 before grasping; single fixed model id so low variant risk."
+  },
+  {
+   "task": "place_fan",
+   "actors": [
+    {
+     "attr": "fan",
+     "modelname": "099_fan",
+     "model_ids": [
+      4,
+      5
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "pad",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "creator": "create_box(default)"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "fan",
+     "type": "contact",
+     "indices": "all",
+     "where": "94",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "place_actor line 100 has no functional_point_id (constrain='align' to pad pose + quat [1,0,0,0]); check_success compares against hardcoded quat [0.707,0.707,0,0] (not the target_pose quat); pad is non-static with mass 1, created with scene=self.scene."
+  },
+  {
+   "task": "place_mouse_pad",
+   "actors": [
+    {
+     "attr": "mouse",
+     "modelname": "047_mouse",
+     "model_ids": [
+      0,
+      1,
+      2
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "target",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "is_static": true,
+     "creator": "create_box(default)"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "mouse",
+     "type": "contact",
+     "indices": "all",
+     "where": "94",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "place_actor line 101 has no functional_point_id (constrain='align' to pad pose + quat [0,0,0,1]); resample loop uses rotate_lim pi/4 vs initial 3.14."
+  },
+  {
+   "task": "place_object_basket",
+   "actors": [
+    {
+     "attr": "basket",
+     "modelname": "110_basket",
+     "model_ids": [
+      0,
+      1
+     ],
+     "kind": "rigid",
+     "creator": "rand_create_actor"
+    },
+    {
+     "attr": "object",
+     "modelname": [
+      "081_playingcards",
+      "057_toycar"
+     ],
+     "model_ids": {
+      "081_playingcards": [
+       0,
+       1,
+       2
+      ],
+      "057_toycar": [
+       0,
+       1,
+       2,
+       3,
+       4,
+       5
+      ]
+     },
+     "kind": "rigid",
+     "creator": "rand_create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "object",
+     "type": "contact",
+     "indices": "all",
+     "where": "73",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "basket",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "79",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "basket",
+     "type": "functional",
+     "indices": [
+      1
+     ],
+     "where": "80",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "basket",
+     "type": "contact",
+     "indices": "all",
+     "where": "112",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "basket",
+     "type": "contact",
+     "indices": "all",
+     "where": "122",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "Arm chosen randomly in load_actors; nearest of basket functional 0/1 with hardcoded quaternion override; place_actor line 87 has no functional_point_id; plan_success fallback branch (reset to True, move_to_pose recovery, basket grasp pre_grasp_dis=0.02). Basket functional 1 fixed across 2 variants."
+  },
+  {
+   "task": "place_object_scale",
+   "actors": [
+    {
+     "attr": "object",
+     "modelname": [
+      "047_mouse",
+      "048_stapler",
+      "050_bell"
+     ],
+     "model_ids": "all_available",
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "scale",
+     "modelname": "072_electronicscale",
+     "model_ids": [
+      0,
+      1,
+      5,
+      6
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "object",
+     "type": "contact",
+     "indices": "all",
+     "where": "105",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "scale",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "116",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "scale",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "132",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "Object ids from glob(model_data*.json); place_actor line 113 has no functional_point_id; self.arm_tag set in play_once and used by check_success (AttributeError if check_success called before play_once)."
+  },
+  {
+   "task": "place_object_stand",
+   "actors": [
+    {
+     "attr": "object",
+     "modelname": [
+      "047_mouse",
+      "048_stapler",
+      "050_bell",
+      "073_rubikscube",
+      "057_toycar",
+      "079_remotecontrol"
+     ],
+     "model_ids": "all_available",
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "displaystand",
+     "modelname": "074_displaystand",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "object",
+     "type": "contact",
+     "indices": "all",
+     "where": "109",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "displaystand",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "114",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "place_actor line 118 has no functional_point_id; object.set_mass called twice (0.05 then 0.01)."
+  },
+  {
+   "task": "place_phone_stand",
+   "actors": [
+    {
+     "attr": "phone",
+     "modelname": "077_phone",
+     "model_ids": [
+      0,
+      1,
+      2,
+      4
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "stand",
+     "modelname": "078_phonestand",
+     "model_ids": [
+      1,
+      2
+     ],
+     "kind": "rigid",
+     "is_static": true,
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "phone",
+     "type": "contact",
+     "indices": "all",
+     "where": "76",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "stand",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "79",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "phone",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "87",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "phone",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "100",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "stand",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "101",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "Spawn quaternion taken from ori_quat[phone_id] (5-entry list, ids 0,1,2,4 used); no lift between grasp and place; place dis=0, constrain='align'."
+  },
+  {
+   "task": "place_shoe",
+   "actors": [
+    {
+     "attr": "target_block",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "is_static": true,
+     "creator": "create_box(default)"
+    },
+    {
+     "attr": "shoe",
+     "modelname": "041_shoe",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "shoe",
+     "type": "contact",
+     "indices": "all",
+     "where": "67",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "target_block",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "73",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "shoe",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "80",
+     "how": "place_actor functional_point_id="
+    }
+   ],
+   "notes": "target_block.config['functional_matrix'] overridden with two identical rotated matrices (lines 21-31); grasp gripper_pos=0; check_success uses hardcoded position/quat."
+  },
+  {
+   "task": "press_stapler",
+   "actors": [
+    {
+     "attr": "stapler",
+     "modelname": "048_stapler",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+     ],
+     "kind": "rigid",
+     "is_static": true,
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "stapler",
+     "type": "contact",
+     "indices": [
+      2
+     ],
+     "where": "35",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "stapler",
+     "type": "contact",
+     "indices": [
+      2
+     ],
+     "where": "40",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "stapler",
+     "type": "contact",
+     "indices": [
+      2
+     ],
+     "where": "48",
+     "how": "get_contact_point("
+    }
+   ],
+   "notes": "Fixed contact index 2 used as press point across 7 stapler variants; both grasp_actor calls use pre_grasp_dis==grasp_dis (hover then press); check_success latches stage_success_tag."
+  },
+  {
+   "task": "put_bottles_dustbin",
+   "actors": [
+    {
+     "attr": "bottles[0..2] (list of 3)",
+     "modelname": "114_bottle",
+     "model_ids": [
+      1,
+      2,
+      3
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "dustbin",
+     "modelname": "011_dustbin",
+     "model_ids": null,
+     "kind": "rigid",
+     "is_static": true,
+     "creator": "create_actor(scene=self.scene)"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "bottle (bottles[i], sorted)",
+     "type": "contact",
+     "indices": "all",
+     "where": "89",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "bottle (bottles[i], sorted)",
+     "type": "contact",
+     "indices": "all",
+     "where": "96",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "bottle (bottles[i], sorted)",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "108",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "bottle (bottles[i], sorted)",
+     "type": "contact",
+     "indices": "all",
+     "where": "115",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "Loop over 3 bottles (ids 1,2,3 one each); for right-side bottles the returned grasp action tuple is mutated in place (right_action[1][0]/[1][1].target_pose[2] += 0.06, left_action -= 0.06), assuming grasp_actor returned the 3-action form; hardcoded left_end_action pose; table_xy_bias=[0.3,0]; has stage_reward."
+  },
+  {
+   "task": "put_object_cabinet",
+   "actors": [
+    {
+     "attr": "cabinet",
+     "modelname": "036_cabinet",
+     "model_ids": [
+      46653
+     ],
+     "kind": "urdf",
+     "creator": "rand_create_sapien_urdf_obj"
+    },
+    {
+     "attr": "object",
+     "modelname": [
+      "047_mouse",
+      "048_stapler",
+      "057_toycar",
+      "073_rubikscube",
+      "075_bread",
+      "077_phone",
+      "081_playingcards",
+      "112_tea-box",
+      "113_coffee-box",
+      "107_soap"
+     ],
+     "model_ids": "all_available",
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "object",
+     "type": "contact",
+     "indices": "all",
+     "where": "90",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "cabinet",
+     "type": "contact",
+     "indices": "all",
+     "where": "91",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "cabinet",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "101",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "cabinet",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "120",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "modelid 46653 resolved by directory name match in create_sapien_urdf_obj; table_static=False; drawer pulled by 4x y=-0.04 displacement with opposite arm; place_actor line 102 has no functional_point_id; info reports base0 regardless."
+  },
+  {
+   "task": "rotate_qrcode",
+   "actors": [
+    {
+     "attr": "qrcode",
+     "modelname": "070_paymentsign",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "qrcode",
+     "type": "contact",
+     "indices": "all",
+     "where": "48",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "place_actor line 55 has no functional_point_id (constrain='align' to hardcoded target pose with quat [1,0,0,0]); check_success expects quat [0.707,0.707,0,0]."
+  },
+  {
+   "task": "scan_object",
+   "actors": [
+    {
+     "attr": "scanner",
+     "modelname": "024_scanner",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4
+     ],
+     "kind": "rigid",
+     "creator": "create_actor(scene=self.scene)"
+    },
+    {
+     "attr": "object",
+     "modelname": "112_tea-box",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "kind": "rigid",
+     "creator": "create_actor(scene=self.scene)"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "scanner",
+     "type": "contact",
+     "indices": "all",
+     "where": "63",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "object",
+     "type": "contact",
+     "indices": "all",
+     "where": "64",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "object",
+     "type": "functional",
+     "indices": [
+      1
+     ],
+     "where": "88",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "scanner",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "89",
+     "how": "place_actor functional_point_id="
+    },
+    {
+     "actor": "scanner",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "105",
+     "how": "get_functional_point("
+    }
+   ],
+   "notes": "Tea-box functional 1 fixed across 6 variants; scanner functional 0 across 5; object placed first (line 74, no functional_point_id, is_open=False) then scanner aligned to object's functional 1 while both grippers stay closed."
+  },
+  {
+   "task": "shake_bottle",
+   "actors": [
+    {
+     "attr": "bottle",
+     "modelname": "001_bottle",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "bottle",
+     "type": "contact",
+     "indices": "all",
+     "where": "47",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "No place; shaking via move_by_displacement with hardcoded quaternions; check_success only checks bottle height."
+  },
+  {
+   "task": "shake_bottle_horizontally",
+   "actors": [
+    {
+     "attr": "bottle",
+     "modelname": "001_bottle",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "bottle",
+     "type": "contact",
+     "indices": "all",
+     "where": "47",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "No place; extra 90-degree y rotation before shaking; check_success only checks bottle height."
+  },
+  {
+   "task": "stack_blocks_three",
+   "actors": [
+    {
+     "attr": "block1",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "creator": "create_box(default)"
+    },
+    {
+     "attr": "block2",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "creator": "create_box(default)"
+    },
+    {
+     "attr": "block3",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "creator": "create_box(default)"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "block (block1/block2/block3 via pick_and_place_block)",
+     "type": "contact",
+     "indices": "all",
+     "where": "93",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "block (block1/block2/block3 via pick_and_place_block)",
+     "type": "contact",
+     "indices": "all",
+     "where": "97",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "last_actor (previously placed block)",
+     "type": "functional",
+     "indices": [
+      1
+     ],
+     "where": "104",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "block (block1/block2/block3 via pick_and_place_block)",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "111",
+     "how": "place_actor functional_point_id="
+    }
+   ],
+   "notes": "Helper called 3x; first block targets hardcoded pose, later blocks target previous block's functional 1 (top of built-in box); pre_dis_axis='fp'."
+  },
+  {
+   "task": "stack_blocks_two",
+   "actors": [
+    {
+     "attr": "block1",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "creator": "create_box(default)"
+    },
+    {
+     "attr": "block2",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "creator": "create_box(default)"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "block (block1/block2 via pick_and_place_block)",
+     "type": "contact",
+     "indices": "all",
+     "where": "87",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "block (block1/block2 via pick_and_place_block)",
+     "type": "contact",
+     "indices": "all",
+     "where": "91",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "last_actor (previously placed block)",
+     "type": "functional",
+     "indices": [
+      1
+     ],
+     "where": "98",
+     "how": "get_functional_point("
+    },
+    {
+     "actor": "block (block1/block2 via pick_and_place_block)",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "105",
+     "how": "place_actor functional_point_id="
+    }
+   ],
+   "notes": "Same helper pattern as stack_blocks_three with 2 blocks."
+  },
+  {
+   "task": "stack_bowls_three",
+   "actors": [
+    {
+     "attr": "bowl1",
+     "modelname": "002_bowl",
+     "model_ids": [
+      3
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "bowl2",
+     "modelname": "002_bowl",
+     "model_ids": [
+      3
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "bowl3",
+     "modelname": "002_bowl",
+     "model_ids": [
+      3
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "bowl (bowl1/bowl2/bowl3 via move_bowl)",
+     "type": "contact",
+     "indices": [
+      0,
+      2
+     ],
+     "where": "66",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "bowl (bowl1/bowl2/bowl3 via move_bowl)",
+     "type": "contact",
+     "indices": [
+      0,
+      2
+     ],
+     "where": "74",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "bowl (bowl1/bowl2/bowl3 via move_bowl)",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "85",
+     "how": "place_actor functional_point_id="
+    }
+   ],
+   "notes": "Fixed model_id=3 for all bowls; contact index conditional on arm ([0,2][arm=='left'] -> 0 right / 2 left); move_bowl helper with las_arm tracking; targets built from previous bowl pose + 0.05 z with hardcoded quat."
+  },
+  {
+   "task": "stack_bowls_two",
+   "actors": [
+    {
+     "attr": "bowl1",
+     "modelname": "002_bowl",
+     "model_ids": [
+      3
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "bowl2",
+     "modelname": "002_bowl",
+     "model_ids": [
+      3
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "bowl (bowl1/bowl2 via move_bowl)",
+     "type": "contact",
+     "indices": [
+      0,
+      2
+     ],
+     "where": "64",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "bowl (bowl1/bowl2 via move_bowl)",
+     "type": "contact",
+     "indices": [
+      0,
+      2
+     ],
+     "where": "72",
+     "how": "grasp_actor contact_point_id="
+    },
+    {
+     "actor": "bowl (bowl1/bowl2 via move_bowl)",
+     "type": "functional",
+     "indices": [
+      0
+     ],
+     "where": "83",
+     "how": "place_actor functional_point_id="
+    }
+   ],
+   "notes": "Same as stack_bowls_three with 2 bowls; fixed model_id=3; contact 0 (right) / 2 (left) conditional on arm."
+  },
+  {
+   "task": "stamp_seal",
+   "actors": [
+    {
+     "attr": "seal",
+     "modelname": "100_seal",
+     "model_ids": [
+      0,
+      2,
+      3,
+      4,
+      6
+     ],
+     "kind": "rigid",
+     "creator": "create_actor"
+    },
+    {
+     "attr": "target",
+     "modelname": null,
+     "model_ids": null,
+     "kind": "rigid",
+     "creator": "create_visual_box (raw sapien.Entity, no Actor wrapper / no points)"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "seal",
+     "type": "contact",
+     "indices": [
+      4,
+      5,
+      6,
+      7
+     ],
+     "where": "108",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "Fixed contact ids [4,5,6,7] across 5 seal variants (assumes >=8 contact points); target is a visual-only sapien.Entity (add_prohibit_area and get_pose called on it); place_actor line 115 passes a sapien.Pose as target_pose with constrain='auto' and no functional_point_id."
+  },
+  {
+   "task": "turn_switch",
+   "actors": [
+    {
+     "attr": "switch",
+     "modelname": "056_switch",
+     "model_ids": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+     ],
+     "kind": "urdf",
+     "creator": "rand_create_sapien_urdf_obj"
+    }
+   ],
+   "requests": [
+    {
+     "actor": "switch",
+     "type": "contact",
+     "indices": "all",
+     "where": "35",
+     "how": "grasp_actor contact_point_id="
+    }
+   ],
+   "notes": "model_id = np.random.randint(0,8); fix_root_link; gripper closed (pos=0) before 'grasp' (push) over all contact points; arm chosen from switch facing direction."
+  }
+ ]
+}

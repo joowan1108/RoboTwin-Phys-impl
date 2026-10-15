@@ -1,0 +1,240 @@
+{
+  "adjust_bottle": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "beat_block_hammer": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "blocks_ranking_rgb": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "blocks_ranking_size": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "click_alarmclock": [
+    "get_grasp_pose",
+    "move_by_displacement"
+  ],
+  "click_bell": [
+    "grasp_actor",
+    "move_by_displacement"
+  ],
+  "dump_bin_bigbin": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "grab_roller": [
+    "grasp_actor",
+    "move_by_displacement"
+  ],
+  "handover_block": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "handover_mic": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "lift_pot": [
+    "grasp_actor",
+    "move_by_displacement"
+  ],
+  "move_can_pot": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "move_playingcard_away": [
+    "grasp_actor",
+    "move_by_displacement"
+  ],
+  "move_stapler_pad": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "hanging_mug": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "open_laptop": [
+    "grasp_actor"
+  ],
+  "open_microwave": [
+    "grasp_actor",
+    "move_by_displacement"
+  ],
+  "pick_diverse_bottles": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "pick_dual_bottles": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "place_a2b_left": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "place_a2b_right": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "place_bread_basket": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "place_bread_skillet": [
+    "grasp_actor",
+    "move_by_displacement",
+    "move_to_pose",
+    "place_actor"
+  ],
+  "place_can_basket": [
+    "grasp_actor",
+    "move_by_displacement",
+    "move_to_pose",
+    "place_actor"
+  ],
+  "place_cans_plasticbox": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "place_container_plate": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "place_dual_shoes": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "place_empty_cup": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "place_fan": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "place_burger_fries": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "place_mouse_pad": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "place_object_basket": [
+    "grasp_actor",
+    "move_by_displacement",
+    "move_to_pose",
+    "place_actor"
+  ],
+  "place_object_scale": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "place_object_stand": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "place_phone_stand": [
+    "grasp_actor",
+    "place_actor"
+  ],
+  "move_pillbottle_pad": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "place_shoe": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "press_stapler": [
+    "grasp_actor"
+  ],
+  "put_bottles_dustbin": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "put_object_cabinet": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "rotate_qrcode": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "scan_object": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "shake_bottle": [
+    "grasp_actor",
+    "move_by_displacement"
+  ],
+  "shake_bottle_horizontally": [
+    "grasp_actor",
+    "move_by_displacement"
+  ],
+  "stack_blocks_three": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "stack_blocks_two": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "stack_bowls_three": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "stack_bowls_two": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "stamp_seal": [
+    "grasp_actor",
+    "move_by_displacement",
+    "place_actor"
+  ],
+  "turn_switch": [
+    "grasp_actor"
+  ]
+}

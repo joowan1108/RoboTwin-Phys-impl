@@ -9,6 +9,44 @@ REPO = ROOT / "vendor/RoboTwin"
 PIN = "13c3c47ff4312dd62484bcd51be034af55c062d1"
 
 
+def patch_transform_text(text):
+    marker = "# Reviewed finite-rotation helpers for RoboTwin-Phys."
+    if marker in text:
+        return text
+    # Preserve pose placement and candidate generation; replace the shared
+    # numeric operations and guard the remaining axis-angle entry points.
+    old = "    v2 = v2 / np.linalg.norm(v2)\n    axis = np.cross(v1, v2)\n    angle = np.arccos(np.dot(v1, v2))"
+    node = next((n for n in ast.parse(text).body if isinstance(n, ast.FunctionDef) and n.name == 'rotate2rob'), None)
+    part = ast.get_source_segment(text, node) if node is not None else ''
+    if part.count(old) != 1:
+        raise RuntimeError("Pinned rotate2rob implementation changed; review before patching")
+    text = text.replace(part, part.replace(old, "    v2 = unit_vector(v2)\n    axis, angle = alignment_axis_angle(v1, v2)"), 1)
+    anchor = "    rotate_mat = t3d.axangles.axangle2mat(axis, theta)"
+    if text.count(anchor) != 1:
+        raise RuntimeError("Pinned rotate_along_axis implementation changed")
+    text = text.replace(anchor, "    if not np.isfinite(theta):\n"
+                       "        raise ValueError('Non-finite rotation angle')\n"
+                       "    axis = unit_vector(axis, 'rotation axis')\n" + anchor)
+    text += "\n\n" + marker + "\nfrom robotwin_phys.numerics import (\n" \
+            "    get_align_matrix, cal_quat_dis, get_product_vector, rotate_cone,\n" \
+            "    alignment_axis_angle, unit_vector,\n)\n"
+    return text
+
+
+def patch_planner_text(text):
+    marker = '# Preserve CuRobo runtime errors; a failed plan is reported by result.success.'
+    if marker in text:
+        return text
+    old = ('            try:\n'
+           '                result = self.motion_gen_batch.plan_batch(start_joint_states, goal_pose_of_ee, plan_config)\n'
+           '            except Exception as e:\n'
+           '                return {"status": ["Failure" for i in range(10)]}')
+    if text.count(old) != 1:
+        raise RuntimeError('Pinned planner exception handling changed; review before patching')
+    return text.replace(old, '            ' + marker + '\n'
+                        '            result = self.motion_gen_batch.plan_batch(start_joint_states, goal_pose_of_ee, plan_config)')
+
+
 def main():
     sha = subprocess.check_output(["git", "-C", str(REPO), "rev-parse", "HEAD"], text=True).strip()
     if sha != PIN:
@@ -50,6 +88,10 @@ def main():
                         "        self.scene = sapien.Scene([sapien.physx.PhysxCpuSystem(),\n"
                         "            sapien.render.RenderSystem(os.environ.get('SAPIEN_RENDER_DEVICE', 'cuda:0'))])")
     path.write_text(text)
+    path = REPO / "envs/utils/transforms.py"
+    path.write_text(patch_transform_text(path.read_text()))
+    path = REPO / "envs/robot/planner.py"
+    path.write_text(patch_planner_text(path.read_text()))
     diff = subprocess.check_output(["git", "-C", str(REPO), "diff"], text=True)
     (ROOT / "references/robotwin-local.patch").write_text(diff)
     # Official RoboTwin installation fixes, constrained to this isolated environment.

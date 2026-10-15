@@ -8,6 +8,7 @@ import traceback
 
 from .conditions import digest, stable_seed
 from .manifest import atomic_json
+from .planning import ExpertPlanningFailure
 
 
 def run(request):
@@ -48,7 +49,11 @@ def run(request):
             env.phase = "expert"
             if live or recorder:
                 env.capture()
-            info = env.play_once()
+            try:
+                info = env.play_once()
+            except ExpertPlanningFailure as exc:
+                return {"status": "rejected", "reason": "expert_failed", "plan_success": False,
+                        "details": str(exc), "planning_failure": exc.diagnostics}
             success = bool(env.plan_success and env.check_success())
             if not success:
                 return {"status": "rejected", "reason": "expert_failed", "plan_success": bool(env.plan_success)}
@@ -68,6 +73,10 @@ def run(request):
         env.set_instruction(episode["instruction"])
         env.current_seed = env.episode_seed = episode["seed"]
         env.test_num = env.ep_num = episode["episode_index"]
+        # Official check_success for three tasks reads attributes that only the
+        # expert's play_once assigns; derive them from the verified initial scene.
+        from .success_context import prepare
+        success_context = prepare(env, episode["condition"]["task"], episode.get("expert_info"))
         if request["mode"] == "replay":
             if live or recorder:
                 env.capture()
@@ -91,6 +100,7 @@ def run(request):
         if live or recorder:
             env.capture()
         return {"status": "completed", "success": bool(env.eval_success), "actions": env.take_action_cnt-start_step,
+                "success_context": success_context,
                 "seed": episode["seed"], "episode_index": episode["episode_index"],
                 "condition_sha256": episode["condition_sha256"], "initial_state_sha256": digest(initial),
                 "policy": client.identity, "seconds": time.monotonic()-start,

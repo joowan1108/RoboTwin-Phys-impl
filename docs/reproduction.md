@@ -1,6 +1,6 @@
 # 원문·공식 코드 대조 기록
 
-확인일: 2026-10-08. 기준 논문: [RoboTwin-Phys v1](https://arxiv.org/html/2609.26292v1), [PDF](../references/2609.26292v1.pdf). 참고한 공식 안내는 [RoboTwin-Phys 저장소](https://github.com/yefeng00/RoboTwin-Phys), [프로젝트](https://yefeng00.github.io/RoboTwinPhysTest/), [RoboTwin 설치 문서](https://robotwin-platform.github.io/doc/usage/robotwin-install.html)입니다.
+확인일: 2026-10-08. 기준 논문: [RoboTwin-Phys v1](https://arxiv.org/html/2609.26292v1), [PDF](https://arxiv.org/pdf/2609.26292v1). 참고한 공식 안내는 [RoboTwin-Phys 저장소](https://github.com/yefeng00/RoboTwin-Phys), [프로젝트](https://yefeng00.github.io/RoboTwinPhysTest/), [RoboTwin 설치 문서](https://robotwin-platform.github.io/doc/usage/robotwin-install.html)입니다.
 
 ## 무엇이 공개되어 있는가
 
@@ -68,7 +68,7 @@ v1 원문은 전체 결과와 task별 결과, 부록 A의 전역 범위, 부록 
 
 아래는 공식 구현으로 검증되지 않은 **로컬 구현 선택**입니다.
 
-- 연속 범위는 uniform, 카메라 mode는 균등 확률, 방향/회전축은 isotropic으로 sampling합니다. 전역 episode factor를 task object 및 clutter object 전체에 공유합니다. 저자의 정확한 RNG algorithm/stream/seed 목록은 미공개입니다.
+- 연속 범위는 uniform, 카메라 mode는 균등 확률, 방향/회전축은 isotropic으로 sampling합니다. 전역 episode factor는 task object에 적용합니다. 공식 clutter object는 **명목 질량·CoM·크기를 유지하고 policy 단계 외력도 받지 않습니다**. table·gripper와 공유하는 접촉 재질(마찰·반발 계수)만 clutter에도 적용합니다. 논문의 CoM 범위와 task별 축소(hammer 등 얇은 물체)는 조작 대상 물체를 기준으로 서술되며, 1.5 cm 이동은 펜·마커 같은 얇은 clutter의 몸체 밖으로 CoM을 옮겨 공식 안정성 검사가 장면 자체를 제외시켰습니다([v6 pool 안내](com-scope-fresh-pool.md)). 저자의 정확한 RNG algorithm/stream/seed 목록은 미공개입니다.
 - tilt는 table surface normal이 +Y를 향하도록 X축 음의 회전으로 구현합니다. table 중심을 기준으로 초기 object pose를 함께 회전하고 scale에 따라 tabletop 위의 높이를 보정합니다. robot root는 움직이지 않습니다.
 - geometry는 load 전에 collision/visual 및 grasp/functional metadata에 적용합니다. mass는 원래 task가 설정한 값에 배율을 곱하고, geometry 처리 후 계산된 inertia에도 같은 mass 배율을 곱합니다. robot 링크의 mass/CoM는 object randomization 대상이 아닙니다.
 - friction/restitution은 object·table·gripper 등 collision material에 적용합니다. object joint damping은 drive damping으로 해석하며 stiffness와 force limit은 보존합니다.

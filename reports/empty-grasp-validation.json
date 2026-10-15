@@ -1,0 +1,40 @@
+{
+  "package": "robotwin-empty-grasp-fix-v1.zip",
+  "sha256": "1000849ae1dd224e72c38ae20b69040596c59d1c526eee4fc22bddccb4352bb8",
+  "baseline_package": "robotwin-fresh-pool-v1.zip",
+  "baseline_sha256": "4b2b19ccbc2581411019ac6c3c6e42c38434708d45140afcead3bd9116583ce6",
+  "experiment": "phys-pro6000-100-v5",
+  "pool_tasks": 50,
+  "episodes_per_task": 100,
+  "phase": "freeze",
+  "gpu_count": 2,
+  "workers_per_gpu": 4,
+  "runtime_diff": [
+    "src/robotwin_phys/planning.py: previously-aborting empty contact branch only"
+  ],
+  "new_tool": "tools/resume_contact_pool.py",
+  "preservation": "Exact reviewed source transition; original backups and receipts; no accepted/rejected record changed; no expert replay",
+  "official_asset_review": "grasp-annotation-review.json",
+  "full_cpu_tests_passed": 237,
+  "full_cpu_tests_deselected": 3,
+  "test_command": "PYTHONPATH=src /tmp/robotwin-review-tests/bin/python -m pytest -q --tb=short -k 'not test_force_is_policy_only_and_scales_as_mg and not test_all_five_configs_reference_real_official_adapters and not test_mp4_is_decodable'",
+  "test_environment": "Python 3.12.3 / PyTorch 2.7.1+cpu",
+  "deselected_reasons": {
+    "test_force_is_policy_only_and_scales_as_mg": "SAPIEN not installed locally",
+    "test_all_five_configs_reference_real_official_adapters": "Policy vendor repositories not present locally",
+    "test_mp4_is_decodable": "ffmpeg/ffprobe not installed locally"
+  },
+  "guards": [
+    "official woodenblock metadata 5 variants",
+    "before/after AST equality outside empty branch",
+    "preserved completed and partial evidence",
+    "retry only failed candidate and continue",
+    "reject unrelated provenance changes",
+    "extracted asset metadata CRC audit",
+    "immutable prior ZIPs",
+    "OOD source binding/checksums",
+    "Bash syntax and protected footer",
+    "Python 3.10 parse for all 47 packaged Python files"
+  ],
+  "cuda_sapien_remote_verified": false
+}

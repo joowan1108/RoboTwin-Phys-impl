@@ -37,3 +37,10 @@ def test_all_five_configs_reference_real_official_adapters():
         config=yaml.safe_load((ROOT/f"configs/policies/{name}.yaml").read_text())
         assert (ROOT/config["adapter"]).exists()
         assert len(config["checkpoint"]["revision"])==40
+
+
+def test_fastwam_profile_reproduces_upstream_released_checkpoint_setting():
+    # FastWAM README: "When evaluating the original released checkpoints, set EVALUATION.sigma_shift=5.0";
+    # configs/sim_robotwin.yaml there has sigma_shift null and replan_steps 24, so only the shift needs passing.
+    config = yaml.safe_load((ROOT / "configs/policies/fastwam.yaml").read_text())
+    assert config["args"]["sigma_shift"] == 5.0 and config["args"]["replan_steps"] == 24

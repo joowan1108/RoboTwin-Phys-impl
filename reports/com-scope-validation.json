@@ -1,0 +1,298 @@
+{
+ "package": "robotwin-fresh-pool-v2.zip",
+ "sha256": "8e53a6f9f32591389c3026e7a33905d8c3452ddb555f038d6a6f9492be0ee594",
+ "experiment": "phys-pro6000-100-v6",
+ "launcher": "cluster/ood-pool-pro6000-v6-fresh.txt",
+ "supersedes": {
+  "package": "robotwin-planner-failure-fix-v3.zip",
+  "sha256": "4acb0d8aa351e1a91cc062bec742789faddca610be17f24c84c312eca2289791",
+  "experiment": "phys-pro6000-100-v5"
+ },
+ "runtime_diff": [
+  "src/robotwin_phys/simulator.py: task objects receive mass scale, CoM offset and the policy-stage force; official clutter keeps nominal mass, CoM and size and receives no force; contact material (friction/restitution) still applies to every collision shape",
+  "src/robotwin_phys/hooks.py: construction(env, clutter=True) disables geometry scaling while official clutter is built; clutter poses still follow the tilted table",
+  "src/robotwin_phys/simulator.py: get_cluttered_table override records clutter entity ids by scene diff because the official method clears cluttered_objs before returning",
+  "initial_state.physical.bodies entries gain 'clutter', 'com_offset_m', 'mass_scale' and 'external_force'"
+ ],
+ "paper_basis": "Table 2 object attributes (mass with inertia, CoM per axis, uniform scaling) and the +X policy-stage force describe the manipulated objects, Table 3 narrows CoM for slender task objects; clutter is never mentioned. Friction/restitution are surface conditions shared with table and grippers",
+ "hardware_comparison": {
+  "host": "bs1, 2x RTX 2080 Ti, Docker, image bundle-cu128-v5 with the patch bound read-only",
+  "design": "50 tasks, physical_random, seeds from 100000, up to 5 candidates per task until one verified episode; identical seeds and conditions in both runs; the only code difference is the clutter scope rule",
+  "before (planner-failure-fix-v3)": {
+   "run": "bs1-smoke",
+   "tasks_started": 50,
+   "tasks_verified": 36,
+   "candidates": 148,
+   "outcomes": {
+    "unstable_initialization": 98,
+    "verified": 36,
+    "expert_failed": 14
+   },
+   "unstable_by_com": {
+    "[0,0.005)": "7/20",
+    "[0.005,0.01)": "6/15",
+    "[0.01,0.015)": "39/54",
+    "[0.015,0.03)": "46/59"
+   },
+   "unstable_objects": [
+    [
+     "marker",
+     21
+    ],
+    [
+     "001_bottle",
+     20
+    ],
+    [
+     "spoon",
+     19
+    ],
+    [
+     "093_brush-pen",
+     17
+    ],
+    [
+     "toothbrush",
+     14
+    ],
+    [
+     "080_pillbottle",
+     10
+    ],
+    [
+     "steel_tape",
+     8
+    ],
+    [
+     "105_sauce-can",
+     5
+    ],
+    [
+     "tissue",
+     5
+    ],
+    [
+     "052_dumbbell",
+     4
+    ],
+    [
+     "066_vinegar",
+     4
+    ],
+    [
+     "114_bottle",
+     4
+    ]
+   ],
+   "crash_classes": {},
+   "expert_seconds": {
+    "n": 36,
+    "median": 26.202665571006946,
+    "max": 52.20866753201699
+   }
+  },
+  "after (fresh-pool-v2)": {
+   "tasks_verified": "48/50",
+   "candidates": 93,
+   "outcomes": {
+    "unstable_initialization": 17,
+    "verified": 48,
+    "expert_failed": 25,
+    "expert_failed/no_reachable_grasp": 3
+   },
+   "unstable_by_com": {
+    "[0,0.005)": "3/21",
+    "[0.005,0.01)": "1/8",
+    "[0.01,0.015)": "5/30",
+    "[0.015,0.03)": "8/34"
+   },
+   "unstable_objects": [
+    [
+     "001_bottle",
+     5
+    ],
+    [
+     "spoon",
+     2
+    ],
+    [
+     "018_microphone",
+     2
+    ],
+    [
+     "114_bottle",
+     2
+    ],
+    [
+     "marker",
+     2
+    ],
+    [
+     "066_vinegar",
+     1
+    ],
+    [
+     "068_boxdrink",
+     1
+    ],
+    [
+     "101_milk-tea",
+     1
+    ]
+   ],
+   "crash_classes": {
+    "budget_exhausted": 2
+   },
+   "expert_seconds": {
+    "n": 48,
+    "median": 26.7,
+    "max": 53.3
+   }
+  },
+  "paired_outcomes_on_common_task_seed": {
+   "unstable->verified": 24,
+   "verified->verified": 21,
+   "unstable->expert_failed": 16,
+   "unstable->unstable": 13,
+   "expert_failed->expert_failed": 10,
+   "verified->unstable": 2,
+   "verified->expert_failed": 1,
+   "expert_failed->unstable": 1
+  },
+  "common_pairs": 88,
+  "remaining_budget_exhausted_after": [
+   "beat_block_hammer",
+   "put_object_cabinet"
+  ],
+  "remaining_unstable_after": "17 seeds: 7 standing task bottles (001_bottle/114_bottle) under the task-object CoM offset and mass scale, 10 clutter items at nominal physics (spoon, microphone, marker, vinegar, box drink, milk tea)",
+  "crashes": "none in either run; put_bottles_dustbin 40-seed run recorded 14 exception_after_planning_failure rejections (v3 rule) and no abort",
+  "intermediate (CoM-only build)": {
+   "tasks_verified": "46/50",
+   "candidates": 98,
+   "unstable_initialization": 24,
+   "note": "superseded by the full clutter scope before delivery"
+  }
+ },
+ "first_attempt_defect": "An earlier build of this snapshot read self.cluttered_objs at physics time, which the official code had already cleared, so no clutter was identified; the paired rerun showed identical rejections and the override was corrected before delivery",
+ "cpu_tests": {
+  "command": "PYTHONPATH=src python -m pytest -q --ignore=tests/test_curobo_batch_results.py --ignore=tests/test_curobo_mask_compat.py -k 'not test_force_is_policy_only_and_scales_as_mg and not test_all_five_configs_reference_real_official_adapters and not test_mp4_is_decodable'",
+  "passed": 303,
+  "deselected": 3,
+  "new": "tests/test_com_scope.py (7 tests) and v6 launcher/archive tests in tests/test_fresh_pool_launcher.py"
+ },
+ "open_question": "none for clutter; friction/restitution deliberately remain global",
+ "cuda_sapien_pro6000_verified": false,
+ "launcher_resources": {
+  "gpus": "gpu:pro6000:2",
+  "cpus_per_task": 64,
+  "mem": "128G",
+  "freeze_workers_per_gpu": 8,
+  "concurrent_tasks": 16,
+  "fallback_if_cpu_request_refused": "cpus-per-task=32 and FREEZE_WORKERS_PER_GPU=4"
+ },
+ "launchers": {
+  "pool_only": "cluster/ood-pool-pro6000-v6-fresh.txt",
+  "pool_then_fastwam": "cluster/ood-fastwam-pro6000x2-v6-all.txt"
+ },
+ "scheduler_change": "tools/parallel_eval.py: two allocated GPUs form the dual layout (simulators on both, policy replicas on the first); replicas configurable 1-8 (default 4 dual, 2 split, 1 shared/FACT); gpu_layout recorded in allocation.json; shared and split layouts unchanged",
+ "evaluation_defaults": {
+  "model": "fastwam",
+  "policy_replicas": 4,
+  "concurrent_episodes": 4,
+  "vram_estimate_per_replica_gb": 6,
+  "raise_to": "up to 6 after checking nvidia-smi in the first job"
+ },
+ "put_object_cabinet_feasibility": {
+  "cluster_job_1681": "24 accepted of ~1,300 candidates (about 2%), all other 49 tasks frozen",
+  "bs1_reproduction_same_seeds": {
+   "official_random": "4/30",
+   "physical_without_table_height": "2/30",
+   "physical_without_table_tilt": "0/30",
+   "physical_full": "1/80"
+  },
+  "failure_point": "CuRobo plan failure: object grasp (also fails under Official Random) or drawer-handle grasp by the other arm when the sampled table height lowers the handle",
+  "assessment": "intrinsically hard scripted-expert task; table height [-8,0] cm (global in the paper, not narrowed in Table 3 for this task) aggravates it; no code or domain change; accepted episodes skew toward shallow table heights",
+  "doc": "docs/put-object-cabinet-feasibility.md"
+ },
+ "success_context_fix": {
+  "package": "robotwin-success-context-fix-v4.zip",
+  "sha256": "45c83feaa4882884a83fbdac3ffe9ae9b9fc875f4cc607fa6c0a0f85153d0416",
+  "launcher": "cluster/ood-fastwam-pro6000x2-v6-context.txt",
+  "continuation_tool": "tools/continue_success_context.py",
+  "rule": "success-context-from-initial-scene-v1",
+  "problem": "official check_success of open_laptop, place_object_scale and put_object_cabinet reads arm_tag (and origin_z) that only play_once assigns; the official evaluator runs play_once on the same object first, our fresh-process worker did not",
+  "affected_tasks_by_ast_scan": {
+   "open_laptop": [
+    "arm_tag"
+   ],
+   "place_object_scale": [
+    "arm_tag"
+   ],
+   "put_object_cabinet": [
+    "arm_tag",
+    "origin_z"
+   ]
+  },
+  "bs1_before_after": {
+   "old_snapshot (fresh-pool-v2)": "AttributeError: 'Physical_open_laptop' object has no attribute 'arm_tag' / 'Physical_place_object_scale' ... on the first policy step (no-op policy, frozen bs1 episodes)",
+   "new_snapshot": "both episodes completed with success_context {arm_tag: left}; real fingerprint diff limited to src/robotwin_phys/worker.py and success_context.py, accepted by the compatibility rule"
+  },
+  "external_report": "https://github.com/worv-ai/vla-evaluation-harness-public/pull/73",
+  "source_transition": {
+   "worker_before": "2f3b7af34a1801812ae6effb2612e0ec6f88043107e00e834313e5d40abb4b62",
+   "worker_after": "158efc15d48b0aba357f9d14e892c0e4a69dc003e4a4211ec08d074f7ab08970",
+   "success_context": "2cb9de14ead38c1d47ad429691011893f8fca925035b414ee9625ed45a18ff23"
+  },
+  "launcher_resources": {
+   "gpus": "gpu:pro6000:2",
+   "cpus_per_task": 32,
+   "mem": "96G",
+   "time": "3-00:00:00",
+   "freeze_workers_per_gpu": 4,
+   "policy_replicas": 4
+  },
+  "models_in_one_job": [
+   "fastwam",
+   "g05",
+   "pi05"
+  ],
+  "checkpoints": {
+   "fastwam": "yuanty/fastwam robotwin_uncond_3cam_384.pt (official FastWAM RoboTwin checkpoint)",
+   "g05": "OpenGalaxea/G05 g05-robotwin20/checkpoints/model_state_dict.pt (gated; HF token required)",
+   "pi05": "motus-robotics/pi0.5_robotwin2 model.safetensors (pi0.5 fine-tuned on RoboTwin 2.0 clean+randomized, 50 tasks)"
+  },
+  "superseded_v1": {
+   "package": "robotwin-success-context-fix-v1.zip",
+   "sha256": "b88a9ba84d646c51ad5b5f91cbcea975d2b26e6b9ed145d501ada717f89203b9",
+   "used_by": "job 1682",
+   "difference": "v2 adds tools/parallel_freeze_task.py only; src identical"
+  },
+  "parallel_seed_scanner": {
+   "tool": "tools/parallel_freeze_task.py",
+   "workers": 8,
+   "semantics": "evaluates the next N seeds concurrently, commits in seed order, identical records to the sequential freeze (unit-tested byte for byte for 1/3/8 workers, resume, worker error, budget exhaustion); evidence beyond the completing seed discarded; outside the runtime fingerprint"
+  },
+  "superseded_packages": {
+   "robotwin-success-context-fix-v1.zip": "b88a9ba84d646c51ad5b5f91cbcea975d2b26e6b9ed145d501ada717f89203b9",
+   "robotwin-success-context-fix-v2.zip": "e5a80ed1d5bd4d64b7f6b47f8ae5dc0fb33f7c7d52d38c92b9b626640b24a35d",
+   "robotwin-success-context-fix-v3.zip": "88c7734fbf4d4982721a9167d773a2d603b166dcdeb652c9d1960e77eac3d3ce"
+  },
+  "v3_change": {
+   "observed": "job 1684 (v2): put_object_cabinet finished by the parallel scanner, pool sealed, fastwam replicas 0-2 loaded on GPU 0 at 23.85 GiB each, replica 3 died with CUDA OOM (94.97 GiB total, 15.81 MiB free)",
+   "fix": "tools/parallel_eval.py dual layout places replica i on sim_gpus[i % 2] starting at the policy GPU and runs simulator slot i on the same GPU; shared/split layouts unchanged; allocation.json gains policy_gpus",
+   "scope": "tools only; src identical to v1/v2; no provenance change; no pool change"
+  },
+  "v4_change": {
+   "observed": "job 1685 (v3) evaluated Fast-WAM with configs/policies/fastwam.yaml lacking sigma_shift; the adapter then uses the model config infer_shift 1.0, while the upstream README evaluates the original released checkpoints with EVALUATION.sigma_shift=5.0",
+   "fix": "configs/policies/fastwam.yaml args.sigma_shift: 5.0; the snapshot ships the profile and the launcher binds it over $ROOT/configs/policies/fastwam.yaml and /opt/robotwin-policies/fastwam/workspace/configs/policies/fastwam.yaml with an in-container checksum",
+   "consequence": "policy identity (config_sha256) changes; Fast-WAM results of job 1685 are discarded (moved aside), pool and provenance unchanged",
+   "upstream_evidence": {
+    "readme_revision": "7faa71108368fbb3b6885649f112af607427a2d4",
+    "sim_robotwin_yaml": "replan_steps 24, sigma_shift null, skip_get_obs_within_replan true",
+    "model_fastwam_yaml": "action_scheduler infer_shift 1.0, video_scheduler infer_shift 5.0",
+    "data_robotwin_yaml": "num_frames 33 (32 actions, 9 video frames per chunk)"
+   },
+   "g05_check": "GalaxeaVLA sim_robotwin.yaml replan_steps 24, sigma_shift null, README command without overrides: profile consistent"
+  }
+ }
+}

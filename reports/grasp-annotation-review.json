@@ -1,0 +1,32 @@
+{
+  "source": "https://huggingface.co/datasets/TianxingChen/RoboTwin2.0/resolve/main/objects.zip",
+  "archive_sha256": "6aa56b3cf1e1064f7c809308144da36b00815f8b137fef2d7e4de856f8becf27",
+  "evidence": "HTTP range extraction of official ZIP central directory and members; member CRC verified; official API archive SHA equals pinned manifest",
+  "models": [
+    {
+      "path": "objects/086_woodenblock/model_data0.json",
+      "sha256": "789a57fb2d1e2c1a3ed026ebcdf3f1c84905e86d5a7f23ef2392cdfc40f35c2f",
+      "contact_count": 0
+    },
+    {
+      "path": "objects/086_woodenblock/model_data1.json",
+      "sha256": "87a426ff27339494ab512c58b797559e2dfb594cef1db4b8ed3452271aca1c78",
+      "contact_count": 0
+    },
+    {
+      "path": "objects/086_woodenblock/model_data2.json",
+      "sha256": "8e289847bfcf1c6a413ca04027470cc5095fd0b98abe0a0baf2e8fb3ca458984",
+      "contact_count": 0
+    },
+    {
+      "path": "objects/086_woodenblock/model_data3.json",
+      "sha256": "be5fd841f35b3c640c1312fe56d96a92f798f86ce85ecad8ea303e34ef78eafe",
+      "contact_count": 0
+    },
+    {
+      "path": "objects/086_woodenblock/model_data4.json",
+      "sha256": "4759a6cf870271e4c5c0586045f905d74c41f1359549a2f5d62eb6b0c2ea61d8",
+      "contact_count": 0
+    }
+  ]
+}

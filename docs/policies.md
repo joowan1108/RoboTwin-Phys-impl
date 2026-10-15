@@ -80,6 +80,8 @@ PYTHONPATH=/home/guest/robotwin-workspace/src \
 
 simulator는 어떤 모델이든 `robotwin-phys evaluate --manifest ... --policy-port 9000 --live --video`로 연결합니다. RPC는 upstream의 `get_model / eval / reset_model` interface를 유지하며, RGB·14차원 qpos·instruction을 전달하고 adapter가 원래대로 preprocessing/normalization/action chunk를 처리합니다. NumPy 배열은 길이 제한 JSON/base64로 전달합니다. pickle을 이용한 임의 객체 역직렬화를 사용하지 않습니다.
 
+Fast-WAM profile은 `args.sigma_shift: 5.0`을 넘깁니다. 상류 README(고정 revision)는 "When evaluating the original released checkpoints, set `EVALUATION.sigma_shift=5.0` to reproduce the original setting"이라고 명시하며, 상류 `configs/sim_robotwin.yaml`의 기본값은 null이고 그 경우 action scheduler는 `configs/model/fastwam.yaml`의 `infer_shift: 1.0`(이후 바뀐 학습 기본값)을 씁니다. 2026-10-16 이전 profile은 이 값을 빠뜨려 잡 1685의 Fast-WAM 결과는 shift 1.0으로 돌았고 폐기했습니다(`runs/phys-pro6000-100-v6/fastwam-sigma1-discarded/`). G0.5의 상류 `sim_robotwin.yaml`은 `replan_steps: 24`, `sigma_shift: null`이고 README 평가 명령에 override가 없으므로 현재 profile과 일치합니다.
+
 현재 profile의 replan 길이는 Fast-WAM 24, G0.5 24, Motus 공식 adapter, FACT 48, π0.5 32입니다. 이는 공개 평가 코드/체크포인트 설정에서 선택한 값이며 RoboTwin-Phys 저자의 미공개 상세 hyperparameter와 동일하다고 확인된 것은 아닙니다. 변경하면 model profile/config hash가 달라지며 새로운 run 폴더를 사용해야 합니다.
 
 모든 모델에 대해 같은 **시뮬레이터 manifest**를 쓰는 것이 환경 조건의 공정성을 보장하는 핵심입니다. 모델 checkpoint별 추론 정밀도·normalization·chunk 길이는 각 모델 사양으로 따로 기록합니다.

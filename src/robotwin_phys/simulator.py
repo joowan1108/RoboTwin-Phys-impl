@@ -12,6 +12,7 @@ import yaml
 
 from .conditions import ROOT, stable_seed
 from .hooks import construction
+from .planning import PlanningMixin
 from .rng import EnvironmentRNG
 
 
@@ -21,6 +22,8 @@ def prepare_imports():
     for path in (repo, repo / "policy", repo / "description/utils"):
         if str(path) not in sys.path:
             sys.path.insert(0, str(path))
+    from .curobo_compat import install
+    install()
 
 
 def environment_config(task, protocol, viewer=False):
@@ -43,7 +46,19 @@ def _pose(pose):
     return {"p": np.asarray(pose.p).tolist(), "q": np.asarray(pose.q).tolist()}
 
 
-class PhysicsMixin:
+def _clutter_entity_ids(cluttered_objs):
+    """Scene ids of the official clutter entities: rigid actors and articulated links."""
+    ids = set()
+    for obj in cluttered_objs:
+        actor = getattr(obj, "actor", obj)
+        if hasattr(actor, "get_links"):
+            ids.update(link.entity.per_scene_id for link in actor.get_links())
+        else:
+            ids.add(actor.per_scene_id)
+    return ids
+
+
+class PhysicsMixin(PlanningMixin):
     def configure(self, condition, live=None, recorder=None):
         self.condition = copy.deepcopy(condition)
         self.env_rng = EnvironmentRNG(condition["episode_seed"])
@@ -51,6 +66,7 @@ class PhysicsMixin:
         self.phase = "initialization"
         self.phys_bodies = []
         self.applied = {}
+        self._clutter_ids = set()
         self._physics_applied = False
         self._last_frame_step = None
         self._simulation_step = 0
@@ -118,8 +134,13 @@ class PhysicsMixin:
             return super().load_actors()
 
     def get_cluttered_table(self, *args, **kwargs):
-        with construction(self):
-            return super().get_cluttered_table(*args, **kwargs)
+        # The official method clears self.cluttered_objs before returning, so the
+        # clutter entities are identified by what the call adds to the scene.
+        before = {entity.per_scene_id for entity in self.scene.entities}
+        with construction(self, clutter=True):
+            result = super().get_cluttered_table(*args, **kwargs)
+        self._clutter_ids |= {entity.per_scene_id for entity in self.scene.entities} - before
+        return result
 
     def load_camera(self, **kwargs):
         super().load_camera(**kwargs)
@@ -166,6 +187,14 @@ class PhysicsMixin:
         # pybind may return a new Python wrapper for the same native component.
         # Python id() is therefore not a native simulator identity.
         robot_links = {link.entity.per_scene_id for a in (self.robot.left_entity, self.robot.right_entity) for link in a.get_links()}
+        # The paper's object attributes (mass, CoM, size) and the policy-stage force
+        # describe the manipulated objects. Official clutter distractors keep their
+        # nominal mass, centre of mass and size and receive no force; only the
+        # contact material (friction/restitution), which the table and grippers
+        # share, applies to every collision shape. A 1.5 cm CoM shift lies outside
+        # thin clutter such as pens, and the official stability check then rejects
+        # the scene before any manipulation happens.
+        clutter = set(getattr(self, "_clutter_ids", set())) | _clutter_entity_ids(getattr(self, "cluttered_objs", None) or [])
         self.applied = {"bodies": [], "object_joints": [], "robot_joints": [], "robot_bodies": []}
         for entity in self.scene.entities:
             for body in entity.components:
@@ -174,13 +203,16 @@ class PhysicsMixin:
                 is_robot = entity.per_scene_id in robot_links
                 dynamic = isinstance(body, p.PhysxRigidBodyComponent)
                 is_object = not is_robot and entity.name not in ("wall", "table", "ground")
+                is_clutter = is_object and entity.per_scene_id in clutter
                 if is_object and dynamic:
+                    mass_scale = 1.0 if is_clutter else condition["mass_scale"]
                     old_mass, old_inertia = body.mass, np.asarray(body.inertia).copy()
-                    body.mass = old_mass * condition["mass_scale"]
-                    body.inertia = old_inertia * condition["mass_scale"]
+                    body.mass = old_mass * mass_scale
+                    body.inertia = old_inertia * mass_scale
                     com = body.cmass_local_pose
-                    body.cmass_local_pose = sapien.Pose(np.asarray(com.p) + condition["com_offset_m"], com.q)
-                    if not getattr(body, "kinematic", False):
+                    com_offset = [0.0, 0.0, 0.0] if is_clutter else [float(x) for x in condition["com_offset_m"]]
+                    body.cmass_local_pose = sapien.Pose(np.asarray(com.p) + np.asarray(com_offset), com.q)
+                    if not is_clutter and not getattr(body, "kinematic", False):
                         self.phys_bodies.append(body)
                 if is_robot and dynamic:
                     self.applied["robot_bodies"].append({"name": entity.name, "mass": body.mass,
@@ -196,6 +228,8 @@ class PhysicsMixin:
                             material.restitution if rest is None else rest)
                 if is_object and dynamic:
                     self.applied["bodies"].append({"name": entity.name, "mass": body.mass,
+                        "clutter": is_clutter, "com_offset_m": com_offset, "mass_scale": mass_scale,
+                        "external_force": not is_clutter and not getattr(body, "kinematic", False),
                         "inertia": np.asarray(body.inertia).tolist(), "com": _pose(body.cmass_local_pose),
                         "materials": [{"static_friction": s.physical_material.static_friction,
                                        "dynamic_friction": s.physical_material.dynamic_friction,
