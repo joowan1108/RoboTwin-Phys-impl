@@ -1,0 +1,369 @@
+{
+ "source": "arXiv 2609.26292v1 Table 4 (Appendix D), per-task success rate (%) under Physical Random, 100 episodes per task",
+ "columns": {
+  "fastwam": "Fast-WAM",
+  "motus": "Motus",
+  "fact": "FACT",
+  "pi05": "pi0.5",
+  "g05": "Galaxea-VLA"
+ },
+ "overall": {
+  "fastwam": 44.24,
+  "motus": 39.6,
+  "fact": 39.14,
+  "pi05": 31.6,
+  "g05": 37.82
+ },
+ "tasks": {
+  "adjust_bottle": {
+   "fastwam": 64,
+   "motus": 39,
+   "fact": 43,
+   "pi05": 43,
+   "g05": 65
+  },
+  "beat_block_hammer": {
+   "fastwam": 17,
+   "motus": 13,
+   "fact": 11,
+   "pi05": 8,
+   "g05": 8
+  },
+  "blocks_ranking_rgb": {
+   "fastwam": 57,
+   "motus": 46,
+   "fact": 48,
+   "pi05": 38,
+   "g05": 36
+  },
+  "blocks_ranking_size": {
+   "fastwam": 56,
+   "motus": 35,
+   "fact": 21,
+   "pi05": 13,
+   "g05": 44
+  },
+  "click_alarmclock": {
+   "fastwam": 69,
+   "motus": 61,
+   "fact": 36,
+   "pi05": 34,
+   "g05": 59
+  },
+  "click_bell": {
+   "fastwam": 57,
+   "motus": 62,
+   "fact": 23,
+   "pi05": 46,
+   "g05": 36
+  },
+  "dump_bin_bigbin": {
+   "fastwam": 32,
+   "motus": 34,
+   "fact": 33,
+   "pi05": 65,
+   "g05": 24
+  },
+  "grab_roller": {
+   "fastwam": 65,
+   "motus": 72,
+   "fact": 77,
+   "pi05": 91,
+   "g05": 72
+  },
+  "handover_block": {
+   "fastwam": 33,
+   "motus": 18,
+   "fact": 18,
+   "pi05": 11,
+   "g05": 23
+  },
+  "handover_mic": {
+   "fastwam": 54,
+   "motus": 37,
+   "fact": 51,
+   "pi05": 15,
+   "g05": 43
+  },
+  "hanging_mug": {
+   "fastwam": 26,
+   "motus": 15,
+   "fact": 9,
+   "pi05": 17,
+   "g05": 15
+  },
+  "lift_pot": {
+   "fastwam": 29,
+   "motus": 33,
+   "fact": 34,
+   "pi05": 29,
+   "g05": 30
+  },
+  "move_can_pot": {
+   "fastwam": 50,
+   "motus": 26,
+   "fact": 50,
+   "pi05": 2,
+   "g05": 34
+  },
+  "move_playingcard_away": {
+   "fastwam": 59,
+   "motus": 61,
+   "fact": 57,
+   "pi05": 46,
+   "g05": 43
+  },
+  "move_stapler_pad": {
+   "fastwam": 17,
+   "motus": 24,
+   "fact": 15,
+   "pi05": 0,
+   "g05": 23
+  },
+  "open_laptop": {
+   "fastwam": 59,
+   "motus": 49,
+   "fact": 64,
+   "pi05": 45,
+   "g05": 51
+  },
+  "open_microwave": {
+   "fastwam": 17,
+   "motus": 42,
+   "fact": 48,
+   "pi05": 17,
+   "g05": 33
+  },
+  "pick_diverse_bottles": {
+   "fastwam": 17,
+   "motus": 19,
+   "fact": 13,
+   "pi05": 19,
+   "g05": 27
+  },
+  "pick_dual_bottles": {
+   "fastwam": 33,
+   "motus": 21,
+   "fact": 32,
+   "pi05": 14,
+   "g05": 35
+  },
+  "place_a2b_left": {
+   "fastwam": 54,
+   "motus": 49,
+   "fact": 48,
+   "pi05": 33,
+   "g05": 51
+  },
+  "place_a2b_right": {
+   "fastwam": 49,
+   "motus": 44,
+   "fact": 50,
+   "pi05": 18,
+   "g05": 57
+  },
+  "place_bread_basket": {
+   "fastwam": 50,
+   "motus": 48,
+   "fact": 39,
+   "pi05": 38,
+   "g05": 50
+  },
+  "place_bread_skillet": {
+   "fastwam": 39,
+   "motus": 44,
+   "fact": 48,
+   "pi05": 31,
+   "g05": 44
+  },
+  "place_burger_fries": {
+   "fastwam": 53,
+   "motus": 49,
+   "fact": 49,
+   "pi05": 74,
+   "g05": 38
+  },
+  "place_can_basket": {
+   "fastwam": 17,
+   "motus": 19,
+   "fact": 19,
+   "pi05": 15,
+   "g05": 20
+  },
+  "place_cans_plasticbox": {
+   "fastwam": 28,
+   "motus": 15,
+   "fact": 34,
+   "pi05": 27,
+   "g05": 15
+  },
+  "place_container_plate": {
+   "fastwam": 66,
+   "motus": 61,
+   "fact": 65,
+   "pi05": 23,
+   "g05": 48
+  },
+  "place_dual_shoes": {
+   "fastwam": 28,
+   "motus": 25,
+   "fact": 22,
+   "pi05": 41,
+   "g05": 23
+  },
+  "place_empty_cup": {
+   "fastwam": 57,
+   "motus": 50,
+   "fact": 50,
+   "pi05": 39,
+   "g05": 35
+  },
+  "place_fan": {
+   "fastwam": 38,
+   "motus": 28,
+   "fact": 36,
+   "pi05": 16,
+   "g05": 32
+  },
+  "place_mouse_pad": {
+   "fastwam": 35,
+   "motus": 17,
+   "fact": 22,
+   "pi05": 22,
+   "g05": 22
+  },
+  "place_object_basket": {
+   "fastwam": 41,
+   "motus": 43,
+   "fact": 35,
+   "pi05": 2,
+   "g05": 31
+  },
+  "place_object_scale": {
+   "fastwam": 46,
+   "motus": 39,
+   "fact": 46,
+   "pi05": 6,
+   "g05": 34
+  },
+  "place_object_stand": {
+   "fastwam": 53,
+   "motus": 52,
+   "fact": 51,
+   "pi05": 49,
+   "g05": 40
+  },
+  "place_phone_stand": {
+   "fastwam": 52,
+   "motus": 55,
+   "fact": 49,
+   "pi05": 45,
+   "g05": 37
+  },
+  "move_pillbottle_pad": {
+   "fastwam": 43,
+   "motus": 31,
+   "fact": 32,
+   "pi05": 2,
+   "g05": 26
+  },
+  "place_shoe": {
+   "fastwam": 63,
+   "motus": 60,
+   "fact": 58,
+   "pi05": 25,
+   "g05": 44
+  },
+  "press_stapler": {
+   "fastwam": 58,
+   "motus": 72,
+   "fact": 46,
+   "pi05": 38,
+   "g05": 42
+  },
+  "put_bottles_dustbin": {
+   "fastwam": 11,
+   "motus": 9,
+   "fact": 14,
+   "pi05": 25,
+   "g05": 38
+  },
+  "put_object_cabinet": {
+   "fastwam": 39,
+   "motus": 12,
+   "fact": 32,
+   "pi05": 18,
+   "g05": 42
+  },
+  "rotate_qrcode": {
+   "fastwam": 43,
+   "motus": 29,
+   "fact": 42,
+   "pi05": 31,
+   "g05": 33
+  },
+  "scan_object": {
+   "fastwam": 29,
+   "motus": 18,
+   "fact": 44,
+   "pi05": 63,
+   "g05": 39
+  },
+  "shake_bottle": {
+   "fastwam": 69,
+   "motus": 68,
+   "fact": 68,
+   "pi05": 87,
+   "g05": 71
+  },
+  "shake_bottle_horizontally": {
+   "fastwam": 75,
+   "motus": 69,
+   "fact": 71,
+   "pi05": 75,
+   "g05": 76
+  },
+  "stack_blocks_three": {
+   "fastwam": 30,
+   "motus": 25,
+   "fact": 10,
+   "pi05": 14,
+   "g05": 29
+  },
+  "stack_blocks_two": {
+   "fastwam": 63,
+   "motus": 56,
+   "fact": 50,
+   "pi05": 11,
+   "g05": 50
+  },
+  "stack_bowls_three": {
+   "fastwam": 52,
+   "motus": 38,
+   "fact": 36,
+   "pi05": 39,
+   "g05": 32
+  },
+  "stack_bowls_two": {
+   "fastwam": 62,
+   "motus": 60,
+   "fact": 56,
+   "pi05": 65,
+   "g05": 36
+  },
+  "stamp_seal": {
+   "fastwam": 24,
+   "motus": 23,
+   "fact": 16,
+   "pi05": 12,
+   "g05": 15
+  },
+  "turn_switch": {
+   "fastwam": 34,
+   "motus": 63,
+   "fact": 36,
+   "pi05": 38,
+   "g05": 40
+  }
+ }
+}

@@ -1,6 +1,6 @@
 # Tools
 
-Scripts outside the runtime fingerprint. `tools/` is mounted from the patch ZIP on the cluster, and its checksum is pinned by every launcher.
+Scripts outside the runtime fingerprint. `tools/` is mounted from the patch ZIP on the cluster, and its checksum is pinned by every launcher, so new read-only helpers go to [`analysis/`](../analysis/README.md) instead (`analysis/analyze_episodes.py` summarizes every episode record and log of a model at once).
 
 ## Environment and assets
 

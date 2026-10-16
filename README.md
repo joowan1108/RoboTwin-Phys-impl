@@ -46,12 +46,13 @@ These are documented choices, not claims about the authors' code. Each is explai
 src/robotwin_phys/   evaluation library and CLI (conditions, simulator hooks, manifests, worker, RPC, provenance)
 configs/             physical_domains.json, policy profiles (checkpoint, adapter, inference args), requirements
 tools/               environment setup, pool/evaluation schedulers, provenance continuations, patch packagers
+analysis/            read-only analysis of evaluation records (per-task rates vs. the paper, log triage, attribute effects)
 cluster/             Slurm/Open OnDemand launchers for the CSI cluster (Apptainer image + reviewed patch ZIPs)
 docker/              CUDA 12.1 (Turing) and CUDA 12.8 (Blackwell) images, per-policy runtime images, bundle image
-tests/               304 CPU tests; the simulator is faked or driven through recorded fixtures
+tests/               307 CPU tests; the simulator is faked or driven through recorded fixtures
 docs/                design notes, incident reviews and validation records (Korean, indexed in docs/README.md)
 reports/             machine-readable validation results and the immutable patch ZIPs mounted by cluster jobs
-references/          pinned upstream metadata (model cards, HF file lists, the local RoboTwin diff)
+references/          pinned upstream metadata (model cards, HF file lists, the local RoboTwin diff, paper Table 4 rates)
 vendor/              pinned RoboTwin 2.0 (stable_2.0 @ 13c3c47) and CuRobo v0.7.8 checkouts (not committed)
 ```
 
