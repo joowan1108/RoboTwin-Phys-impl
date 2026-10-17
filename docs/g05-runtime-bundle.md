@@ -21,7 +21,15 @@ FileNotFoundError: HF processor tokenizer.json not found: /opt/robotwin-policies
 
 `tests/test_prepare_g05.py`는 어댑터의 resolve 동작을 그대로 흉내 내어 symlink bundle이 원본 설정을 읽는 실패를 재현하고, 수정 후 bundle 설정(절대 경로, tokenizer.json 존재)을 읽는지, 재실행이 멱등인지, 무관한 파일을 덮어쓰지 않는지 확인한다.
 
-## 적용
+## 적용 (v6 당시)
 
 1. [robotwin-success-context-fix-v6.zip](../reports/robotwin-success-context-fix-v6.zip)을 `~/robotwin-data/patches/`에 올린다.
 2. [ood-fastwam-pro6000x2-v6-context.txt](../cluster/ood-fastwam-pro6000x2-v6-context.txt)(v6 sha 고정)를 제출한다. 완료된 Fast-WAM은 그대로 두면 재검사 후 바로 `MODEL_DONE`으로 넘어간다. 로그에 `G05_RUNTIME_FIX` 줄과 prepare-model.log의 `checkpoint hard-linked` 줄이 있어야 한다.
+
+## 두 번째 오류: `Missing key data` (잡 1693, v7 ZIP)
+
+v6로 경로 문제를 넘긴 뒤 `get_model`이 `cfg.data.action_size`에서 `ConfigAttributeError: Missing key data`로 멈췄다. 상류 평가기 `experiments/robotwin/eval_robotwin_single.py`는 README 명령의 `task=robotwin`을 어댑터에 `sim_task`로 항상 넘기고, 어댑터는 이것을 Hydra override `task=robotwin`으로 조합한다. 이 task config가 `data: robotwin`(action_size 32), `model: g05`, `tokenizer: actioncodec`를 고른다. 우리 프로필은 이 값을 빠뜨렸고, 그러면 `sim_robotwin.yaml` → `train.yaml`의 빈 data group만 남는다.
+
+수정: `configs/policies/g05.yaml`에 `args.sim_task: robotwin`. Fast-WAM 프로필처럼 v7 ZIP에 실어 평가 트리와 `/opt/robotwin-policies/g05/workspace/configs/policies/g05.yaml` 두 곳에 bind하고 컨테이너 안에서 checksum을 확인한다(`G05_SIM_TASK` 줄). G0.5 결과는 아직 없으므로 폐기할 것은 없고, Fast-WAM 프로필과 결과는 바뀌지 않는다. 나머지 상류 override(`action_horizon`·`sigma_shift` null, `num_inference_steps`는 모델 config의 10, bf16, replan 24)는 프로필에서 생략하거나 같은 값이라 상류와 같다. 상류는 `seed: 7`(train.yaml)을 넘기지만 우리 정책 서버는 episode마다 seed를 다시 정하므로 영향이 없다.
+
+적용: [robotwin-success-context-fix-v7.zip](../reports/robotwin-success-context-fix-v7.zip)을 `~/robotwin-data/patches/`에 올리고 재생성된 런처를 제출한다. 로그에 `G05_RUNTIME_FIX`와 `G05_SIM_TASK`가 모두 있어야 한다.

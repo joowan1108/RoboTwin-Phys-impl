@@ -17,6 +17,9 @@ args:
   ckpt_setting: ${ROOT}/checkpoints/g05-runtime/checkpoints/model_state_dict.pt
   dataset_stats_path: ${ROOT}/checkpoints/g05-runtime/dataset_stats.json
   sim_cfg_name: sim_robotwin.yaml
+  # Upstream eval_robotwin_single.py always passes the Hydra task choice (README: task=robotwin) as sim_task;
+  # without it sim_robotwin.yaml composes no data/model/tokenizer group and cfg.data is missing (job 1693).
+  sim_task: robotwin
   device: cuda
   mixed_precision: bf16
   replan_steps: 24

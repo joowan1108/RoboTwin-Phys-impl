@@ -6,7 +6,7 @@
 
 ## 실행
 
-**v6 평가 단계 수정 (잡 1681 이후 사용):** [세 task의 check_success 속성 수정과 같은 pool 계속 실행](docs/success-context-fix.md), [ZIP v6](reports/robotwin-success-context-fix-v6.zip) (v5: OIDN 2.3.3 [oidn-blackwell.md](docs/oidn-blackwell.md), v6: G0.5 bundle [g05-runtime-bundle.md](docs/g05-runtime-bundle.md)), [OOD 스크립트](cluster/ood-fastwam-pro6000x2-v6-context.txt). pool과 저장된 progress를 보존하고 FastWAM 평가로 이어간다.
+**v6 평가 단계 수정 (잡 1681 이후 사용):** [세 task의 check_success 속성 수정과 같은 pool 계속 실행](docs/success-context-fix.md), [ZIP v7](reports/robotwin-success-context-fix-v7.zip) (v5: OIDN 2.3.3 [oidn-blackwell.md](docs/oidn-blackwell.md), v6·v7: G0.5 bundle·sim_task [g05-runtime-bundle.md](docs/g05-runtime-bundle.md)), [OOD 스크립트](cluster/ood-fastwam-pro6000x2-v6-context.txt). pool과 저장된 progress를 보존하고 FastWAM 평가로 이어간다.
 
 **공개 데이터셋:** 실험의 seed·조건·결과는 `python3 analysis/export_release.py --root ~/robotwin-data --experiment phys-pro6000-100-v6`로 묶어 `data/<experiment>/`에 올리고, 받는 쪽은 `python3 analysis/verify_release.py data/<experiment>`로 모든 조건 해시를 seed에서 재계산해 검증한다 ([analysis/README.md](analysis/README.md)).
 

@@ -78,17 +78,17 @@ fi
 export APPTAINERENV_VK_ICD_FILENAMES="$ROBOTWIN_NVIDIA_ICD"
 
 # Apply the reviewed simulator snapshot to the existing v5 image.
-ROBOTWIN_PATCH_DIR="$DATA/patches/robotwin-success-context-fix-v6"
-ROBOTWIN_PATCH_ARCHIVE="$DATA/patches/robotwin-success-context-fix-v6.zip"
+ROBOTWIN_PATCH_DIR="$DATA/patches/robotwin-success-context-fix-v7"
+ROBOTWIN_PATCH_ARCHIVE="$DATA/patches/robotwin-success-context-fix-v7.zip"
 mkdir -p "$DATA/patches"
 (
   flock -x 9
   if [[ ! -d "$ROBOTWIN_PATCH_DIR/src/robotwin_phys" ]]; then
     if [[ ! -r "$ROBOTWIN_PATCH_ARCHIVE" ]]; then
-      echo "Upload robotwin-success-context-fix-v6.zip through OOD Files to $DATA/patches/" >&2
+      echo "Upload robotwin-success-context-fix-v7.zip through OOD Files to $DATA/patches/" >&2
       exit 1
     fi
-    printf '%s  %s\n' c05a981e7dc70ec44eb376752da5c787ef1150898ac5530c67998672c6859ec1 "$ROBOTWIN_PATCH_ARCHIVE" | sha256sum -c -
+    printf '%s  %s\n' ff8907551dace7b40313b9e76fadd6573958e3f7f0eef884681f77760fc414b4 "$ROBOTWIN_PATCH_ARCHIVE" | sha256sum -c -
     ROBOTWIN_PATCH_STAGE=$(mktemp -d "$DATA/patches/.expert-fix-XXXXXX")
     trap 'rm -rf -- "$ROBOTWIN_PATCH_STAGE"' EXIT
     if command -v unzip > /dev/null; then
@@ -99,7 +99,7 @@ mkdir -p "$DATA/patches"
       echo "Extract the ZIP through OOD Files into $DATA/patches/ before submitting." >&2
       exit 1
     fi
-    mv "$ROBOTWIN_PATCH_STAGE/robotwin-success-context-fix-v6" "$ROBOTWIN_PATCH_DIR"
+    mv "$ROBOTWIN_PATCH_STAGE/robotwin-success-context-fix-v7" "$ROBOTWIN_PATCH_DIR"
   fi
 ) 9> "$DATA/patches/.expert-fix.lock"
 export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/src:$ROOT/src:ro"
@@ -130,6 +130,9 @@ mkdir -p "$ROBOTWIN_OIDN_DIR"
 ) 9> "$ROBOTWIN_OIDN_DIR/.lock"
 export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_OIDN_DIR/oidn_library:/home/guest/robotwin-workspace/.env/lib/python3.10/site-packages/sapien/oidn_library:ro"
 export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/oidn/_oidn_tricks.py:/home/guest/robotwin-workspace/.env/lib/python3.10/site-packages/sapien/_oidn_tricks.py:ro"
+# G0.5 profile with sim_task=robotwin (upstream evaluator setting); bound to the evaluator tree and the G0.5 policy workspace.
+export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/configs/policies/g05.yaml:$ROOT/configs/policies/g05.yaml:ro"
+export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/configs/policies/g05.yaml:/opt/robotwin-policies/g05/workspace/configs/policies/g05.yaml:ro"
 
 # Existing v5 images need the official template-generation step after unzip.
 # Write the payload through the reports bind; no image rebuild is required.
@@ -154,7 +157,7 @@ def checksum(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 if checksum(hashes(root / 'src', ('.py',))) != '7260cb344bed020bd03f176960b005b281eb8057114c4600edc51cf53aab0dbe':
     raise SystemExit('Expert patch source differs; restore uploaded snapshot')
-if checksum(hashes(root / 'tools', ('.py', '.sh', '.json'))) != '19aaad72aea17f599c0f297ac2702b227b398c0137bce85d3d448e3ac6b58dfe':
+if checksum(hashes(root / 'tools', ('.py', '.sh', '.json'))) != '9852a5750ebf45934dd8d977da79b0ea0da161f09313dbabcfb712d7a32c311e':
     raise SystemExit('Expert patch tools differ; restore uploaded snapshot')
 if hashlib.sha256((root / 'vendor/RoboTwin/envs/utils/transforms.py').read_bytes()).hexdigest() != '942ed2b255094190f7380df113b78daed687803732928d23f2d9823d18862c53':
     raise SystemExit('Shared transform repair was not bound correctly')
@@ -164,6 +167,10 @@ for copy in (root / 'configs/policies/fastwam.yaml', Path('/opt/robotwin-policie
     if hashlib.sha256(copy.read_bytes()).hexdigest() != '539432f2177fa117e7261d7d6652c9ed7279098d1b91dd5a9b21491d764b0f6d':
         raise SystemExit(f'Fast-WAM profile (sigma_shift=5.0) was not bound correctly: {copy}')
 print('FASTWAM_SIGMA_SHIFT: profile with sigma_shift=5.0 bound to evaluator and policy workspace', flush=True)
+for copy in (root / 'configs/policies/g05.yaml', Path('/opt/robotwin-policies/g05/workspace/configs/policies/g05.yaml')):
+    if hashlib.sha256(copy.read_bytes()).hexdigest() != 'b5953c8d68e256984cf776388dc3671725ab839c81d76b9a01b971702381b381':
+        raise SystemExit(f'G0.5 profile (sim_task=robotwin) was not bound correctly: {copy}')
+print('G05_SIM_TASK: profile with sim_task=robotwin bound to evaluator and policy workspace', flush=True)
 sapien_pkg = Path('/home/guest/robotwin-workspace/.env/lib/python3.10/site-packages/sapien')
 for name in ('libOpenImageDenoise.so.2.3.3', 'libOpenImageDenoise_core.so.2.3.3', 'libOpenImageDenoise_device_cuda.so.2.3.3'):
     if not (sapien_pkg / 'oidn_library' / name).exists():

@@ -44,3 +44,12 @@ def test_fastwam_profile_reproduces_upstream_released_checkpoint_setting():
     # configs/sim_robotwin.yaml there has sigma_shift null and replan_steps 24, so only the shift needs passing.
     config = yaml.safe_load((ROOT / "configs/policies/fastwam.yaml").read_text())
     assert config["args"]["sigma_shift"] == 5.0 and config["args"]["replan_steps"] == 24
+
+
+def test_g05_profile_passes_the_upstream_hydra_task():
+    # Upstream eval_robotwin_single.py forwards task=robotwin as sim_task; without it cfg.data is missing (job 1693).
+    import yaml
+    from pathlib import Path
+    args = yaml.safe_load((Path(__file__).parents[1] / 'configs/policies/g05.yaml').read_text())['args']
+    assert args['sim_task'] == 'robotwin' and args['sim_cfg_name'] == 'sim_robotwin.yaml' and args['replan_steps'] == 24
+    assert 'sigma_shift' not in args and 'num_inference_steps' not in args  # upstream: null shift, model-config steps

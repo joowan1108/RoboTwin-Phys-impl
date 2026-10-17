@@ -16,4 +16,4 @@ Scripts outside the runtime fingerprint. `tools/` is mounted from the patch ZIP 
 
 ## Delivery packagers
 
-`package_*.py` build the immutable patch ZIPs in `reports/` and regenerate the matching launcher in `cluster/`. Each packager checks that only the reviewed files changed relative to its baseline ZIP and refuses to overwrite a delivered archive. The newest is `package_success_context_fix.py` (v6). `package_pool_parallel.py` embeds the scheduler into the v5 parallel launcher whenever `parallel_eval.py` changes.
+`package_*.py` build the immutable patch ZIPs in `reports/` and regenerate the matching launcher in `cluster/`. Each packager checks that only the reviewed files changed relative to its baseline ZIP and refuses to overwrite a delivered archive. The newest is `package_success_context_fix.py` (v7). `package_pool_parallel.py` embeds the scheduler into the v5 parallel launcher whenever `parallel_eval.py` changes.

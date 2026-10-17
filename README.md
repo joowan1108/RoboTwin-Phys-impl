@@ -51,7 +51,7 @@ analysis/            read-only analysis of evaluation records (per-task rates vs
 data/                published evaluation pools and results (`data/<experiment>/`, written by `analysis/export_release.py`)
 cluster/             Slurm/Open OnDemand launchers for the CSI cluster (Apptainer image + reviewed patch ZIPs)
 docker/              CUDA 12.1 (Turing) and CUDA 12.8 (Blackwell) images, per-policy runtime images, bundle image
-tests/               317 CPU tests; the simulator is faked or driven through recorded fixtures
+tests/               318 CPU tests; the simulator is faked or driven through recorded fixtures
 docs/                design notes, incident reviews and validation records (Korean, indexed in docs/README.md)
 reports/             machine-readable validation results and the immutable patch ZIPs mounted by cluster jobs
 references/          pinned upstream metadata (model cards, HF file lists, the local RoboTwin diff, paper Table 4 rates)

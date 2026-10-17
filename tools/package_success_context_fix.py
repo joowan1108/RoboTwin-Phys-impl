@@ -14,16 +14,17 @@ import re
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-NAME = 'robotwin-success-context-fix-v6'
-PREVIOUS_DELIVERY = 'robotwin-success-context-fix-v5'
+NAME = 'robotwin-success-context-fix-v7'
+PREVIOUS_DELIVERY = 'robotwin-success-context-fix-v6'
 OIDN_VERSION = '2.3.3'
 OIDN_URL = 'https://github.com/RenderKit/oidn/releases/download/v2.3.3/oidn-2.3.3.x86_64.linux.tar.gz'
 OIDN_SHA256 = '3c385230d9e6f63527ba72f2229594dbac5051674219d72e0044b5d0b841796f'
 OIDN_LOADER = 'docker/oidn/_oidn_tricks.py'
 SAPIEN_PKG = '/home/guest/robotwin-workspace/.env/lib/python3.10/site-packages/sapien'
 EPISODE_TIMEOUT = 3600
-CONFIGS = ('policies/fastwam.yaml',)  # policy profiles shipped with the snapshot (not in the pool fingerprint)
+CONFIGS = ('policies/fastwam.yaml', 'policies/g05.yaml')  # policy profiles shipped with the snapshot (not in the pool fingerprint)
 FASTWAM_WORKSPACE = '/opt/robotwin-policies/fastwam/workspace'
+G05_WORKSPACE = '/opt/robotwin-policies/g05/workspace'
 BASE = 'robotwin-fresh-pool-v2'
 EXPERIMENT = 'phys-pro6000-100-v6'
 MARKER = 'SUCCESS_CONTEXT_PATCH_SOURCE_PASS'
@@ -53,6 +54,8 @@ def main():
     import yaml
     if yaml.safe_load((ROOT / 'configs/policies/fastwam.yaml').read_text())['args'].get('sigma_shift') != 5.0:
         raise SystemExit('configs/policies/fastwam.yaml must set args.sigma_shift: 5.0 (upstream released-checkpoint setting)')
+    if yaml.safe_load((ROOT / 'configs/policies/g05.yaml').read_text())['args'].get('sim_task') != 'robotwin':
+        raise SystemExit('configs/policies/g05.yaml must set args.sim_task: robotwin (upstream evaluator passes task=robotwin)')
     tools = checksums(ROOT / 'tools', ('.py', '.sh', '.json'))
     changed = {p for p in set(source) | set(prior['files']) if source.get(p) != prior['files'].get(p)}
     if changed != ALLOWED_SRC_CHANGES:
@@ -76,6 +79,9 @@ def main():
                                     'checkpoint path and reads .hydra/config.yaml beside the resolved file, so the symlinked '
                                     'bundle made it read the original config with repository-relative processor paths '
                                     '(job 1690: HF processor tokenizer.json not found)',
+                    g05_profile_fix='G0.5 args.sim_task=robotwin: the upstream evaluator passes the Hydra task choice '
+                                    '(README: task=robotwin) to the adapter; without it sim_robotwin.yaml composes no '
+                                    'data group and get_model fails on cfg.data (job 1693)',
                     policy_profile_fix='Fast-WAM args.sigma_shift=5.0: upstream README evaluates the original released checkpoints '
                                        'with EVALUATION.sigma_shift=5.0; unset, the action scheduler used infer_shift 1.0 (job 1685)',
                     experiment=EXPERIMENT, curobo_fix=prior['curobo_fix'],
@@ -151,7 +157,10 @@ def main():
     text = text.replace(planner_bind, planner_bind
         + '# Fast-WAM profile with sigma_shift=5.0 (upstream released-checkpoint setting); the policy server reads its own workspace copy.\n'
         + 'export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/configs/policies/fastwam.yaml:$ROOT/configs/policies/fastwam.yaml:ro"\n'
-        + f'export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/configs/policies/fastwam.yaml:{FASTWAM_WORKSPACE}/configs/policies/fastwam.yaml:ro"\n')
+        + f'export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/configs/policies/fastwam.yaml:{FASTWAM_WORKSPACE}/configs/policies/fastwam.yaml:ro"\n'
+        + '# G0.5 profile with sim_task=robotwin (upstream evaluator setting); bound to the evaluator tree and the G0.5 policy workspace.\n'
+        + 'export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/configs/policies/g05.yaml:$ROOT/configs/policies/g05.yaml:ro"\n'
+        + f'export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/configs/policies/g05.yaml:{G05_WORKSPACE}/configs/policies/g05.yaml:ro"\n')
     fastwam_bind = f'export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/configs/policies/fastwam.yaml:{FASTWAM_WORKSPACE}/configs/policies/fastwam.yaml:ro"\n'
     if fastwam_bind not in text:
         raise RuntimeError('Fast-WAM profile bind missing')
@@ -186,6 +195,10 @@ def main():
         + "    if hashlib.sha256(copy.read_bytes()).hexdigest() != '" + configs['policies/fastwam.yaml'] + "':\n"
         + "        raise SystemExit(f'Fast-WAM profile (sigma_shift=5.0) was not bound correctly: {copy}')\n"
         + "print('FASTWAM_SIGMA_SHIFT: profile with sigma_shift=5.0 bound to evaluator and policy workspace', flush=True)\n"
+        + "for copy in (root / 'configs/policies/g05.yaml', Path('" + G05_WORKSPACE + "/configs/policies/g05.yaml')):\n"
+        + "    if hashlib.sha256(copy.read_bytes()).hexdigest() != '" + configs['policies/g05.yaml'] + "':\n"
+        + "        raise SystemExit(f'G0.5 profile (sim_task=robotwin) was not bound correctly: {copy}')\n"
+        + "print('G05_SIM_TASK: profile with sim_task=robotwin bound to evaluator and policy workspace', flush=True)\n"
         + "sapien_pkg = Path('" + SAPIEN_PKG + "')\n"
         + "for name in ('libOpenImageDenoise.so." + OIDN_VERSION + "', 'libOpenImageDenoise_core.so." + OIDN_VERSION + "', 'libOpenImageDenoise_device_cuda.so." + OIDN_VERSION + "'):\n"
         + "    if not (sapien_pkg / 'oidn_library' / name).exists():\n"
@@ -231,15 +244,16 @@ def main():
                   'tools/continue_success_context.py', 'SUCCESS_CONTEXT_FIX', 'G05_RUNTIME_FIX', 'spread over both GPUs', '--cpus-per-task=32', '--mem=96G',
                   'ROBOTWIN_MODELS="fastwam g05 pi05"', 'MODEL_START', 'MODEL_DONE', 'tools/parallel_freeze_task.py',
                   'PARALLEL_FREEZE_WORKERS=8', 'FASTWAM_SIGMA_SHIFT', configs['policies/fastwam.yaml'], FASTWAM_WORKSPACE,
+                  'G05_SIM_TASK', configs['policies/g05.yaml'], G05_WORKSPACE + '/configs/policies/g05.yaml:ro',
                   'OIDN_PASS', OIDN_URL, OIDN_SHA256, SAPIEN_PKG + '/oidn_library:ro', SAPIEN_PKG + '/_oidn_tricks.py:ro', '--timeout ' + str(EPISODE_TIMEOUT),
                   'FREEZE_WORKERS_PER_GPU=4', 'POLICY_REPLICAS=4', 'gpu:pro6000:2', '--time=3-00:00:00'):
         if check not in text:
             raise RuntimeError(f'Launcher substitution failed for {check}')
-    if BASE in text or any(f'robotwin-success-context-fix-v{n}' in text for n in (1, 2, 3, 4, 5)):
+    if BASE in text or any(f'robotwin-success-context-fix-v{n}' in text for n in (1, 2, 3, 4, 5, 6)):
         raise RuntimeError('Launcher still references a superseded snapshot')
     for filename in ('job-pro6000x2-fastwam-v6-context.sbatch', 'ood-fastwam-pro6000x2-v6-context.txt'):
         (ROOT / 'cluster' / filename).write_text(text)
-    print(f'Packaged {archive} ({archive_hash}): {EXPERIMENT}, success-context fix, Fast-WAM sigma_shift=5.0, OIDN {OIDN_VERSION}, G0.5 runtime bundle fix, pool preserved')
+    print(f'Packaged {archive} ({archive_hash}): {EXPERIMENT}, success-context fix, Fast-WAM sigma_shift=5.0, OIDN {OIDN_VERSION}, G0.5 runtime bundle fix, G0.5 sim_task, pool preserved')
 
 
 if __name__ == '__main__':
