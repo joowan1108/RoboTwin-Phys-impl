@@ -123,7 +123,7 @@ def test_index_or_run_pinned_elsewhere_is_refused(tmp_path):
 
 
 def test_packaged_archive_pins_the_tree_and_only_the_reviewed_source_changes():
-    name = 'robotwin-success-context-fix-v5'
+    name = 'robotwin-success-context-fix-v6'
     with zipfile.ZipFile(ROOT / f'reports/{name}.zip') as archive, \
             zipfile.ZipFile(ROOT / 'reports/robotwin-fresh-pool-v2.zip') as base:
         manifest = json.loads(archive.read(name + '/manifest.json'))

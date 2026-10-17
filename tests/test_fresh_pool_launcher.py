@@ -16,7 +16,7 @@ ROOT = Path(__file__).parents[1]
 NAME = 'robotwin-fresh-pool-v1'
 CURRENT = 'robotwin-fresh-pool-v2'
 FRESH = {NAME: 'phys-pro6000-100-v5', CURRENT: 'phys-pro6000-100-v6'}
-CONTEXT = 'robotwin-success-context-fix-v5'
+CONTEXT = 'robotwin-success-context-fix-v6'
 
 
 @pytest.mark.parametrize('package,filename,marker,exec_prefix,gpus', [
@@ -191,6 +191,7 @@ def test_resume_archive_changes_only_reviewed_branches_and_adds_audited_continua
 
 
 DELIVERED_FRESH_V2 = '8e53a6f9f32591389c3026e7a33905d8c3452ddb555f038d6a6f9492be0ee594'
+DELIVERED_CONTEXT_V5 = '342fc41e367155374a66bb8aa51ea909cd5b7d7b671376320f8f01dbcb8af531'
 DELIVERED_CONTEXT_V4 = '45c83feaa4882884a83fbdac3ffe9ae9b9fc875f4cc607fa6c0a0f85153d0416'
 DELIVERED_CONTEXT_V3 = '88c7734fbf4d4982721a9167d773a2d603b166dcdeb652c9d1960e77eac3d3ce'
 DELIVERED_CONTEXT_V2 = 'e5a80ed1d5bd4d64b7f6b47f8ae5dc0fb33f7c7d52d38c92b9b626640b24a35d'
@@ -204,22 +205,30 @@ def test_delivered_context_archives_are_pinned_and_differ_only_in_tools():
     assert hashlib.sha256((ROOT / 'reports/robotwin-success-context-fix-v2.zip').read_bytes()).hexdigest() == DELIVERED_CONTEXT_V2
     assert hashlib.sha256((ROOT / 'reports/robotwin-success-context-fix-v3.zip').read_bytes()).hexdigest() == DELIVERED_CONTEXT_V3
     assert hashlib.sha256((ROOT / 'reports/robotwin-success-context-fix-v4.zip').read_bytes()).hexdigest() == DELIVERED_CONTEXT_V4
+    assert hashlib.sha256((ROOT / 'reports/robotwin-success-context-fix-v5.zip').read_bytes()).hexdigest() == DELIVERED_CONTEXT_V5
     with zipfile.ZipFile(ROOT / 'reports/robotwin-success-context-fix-v1.zip') as v1, \
             zipfile.ZipFile(ROOT / 'reports/robotwin-success-context-fix-v2.zip') as v2, \
             zipfile.ZipFile(ROOT / 'reports/robotwin-success-context-fix-v3.zip') as v3, \
             zipfile.ZipFile(ROOT / 'reports/robotwin-success-context-fix-v4.zip') as v4, \
-            zipfile.ZipFile(ROOT / f'reports/{CONTEXT}.zip') as v5:
+            zipfile.ZipFile(ROOT / 'reports/robotwin-success-context-fix-v5.zip') as v5, \
+            zipfile.ZipFile(ROOT / f'reports/{CONTEXT}.zip') as v6:
         m1 = json.loads(v1.read('robotwin-success-context-fix-v1/manifest.json'))
         m2 = json.loads(v2.read('robotwin-success-context-fix-v2/manifest.json'))
         m3 = json.loads(v3.read('robotwin-success-context-fix-v3/manifest.json'))
         m4 = json.loads(v4.read('robotwin-success-context-fix-v4/manifest.json'))
-        m5 = json.loads(v5.read(CONTEXT + '/manifest.json'))
-        assert m1['files'] == m2['files'] == m3['files'] == m4['files'] == m5['files']
+        m5 = json.loads(v5.read('robotwin-success-context-fix-v5/manifest.json'))
+        m6 = json.loads(v6.read(CONTEXT + '/manifest.json'))
+        assert m1['files'] == m2['files'] == m3['files'] == m4['files'] == m5['files'] == m6['files']
+        # v6: the G0.5 runtime bundle is hard-linked (the adapter resolves symlinks away, job 1690); only that tool and the packager changed.
+        assert {t for t in m5['tools'] if m5['tools'][t] != m6['tools'][t]} == {'package_success_context_fix.py', 'prepare_g05.py'}
+        assert m6['configs'] == m5['configs'] and m6['oidn'] == m5['oidn'] and m6['episode_timeout_seconds'] == 3600
+        assert 'hard-links' in m6['g05_runtime_fix'] and 'g05_runtime_fix' not in m5
+        assert b'os.link(origin, target)' in v6.read(CONTEXT + '/tools/prepare_g05.py')
         # v5: only the packager changed in tools; configs identical to v4; the OIDN 2.3.3 loader is shipped under oidn/.
         assert {t for t in m4['tools'] if m4['tools'][t] != m5['tools'][t]} == {'package_success_context_fix.py'}
         assert m5['configs'] == m4['configs'] and 'oidn' not in m4
         assert m5['oidn']['version'] == '2.3.3' and m5['oidn']['tarball_sha256'] == '3c385230d9e6f63527ba72f2229594dbac5051674219d72e0044b5d0b841796f'
-        assert hashlib.sha256(v5.read(CONTEXT + '/oidn/_oidn_tricks.py')).hexdigest() == m5['oidn']['loader_sha256'] \
+        assert hashlib.sha256(v5.read('robotwin-success-context-fix-v5/oidn/_oidn_tricks.py')).hexdigest() == m5['oidn']['loader_sha256'] \
             == hashlib.sha256((ROOT / 'docker/oidn/_oidn_tricks.py').read_bytes()).hexdigest()
         assert m5['episode_timeout_seconds'] == 3600
         assert set(m2['tools']) - set(m1['tools']) == {'parallel_freeze_task.py'}
@@ -231,7 +240,7 @@ def test_delivered_context_archives_are_pinned_and_differ_only_in_tools():
         assert 'configs' not in m3 and list(m4['configs']) == ['policies/fastwam.yaml']
         assert hashlib.sha256(v4.read('robotwin-success-context-fix-v4/configs/policies/fastwam.yaml')).hexdigest() == m4['configs']['policies/fastwam.yaml'] \
             == hashlib.sha256((ROOT / 'configs/policies/fastwam.yaml').read_bytes()).hexdigest()
-        assert b'sigma_shift: 5.0' in v5.read(CONTEXT + '/configs/policies/fastwam.yaml')
+        assert b'sigma_shift: 5.0' in v6.read(CONTEXT + '/configs/policies/fastwam.yaml')
 
 
 def test_delivered_v6_archive_is_pinned_and_declares_clutter_scope():

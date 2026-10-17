@@ -38,6 +38,7 @@ These are documented choices, not claims about the authors' code. Each is explai
 - Three official tasks read attributes in `check_success` that only the expert's `play_once` assigns. The evaluator derives them from the frozen initial scene instead of running the expert first ([docs/success-context-fix.md](docs/success-context-fix.md)).
 - Fast-WAM is evaluated with `sigma_shift=5.0`, the upstream setting for its released checkpoint ([docs/policies.md](docs/policies.md)).
 - On Blackwell GPUs the SAPIEN-bundled OIDN 2.0.1 denoiser fails silently and policies would see un-denoised frames; the cluster launcher binds OIDN 2.3.3 and proves it with a render probe ([docs/oidn-blackwell.md](docs/oidn-blackwell.md)).
+- The pinned GalaxeaVLA adapter resolves the checkpoint path before reading `.hydra/config.yaml`, so a symlinked G0.5 runtime bundle made it read the original repository-relative config; the bundle is hard-linked instead ([docs/g05-runtime-bundle.md](docs/g05-runtime-bundle.md)).
 - `put_object_cabinet` has a very low expert acceptance rate under the paper's ranges; it is kept as specified ([docs/put-object-cabinet-feasibility.md](docs/put-object-cabinet-feasibility.md)).
 
 ## Repository layout
@@ -49,7 +50,7 @@ tools/               environment setup, pool/evaluation schedulers, provenance c
 analysis/            read-only analysis of evaluation records (per-task rates vs. the paper, log triage, attribute effects)
 cluster/             Slurm/Open OnDemand launchers for the CSI cluster (Apptainer image + reviewed patch ZIPs)
 docker/              CUDA 12.1 (Turing) and CUDA 12.8 (Blackwell) images, per-policy runtime images, bundle image
-tests/               307 CPU tests; the simulator is faked or driven through recorded fixtures
+tests/               310 CPU tests; the simulator is faked or driven through recorded fixtures
 docs/                design notes, incident reviews and validation records (Korean, indexed in docs/README.md)
 reports/             machine-readable validation results and the immutable patch ZIPs mounted by cluster jobs
 references/          pinned upstream metadata (model cards, HF file lists, the local RoboTwin diff, paper Table 4 rates)

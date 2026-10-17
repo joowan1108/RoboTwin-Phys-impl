@@ -14,8 +14,8 @@ import re
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
-NAME = 'robotwin-success-context-fix-v5'
-PREVIOUS_DELIVERY = 'robotwin-success-context-fix-v4'
+NAME = 'robotwin-success-context-fix-v6'
+PREVIOUS_DELIVERY = 'robotwin-success-context-fix-v5'
 OIDN_VERSION = '2.3.3'
 OIDN_URL = 'https://github.com/RenderKit/oidn/releases/download/v2.3.3/oidn-2.3.3.x86_64.linux.tar.gz'
 OIDN_SHA256 = '3c385230d9e6f63527ba72f2229594dbac5051674219d72e0044b5d0b841796f'
@@ -71,6 +71,11 @@ def main():
                               reason='SAPIEN 3.0.0b1 bundles OIDN 2.0.1, which fails on Blackwell (OIDN Error: invalid handle); '
                                      'policy observations were un-denoised ray-traced frames (job 1685/1686)'),
                     episode_timeout_seconds=EPISODE_TIMEOUT,
+                    g05_runtime_fix='tools/prepare_g05.py hard-links (or copies) the G0.5 checkpoint and dataset stats into '
+                                    'checkpoints/g05-runtime instead of symlinking: the pinned GalaxeaVLA adapter resolves the '
+                                    'checkpoint path and reads .hydra/config.yaml beside the resolved file, so the symlinked '
+                                    'bundle made it read the original config with repository-relative processor paths '
+                                    '(job 1690: HF processor tokenizer.json not found)',
                     policy_profile_fix='Fast-WAM args.sigma_shift=5.0: upstream README evaluates the original released checkpoints '
                                        'with EVALUATION.sigma_shift=5.0; unset, the action scheduler used infer_shift 1.0 (job 1685)',
                     experiment=EXPERIMENT, curobo_fix=prior['curobo_fix'],
@@ -118,7 +123,8 @@ def main():
                         MARKER + ': reviewed simulator snapshot verified')
     text = text.replace('echo "POOL_THEN_FASTWAM: dual-GPU layout; policy replicas=$ROBOTWIN_POLICY_REPLICAS"',
                         'echo "POOL_THEN_FASTWAM: dual-GPU layout; policy replicas=$ROBOTWIN_POLICY_REPLICAS spread over both GPUs"\n'
-                        'echo "SUCCESS_CONTEXT_FIX: same v6 pool; saved evidence preserved; no expert replay"')
+                        'echo "SUCCESS_CONTEXT_FIX: same v6 pool; saved evidence preserved; no expert replay"\n'
+                        'echo "G05_RUNTIME_FIX: prepare_g05 hard-links the checkpoint so the adapter reads the runtime config (job 1690)"')
     exec_line = 'exec bash "$ROOT/cluster/run_parallel.sh" --seed 100000 --freeze-workers-per-gpu "$ROBOTWIN_FREEZE_WORKERS_PER_GPU"'
     if exec_line not in text:
         raise RuntimeError('Unexpected baseline launcher exec line')
@@ -222,18 +228,18 @@ def main():
                         '# Workers scanning seeds concurrently for a task the per-task loop left unfinished (same records, committed in seed order).\n'
                         'export APPTAINERENV_ROBOTWIN_PARALLEL_FREEZE_WORKERS=8\n')
     for check in (NAME, EXPERIMENT, archive_hash, manifest['source_sha256'], manifest['tools_sha256'], MARKER,
-                  'tools/continue_success_context.py', 'SUCCESS_CONTEXT_FIX', 'spread over both GPUs', '--cpus-per-task=32', '--mem=96G',
+                  'tools/continue_success_context.py', 'SUCCESS_CONTEXT_FIX', 'G05_RUNTIME_FIX', 'spread over both GPUs', '--cpus-per-task=32', '--mem=96G',
                   'ROBOTWIN_MODELS="fastwam g05 pi05"', 'MODEL_START', 'MODEL_DONE', 'tools/parallel_freeze_task.py',
                   'PARALLEL_FREEZE_WORKERS=8', 'FASTWAM_SIGMA_SHIFT', configs['policies/fastwam.yaml'], FASTWAM_WORKSPACE,
                   'OIDN_PASS', OIDN_URL, OIDN_SHA256, SAPIEN_PKG + '/oidn_library:ro', SAPIEN_PKG + '/_oidn_tricks.py:ro', '--timeout ' + str(EPISODE_TIMEOUT),
                   'FREEZE_WORKERS_PER_GPU=4', 'POLICY_REPLICAS=4', 'gpu:pro6000:2', '--time=3-00:00:00'):
         if check not in text:
             raise RuntimeError(f'Launcher substitution failed for {check}')
-    if BASE in text or any(f'robotwin-success-context-fix-v{n}' in text for n in (1, 2, 3, 4)):
+    if BASE in text or any(f'robotwin-success-context-fix-v{n}' in text for n in (1, 2, 3, 4, 5)):
         raise RuntimeError('Launcher still references a superseded snapshot')
     for filename in ('job-pro6000x2-fastwam-v6-context.sbatch', 'ood-fastwam-pro6000x2-v6-context.txt'):
         (ROOT / 'cluster' / filename).write_text(text)
-    print(f'Packaged {archive} ({archive_hash}): {EXPERIMENT}, success-context fix, Fast-WAM sigma_shift=5.0, OIDN {OIDN_VERSION}, pool preserved')
+    print(f'Packaged {archive} ({archive_hash}): {EXPERIMENT}, success-context fix, Fast-WAM sigma_shift=5.0, OIDN {OIDN_VERSION}, G0.5 runtime bundle fix, pool preserved')
 
 
 if __name__ == '__main__':

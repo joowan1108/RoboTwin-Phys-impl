@@ -78,17 +78,17 @@ fi
 export APPTAINERENV_VK_ICD_FILENAMES="$ROBOTWIN_NVIDIA_ICD"
 
 # Apply the reviewed simulator snapshot to the existing v5 image.
-ROBOTWIN_PATCH_DIR="$DATA/patches/robotwin-success-context-fix-v5"
-ROBOTWIN_PATCH_ARCHIVE="$DATA/patches/robotwin-success-context-fix-v5.zip"
+ROBOTWIN_PATCH_DIR="$DATA/patches/robotwin-success-context-fix-v6"
+ROBOTWIN_PATCH_ARCHIVE="$DATA/patches/robotwin-success-context-fix-v6.zip"
 mkdir -p "$DATA/patches"
 (
   flock -x 9
   if [[ ! -d "$ROBOTWIN_PATCH_DIR/src/robotwin_phys" ]]; then
     if [[ ! -r "$ROBOTWIN_PATCH_ARCHIVE" ]]; then
-      echo "Upload robotwin-success-context-fix-v5.zip through OOD Files to $DATA/patches/" >&2
+      echo "Upload robotwin-success-context-fix-v6.zip through OOD Files to $DATA/patches/" >&2
       exit 1
     fi
-    printf '%s  %s\n' 342fc41e367155374a66bb8aa51ea909cd5b7d7b671376320f8f01dbcb8af531 "$ROBOTWIN_PATCH_ARCHIVE" | sha256sum -c -
+    printf '%s  %s\n' c05a981e7dc70ec44eb376752da5c787ef1150898ac5530c67998672c6859ec1 "$ROBOTWIN_PATCH_ARCHIVE" | sha256sum -c -
     ROBOTWIN_PATCH_STAGE=$(mktemp -d "$DATA/patches/.expert-fix-XXXXXX")
     trap 'rm -rf -- "$ROBOTWIN_PATCH_STAGE"' EXIT
     if command -v unzip > /dev/null; then
@@ -99,7 +99,7 @@ mkdir -p "$DATA/patches"
       echo "Extract the ZIP through OOD Files into $DATA/patches/ before submitting." >&2
       exit 1
     fi
-    mv "$ROBOTWIN_PATCH_STAGE/robotwin-success-context-fix-v5" "$ROBOTWIN_PATCH_DIR"
+    mv "$ROBOTWIN_PATCH_STAGE/robotwin-success-context-fix-v6" "$ROBOTWIN_PATCH_DIR"
   fi
 ) 9> "$DATA/patches/.expert-fix.lock"
 export APPTAINER_BINDPATH="$APPTAINER_BINDPATH,$ROBOTWIN_PATCH_DIR/src:$ROOT/src:ro"
@@ -154,7 +154,7 @@ def checksum(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 if checksum(hashes(root / 'src', ('.py',))) != '7260cb344bed020bd03f176960b005b281eb8057114c4600edc51cf53aab0dbe':
     raise SystemExit('Expert patch source differs; restore uploaded snapshot')
-if checksum(hashes(root / 'tools', ('.py', '.sh', '.json'))) != '8c87389c99b7619ee516b9b1406f3d53fbb2a1dba31a55603775808a5173fcd9':
+if checksum(hashes(root / 'tools', ('.py', '.sh', '.json'))) != '19aaad72aea17f599c0f297ac2702b227b398c0137bce85d3d448e3ac6b58dfe':
     raise SystemExit('Expert patch tools differ; restore uploaded snapshot')
 if hashlib.sha256((root / 'vendor/RoboTwin/envs/utils/transforms.py').read_bytes()).hexdigest() != '942ed2b255094190f7380df113b78daed687803732928d23f2d9823d18862c53':
     raise SystemExit('Shared transform repair was not bound correctly')
@@ -221,6 +221,7 @@ echo "FRESH_POOL_V2: CoM offset on task objects only; clutter keeps nominal CoM"
 echo "FRESH_POOL: experiment=$ROBOTWIN_EXPERIMENT; all tasks; 100 episodes/task; start seed=100000; no older pool import"
 echo "POOL_THEN_FASTWAM: dual-GPU layout; policy replicas=$ROBOTWIN_POLICY_REPLICAS spread over both GPUs"
 echo "SUCCESS_CONTEXT_FIX: same v6 pool; saved evidence preserved; no expert replay"
+echo "G05_RUNTIME_FIX: prepare_g05 hard-links the checkpoint so the adapter reads the runtime config (job 1690)"
 export XDG_CACHE_HOME="$HOME/.cache" XDG_CONFIG_HOME="$HOME/.config" HF_HOME="$HOME/.cache/huggingface" MPLCONFIGDIR="$HOME/.cache/matplotlib" TORCH_EXTENSIONS_DIR="$HOME/.cache/torch_extensions"
 cd "$ROOT"
 # Finish any task left unfinished by the per-task workers with all workers scanning its seeds in parallel.
