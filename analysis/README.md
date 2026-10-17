@@ -17,3 +17,21 @@ python3 analyze_episodes.py ... --json report.json
 ```
 
 `references/paper-table4-physical-random.json` holds the per-task Physical Random rates of the five models from Appendix D of arXiv 2609.26292v1; the per-model means reproduce the paper's overall numbers.
+
+## `export_release.py` and `verify_release.py`
+
+`export_release.py` turns one experiment into a publishable dataset folder plus a ZIP: `pool/seeds.json` (accepted seeds in episode order, rejected seeds with reasons), `pool/conditions.csv` (the 11 sampled attributes, condition and initial-state hashes, instruction per episode), `results/<model>/episodes.csv` and `identity.json`, the aggregate `tables/`, `provenance.json` and the sealed manifests verbatim under `full/`. It needs only the standard library and runs where the data lives:
+
+```bash
+# on the cluster login shell
+python3 export_release.py --root ~/robotwin-data --experiment phys-pro6000-100-v6
+# -> ~/robotwin-data/release/phys-pro6000-100-v6/ and .zip; download the ZIP through OOD Files
+```
+
+`verify_release.py` runs inside this repository and recomputes every condition hash of `pool/conditions.csv` from `(task, seed)` with `robotwin_phys.conditions.sample`, checks the manifest and pool-index seals, and cross-checks results against the pool. Anyone with a clone can run it on a published dataset:
+
+```bash
+python3 analysis/verify_release.py data/phys-pro6000-100-v6
+```
+
+Published datasets live under `data/<experiment>/` (see the README section "Publishing an evaluation pool").

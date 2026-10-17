@@ -47,10 +47,11 @@ These are documented choices, not claims about the authors' code. Each is explai
 src/robotwin_phys/   evaluation library and CLI (conditions, simulator hooks, manifests, worker, RPC, provenance)
 configs/             physical_domains.json, policy profiles (checkpoint, adapter, inference args), requirements
 tools/               environment setup, pool/evaluation schedulers, provenance continuations, patch packagers
-analysis/            read-only analysis of evaluation records (per-task rates vs. the paper, log triage, attribute effects)
+analysis/            read-only analysis of evaluation records (per-task rates vs. the paper, log triage), dataset export/verification
+data/                published evaluation pools and results (`data/<experiment>/`, written by `analysis/export_release.py`)
 cluster/             Slurm/Open OnDemand launchers for the CSI cluster (Apptainer image + reviewed patch ZIPs)
 docker/              CUDA 12.1 (Turing) and CUDA 12.8 (Blackwell) images, per-policy runtime images, bundle image
-tests/               310 CPU tests; the simulator is faked or driven through recorded fixtures
+tests/               316 CPU tests; the simulator is faked or driven through recorded fixtures
 docs/                design notes, incident reviews and validation records (Korean, indexed in docs/README.md)
 reports/             machine-readable validation results and the immutable patch ZIPs mounted by cluster jobs
 references/          pinned upstream metadata (model cards, HF file lists, the local RoboTwin diff, paper Table 4 rates)
@@ -99,6 +100,19 @@ robotwin-phys evaluate --manifest manifests/physical_random/stack_blocks_two.jso
 `--live` serves the head camera at http://127.0.0.1:8765; `--video` records 320×240 MP4 at 30 simulated Hz.
 
 **Whole benchmark on a Slurm cluster.** `tools/parallel_eval.py` prepares all 50 task pools with several workers per GPU, then evaluates one model at a time with up to 8 policy replicas spread over the allocated GPUs. The launchers in [cluster/](cluster/README.md) mount a reviewed patch ZIP from [reports/](reports/) read-only over the image, pin its SHA-256 and the checksums of `src/` and `tools/`, and refuse to start otherwise. See [docs/cluster.md](docs/cluster.md) and [docs/com-scope-fresh-pool.md](docs/com-scope-fresh-pool.md).
+
+## Publishing an evaluation pool
+
+The seeds, sampled conditions and results of an experiment are exported with `analysis/export_release.py` (standard library only, run where the data lives) and committed under `data/<experiment>/`:
+
+```bash
+python3 analysis/export_release.py --root ~/robotwin-data --experiment phys-pro6000-100-v6   # on the cluster
+# download release/phys-pro6000-100-v6.zip, unzip into data/, then in the repository:
+python3 analysis/verify_release.py data/phys-pro6000-100-v6
+git add data/phys-pro6000-100-v6 && git commit -m "Publish phys-pro6000-100-v6 pool and results"
+```
+
+`pool/seeds.json` and `pool/conditions.csv` are hardware independent: conditions are a pure function of `(task, seed)` and `verify_release.py` recomputes every hash from the seeds. The sealed manifests under `full/` carry the verified initial scene states and the runtime fingerprint; `robotwin-phys evaluate` only accepts them on an identical runtime, so on another machine the pool is re-frozen from the same start seed and compared seed by seed. Keep the `full/` folder out of git (or attach the ZIP to a GitHub release) if it exceeds what you want in the repository history.
 
 ## Provenance rules
 

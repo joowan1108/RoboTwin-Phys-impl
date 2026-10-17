@@ -8,6 +8,8 @@
 
 **v6 평가 단계 수정 (잡 1681 이후 사용):** [세 task의 check_success 속성 수정과 같은 pool 계속 실행](docs/success-context-fix.md), [ZIP v6](reports/robotwin-success-context-fix-v6.zip) (v5: OIDN 2.3.3 [oidn-blackwell.md](docs/oidn-blackwell.md), v6: G0.5 bundle [g05-runtime-bundle.md](docs/g05-runtime-bundle.md)), [OOD 스크립트](cluster/ood-fastwam-pro6000x2-v6-context.txt). pool과 저장된 progress를 보존하고 FastWAM 평가로 이어간다.
 
+**공개 데이터셋:** 실험의 seed·조건·결과는 `python3 analysis/export_release.py --root ~/robotwin-data --experiment phys-pro6000-100-v6`로 묶어 `data/<experiment>/`에 올리고, 받는 쪽은 `python3 analysis/verify_release.py data/<experiment>`로 모든 조건 해시를 seed에서 재계산해 검증한다 ([analysis/README.md](analysis/README.md)).
+
 **현재 권장 경로 (v6 새 pool):** [CoM offset 적용 범위 수정과 v6 pool 안내](docs/com-scope-fresh-pool.md), [새 ZIP](reports/robotwin-fresh-pool-v2.zip), [pool 전용 OOD 스크립트](cluster/ood-pool-pro6000-v6-fresh.txt), [pool + FastWAM 평가 스크립트 (PRO 6000 2장)](cluster/ood-fastwam-pro6000x2-v6-all.txt). 공식 clutter에는 물체 속성(CoM·질량·크기)과 외력을 적용하지 않도록 simulator를 수정했으므로 v5 pool을 이어받지 않고 `phys-pro6000-100-v6`을 새로 준비한다. v1–v3 expert 수정을 모두 포함한다. `put_object_cabinet`의 낮은 채택률은 [분석 기록](docs/put-object-cabinet-feasibility.md)을 참고한다.
 
 **현재 v5 pool의 `086_woodenblock`·`021_cup` 집기점 오류와 `put_bottles_dustbin` planner 실패 뒤 `IndexError` 후 재개:** [원인과 재개 안내 (v3)](docs/planner-failure-recovery.md), [새 패치 ZIP](reports/robotwin-planner-failure-fix-v3.zip), [OOD 재개 스크립트](cluster/ood-pool-pro6000-v5-planfail.txt). v3는 [집기점 패치 v2](docs/grasp-contact-recovery.md)를 포함한다. 완료한 task와 저장된 seed를 보존하며 전체 50개 task의 pool 준비를 이어간다.
