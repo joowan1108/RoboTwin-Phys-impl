@@ -35,3 +35,7 @@ python3 analysis/verify_release.py data/phys-pro6000-100-v6
 ```
 
 Published datasets live under `data/<experiment>/` (see the README section "Publishing an evaluation pool").
+
+## Without shell access
+
+`make_ood_jobs.py` regenerates `cluster/ood-export-release-v6.txt` and `cluster/ood-analyze-episodes-v6.txt`, Job Composer scripts that carry the scripts (and the paper table) inline, so only a job submission is needed on the cluster. `tests/test_ood_analysis_jobs.py` checks the committed copies match the current scripts.
