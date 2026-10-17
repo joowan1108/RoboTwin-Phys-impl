@@ -8,34 +8,59 @@
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![tests](https://github.com/joowan1108/RoboTwin-Phys-impl/actions/workflows/tests.yml/badge.svg)](https://github.com/joowan1108/RoboTwin-Phys-impl/actions/workflows/tests.yml)
 ![python](https://img.shields.io/badge/python-3.10-3776ab.svg)
-![tasks](https://img.shields.io/badge/tasks-50%20×%20100%20episodes-2ea44f.svg)
 
-[Results](#-results) · [Data](data/README.md) · [Quick start](#-quick-start) · [How it works](#-how-it-works) · [Docs](docs/README.md) · [한국어](README.ko.md)
+[What is implemented](#-what-is-implemented) · [Results](#-results) · [Benchmark your policy with our seeds](#-benchmark-your-policy-with-our-seeds) · [Data](data/README.md) · [한국어](README.ko.md)
 
 </div>
 
 > [!NOTE]
-> The authors of [RoboTwin-Phys](https://arxiv.org/abs/2609.26292) had not released code, task settings or seed lists when this work started (2026-10-08). Everything here is reimplemented from the paper and documented where the paper is silent. It is not the official implementation.
+> The authors of [RoboTwin-Phys](https://arxiv.org/abs/2609.26292) had not released code, task settings or seed lists when this work started (2026-10-08). Everything here is reimplemented from the paper. It is not the official implementation.
 
-## ✨ Highlights
+## ✨ What is implemented
 
-- **All 11 physical attributes** of the paper's Table 2, sampled per episode from independent, seeded streams, with the Appendix B overrides for the nine sensitive tasks.
-- **Expert-filtered pools shared by every policy.** 50 tasks × 100 episodes, frozen once with the official RoboTwin 2.0 experts and replayed bit-exactly for each model.
-- **Five official checkpoints** (Fast-WAM, G0.5, π0.5, Motus, FACT), each served from its own environment through the official `get_model / eval / reset_model` adapter.
-- **Provenance you can audit.** Sealed manifests, runtime fingerprints and pinned policy identities refuse to mix results produced under different code, assets or GPUs.
-- **Published pool and results.** Seeds, sampled conditions and every episode outcome are in [`data/`](data/README.md), verifiable on any machine.
+RoboTwin-Phys evaluates bimanual manipulation policies on the 50 RoboTwin 2.0 tasks while the physics of every episode is randomized. This repository implements the full protocol:
+
+- **Physical randomization.** All 11 attributes of the paper's Table 2 are sampled per episode from the seed. The nine sensitive tasks use the Appendix B overrides.
+
+  | Attribute | Range | Applies to |
+  |---|---|---|
+  | Object mass | 0.125 to 4 × (inertia scaled too) | task objects |
+  | Center of mass | ±0.015 m per axis | task objects |
+  | Geometry scale | 0.85 to 1.05 × | task objects |
+  | Table tilt | 0 to 2° | table |
+  | Table height | −0.08 to 0 m | table |
+  | External force | 0 to 0.1 mg, during the policy rollout only | task objects |
+  | Camera | orbit 0–0.10 m, translation 0–0.03 m or rotation 0–10° | head camera |
+  | Friction | 0.01 to 1.25 | all materials |
+  | Restitution | 0 to 0.5 | all materials |
+  | Object joint damping | 0 to 25 | articulated objects |
+  | Arm and gripper damping | 0.5 to 3 × | robot |
+
+- **Expert-filtered episode pools.**
+  - For each task, seeds are scanned upward from 100000.
+  - The official RoboTwin 2.0 expert runs under each seed's sampled physics, and only seeds it solves are kept.
+  - Scanning stops once 100 episodes are accepted, and every policy is evaluated on exactly these 100 episodes.
+- **Policy evaluation.** Each policy runs as a server in its own environment, through its official RoboTwin adapter (`get_model / eval / reset_model`). Policy failures always count, and seeds are never replaced.
+- **Five baselines from the paper.** Fast-WAM, G0.5, π0.5, Motus and FACT. Their checkpoints and inference settings are pinned in [`configs/policies`](configs/policies).
+- **Published pool.** The 5000 accepted seeds, their sampled physical conditions and every Fast-WAM episode outcome are in [`data/`](data/README.md).
+
+Where the paper is silent, the choice made here is documented in [`docs/`](docs/README.md). The main ones:
+- Mass, center of mass, size and force apply to task objects only.
+- Table height replaces the upstream random table height.
 
 ## 📊 Results
 
 Physical Random, 50 tasks × 100 episodes, mean of per-task success rates (%).
 
-| Model | This repo | Paper (Table 1) | Status |
-|---|---:|---:|---|
-| **Fast-WAM** | **45.18** | 44.24 | ✅ complete |
-| G0.5 (Galaxea-VLA) | – | 37.82 | 🔄 running |
-| π0.5 | – | 31.60 | ⏳ queued |
-| Motus | – | 39.60 | ⏳ not yet run |
-| FACT | – | 39.14 | ⏳ not yet run |
+| Model | This repo | Paper (Table 1) |
+|---|---:|---:|
+| **Fast-WAM** | **45.18** | 44.24 |
+| G0.5 | in progress | 37.82 |
+| π0.5 | in progress | 31.60 |
+| Motus | not yet run | 39.60 |
+| FACT | not yet run | 39.14 |
+
+Setup: 2× NVIDIA RTX PRO 6000 Blackwell, RoboTwin 2.0 `stable_2.0 @ 13c3c47`, Fast-WAM checkpoint `yuanty/fastwam @ 8eaceeb` with `sigma_shift=5.0`.
 
 ### How close is Fast-WAM to the paper?
 
@@ -51,7 +76,13 @@ Physical Random, 50 tasks × 100 episodes, mean of per-task success rates (%).
 | Tasks that differ at p < 0.05, two-sample test | 9 / 50 (2.5 expected by chance) |
 | Tasks that differ after Bonferroni correction (p < 0.001) | 3 / 50 |
 
-Both sides are 100-episode estimates, so a single task carries roughly ±10 points of sampling noise. The three Bonferroni-significant tasks are `grab_roller` (86 vs. 65), `place_fan` (64 vs. 38) and `place_dual_shoes` (6 vs. 28). Different seeds, GPUs and the decisions listed under [How it works](#-how-it-works) can all move individual tasks.
+Both sides are 100-episode estimates, so a single task carries roughly ±10 points of sampling noise. Three tasks still differ after correction:
+
+| Task | Ours | Paper |
+|---|---:|---:|
+| `grab_roller` | 86 | 65 |
+| `place_fan` | 64 | 38 |
+| `place_dual_shoes` | 6 | 28 |
 
 <details>
 <summary><b>Per-task comparison (50 tasks)</b> 🟩 |Δ| ≤ 10 · 🟨 ≤ 20 · 🟥 > 20 · ❗ p &lt; 0.05 · ‼️ p &lt; 0.001</summary>
@@ -113,151 +144,133 @@ Paper values: arXiv 2609.26292v1, Table 4 (Appendix D). Ours: [`data/phys-pro600
 
 </details>
 
-**Setup:** 2× NVIDIA RTX PRO 6000 Blackwell, RoboTwin 2.0 `stable_2.0 @ 13c3c47`, Fast-WAM `yuanty/fastwam @ 8eaceeb` with `sigma_shift=5.0`, seeds scanned upward from 100000. The exact runtime fingerprint is in [`provenance.json`](data/phys-pro6000-100-v6/provenance.json).
+## 🎯 Benchmark your policy with our seeds
 
-## 🚀 Quick start
+Our pool is published in [`data/phys-pro6000-100-v6`](data/phys-pro6000-100-v6/):
 
-**Run the test suite** (no GPU, no simulator):
+| File | Contents |
+|---|---|
+| `pool/seeds.json` | per task: the 100 accepted seeds in episode order and every rejected seed with its reason |
+| `pool/conditions.csv` | per episode: the 11 sampled physical attributes and the language instruction |
+| `results/fastwam/episodes.csv` | per episode: Fast-WAM success, number of actions and wall time |
 
-```bash
-git clone --filter=blob:none https://github.com/RoboTwin-Platform/RoboTwin.git vendor/RoboTwin
-git -C vendor/RoboTwin checkout 13c3c47ff4312dd62484bcd51be034af55c062d1
-python -m venv .venv && .venv/bin/pip install numpy==1.26.4 PyYAML==6.0.2 "Pillow>=10,<12" transforms3d pytest
-PYTHONPATH=src .venv/bin/python -m pytest -q tests \
-  --ignore=tests/test_curobo_batch_results.py --ignore=tests/test_curobo_mask_compat.py \
-  -k 'not test_force_is_policy_only_and_scales_as_mg and not test_all_five_configs_reference_real_official_adapters and not test_mp4_is_decodable'
-```
+An episode's physical condition depends only on `(task, seed)`, so it is identical on any machine. To evaluate your policy on the same 5000 episodes:
 
-The ignored and deselected tests need torch, SAPIEN, ffmpeg or the cloned policy repositories. This is also what [.github/workflows/tests.yml](.github/workflows/tests.yml) runs.
-
-**Full environment.** The simulator needs SAPIEN 3.0.0b1, MPLib 0.2.1, CuRobo v0.7.8, PyTorch with CUDA and about 16 GB of official RoboTwin assets. Use the Docker images rather than a host install:
+**1. Set up the simulator.** Clone this repository and build the Docker image. The image installs RoboTwin 2.0 at the pinned revision, SAPIEN, CuRobo and the official assets ([docs/docker.md](docs/docker.md)). Then check that the conditions reproduce:
 
 ```bash
-bash tools/docker.sh build      # CUDA 12.1 image for Turing GPUs; see docs/docker.md
-bash tools/docker.sh doctor     # real Vulkan render + CUDA check, writes reports/hardware.json
-bash tools/docker.sh validate   # smoke pool + no-op policy episode
-```
-
-For Blackwell GPUs and the five policy runtimes, `tools/build_bundle.sh` builds the single bundle image used on the cluster (published as `joowan1108/robotwin-phys:bundle-cu128-v5`). `tools/bootstrap.sh` records the original host installation and is kept for reference.
-
-**Freeze a pool and evaluate one policy:**
-
-```bash
-robotwin-phys freeze --task stack_blocks_two --protocol physical_random --episodes 100 --seed 100000 \
-  --output manifests/physical_random/stack_blocks_two.json
-
-# in the policy's own environment
-PYTHONPATH=$PWD/src /path/to/fastwam-env/bin/python -m robotwin_phys.policy_server \
-  --config configs/policies/fastwam.yaml --port 9000
-
-robotwin-phys evaluate --manifest manifests/physical_random/stack_blocks_two.json \
-  --output runs/fastwam/stack_blocks_two --host 127.0.0.1 --policy-port 9000 --live --video
-```
-
-`--live` serves the head camera at http://127.0.0.1:8765; `--video` records 320×240 MP4 at 30 simulated Hz.
-
-**Whole benchmark on a Slurm cluster.** `tools/parallel_eval.py` prepares all 50 task pools with several workers per GPU, then evaluates one model at a time with up to 8 policy replicas spread over the allocated GPUs. The launchers in [cluster/](cluster/README.md) mount a reviewed patch ZIP from [reports/](reports/) read-only over the image, pin its SHA-256 and the checksums of `src/` and `tools/`, and refuse to start otherwise. See [docs/cluster.md](docs/cluster.md) and [docs/com-scope-fresh-pool.md](docs/com-scope-fresh-pool.md).
-
-### Use the published pool
-
-```bash
+git clone https://github.com/joowan1108/RoboTwin-Phys-impl.git && cd RoboTwin-Phys-impl
+bash tools/docker.sh build
+bash tools/docker.sh doctor      # GPU, Vulkan rendering and CUDA check
+bash tools/docker.sh shell       # all following commands run inside this container
 python3 analysis/verify_release.py data/phys-pro6000-100-v6   # recomputes all 5000 conditions from their seeds
 ```
 
-`pool/seeds.json` lists the accepted and rejected seeds per task and `pool/conditions.csv` the sampled attributes per episode. Conditions are a pure function of `(task, seed)` and identical on any machine. The 50 sealed manifests with the verified initial scenes are in the GitHub release asset `phys-pro6000-100-v6-full.zip`. See [`data/README.md`](data/README.md).
+**2. Freeze the pool from the same start seed.** The expert re-checks every seed on your machine and stores the initial scenes:
 
-## 🔧 How it works
-
-```text
-seed ──► sample 11 attributes ──► official expert under that physics ──► accept / reject ──► sealed manifest
-                                                                                                 │
-             policy server (own env) ◄── RPC ── simulator replays the frozen initial state ◄─────┘
-                                                   └─► success / failure stays in the denominator
+```bash
+for task in $(robotwin-phys tasks); do
+  robotwin-phys freeze --task $task --protocol physical_random --episodes 100 --seed 100000 \
+    --output manifests/$task.json
+done
 ```
 
-1. **Sample conditions** (`src/robotwin_phys/conditions.py`). Independent PCG64 streams keyed by task, seed and attribute, so disabling one factor never changes another. Ranges live in [`configs/physical_domains.json`](configs/physical_domains.json).
-2. **Freeze an expert pool** (`robotwin-phys freeze`, `tools/parallel_eval.py`). Only expert failures and unstable initializations are excluded; runtime errors abort instead of counting as failures.
-3. **Evaluate policies** (`robotwin-phys evaluate`). The simulator refuses to run if the scene or fingerprint differs from the manifest; seeds are never replaced.
-4. **Report** (`tools/experiment.py`, `analysis/`). Per-task and aggregate rates, a randomization audit of every worker request, paper-style tables.
+Check that your accepted seeds are ours:
+
+```bash
+python3 - <<'EOF'
+import json
+ours = json.load(open('data/phys-pro6000-100-v6/pool/seeds.json'))['tasks']
+for task, entry in ours.items():
+    mine = [e['seed'] for e in json.load(open(f'manifests/{task}.json'))['episodes']]
+    print(task, 'OK' if mine == entry['accepted'] else 'DIFFERS')
+EOF
+```
+
+The expert is deterministic per seed, but a different GPU or driver can flip a few borderline seeds. Report any difference together with your results.
+
+**3. Wrap your policy.** Write an adapter with the same three functions as the official RoboTwin policies, and a profile that points to it:
+
+```python
+# my_policy/deploy_policy.py
+def get_model(args):               # args = the "args" block of the profile
+    return load_my_model(args["ckpt"])
+
+def reset_model(model):            # called before every episode
+    model.reset()
+
+def eval(env, model, observation): # called repeatedly until the episode ends
+    for action in model.predict(observation):
+        env.take_action(action)
+```
+
+```yaml
+# configs/policies/my_policy.yaml
+name: my_policy
+adapter: my_policy/deploy_policy.py
+python_paths: [my_policy]
+args:
+  ckpt: /path/to/checkpoint
+```
+
+[`src/robotwin_phys/noop_policy.py`](src/robotwin_phys/noop_policy.py) is a minimal working example, and the profiles in [`configs/policies`](configs/policies) show the five baselines.
+
+**4. Evaluate.** Start the policy server in your policy's own Python environment, then run the 50 tasks:
+
+```bash
+PYTHONPATH=$PWD/src /path/to/my-policy-env/bin/python -m robotwin_phys.policy_server \
+  --config configs/policies/my_policy.yaml --port 9000 &
+
+for task in $(robotwin-phys tasks); do
+  robotwin-phys evaluate --manifest manifests/$task.json --output runs/my_policy/$task --policy-port 9000
+done
+```
+
+Each task folder gets two kinds of output:
+- `runs/my_policy/<task>/summary.json` has the task's `success_rate`.
+- `episode-NNNN.result.json` holds the outcome of each seed.
+
+Add `--video` to record an MP4 per episode.
+
+**5. Compare.** The benchmark score is the mean of the 50 per-task success rates. You can compare it two ways:
+- Episode by episode, against the Fast-WAM rows of `results/fastwam/episodes.csv`.
+- Task by task, against the paper's values in [`references/paper-table4-physical-random.json`](references/paper-table4-physical-random.json).
 
 <details>
-<summary><b>Physical attributes</b></summary>
+<summary><b>Run it on exactly our runtime</b></summary>
 
-| Attribute | Range | Applies to |
+The release asset [`phys-pro6000-100-v6-full.zip`](https://github.com/joowan1108/RoboTwin-Phys-impl/releases/tag/data-phys-pro6000-100-v6) contains our 50 sealed manifests, including the verified initial scenes. `robotwin-phys evaluate` accepts them only on an identical runtime: same source, assets, package versions, GPU model and driver. On any other machine, use step 2 instead.
+
+</details>
+
+## 🤖 Baselines
+
+| Model | Checkpoint | Adapter |
 |---|---|---|
-| Object mass | 0.125 to 4 × (inertia scaled too) | task objects |
-| Center of mass | ±0.015 m per axis | task objects |
-| Geometry scale | 0.85 to 1.05 × | task objects |
-| Table tilt | 0 to 2° (azimuth 90°) | table |
-| Table height | −0.08 to 0 m from 0.74 m | table |
-| External force | 0 to 0.1 mg along +X, policy stage only | task objects |
-| Camera | one mode per episode: orbit 0–0.10 m, translation 0–0.03 m, rotation 0–10° | head camera |
-| Friction | 0.01 to 1.25 | all materials |
-| Restitution | 0 to 0.5 | all materials |
-| Object joint damping | 0 to 25 | articulated objects |
-| Arm and gripper damping | 0.5 to 3 × (one shared factor) | robot |
+| Fast-WAM | `yuanty/fastwam` | official FastWAM RoboTwin client |
+| G0.5 | `OpenGalaxea/G05` (gated) | official GalaxeaVLA RoboTwin adapter |
+| π0.5 | `motus-robotics/pi0.5_robotwin2` | OpenPI PyTorch |
+| Motus | `motus-robotics/Motus_robotwin2` | official Motus adapter |
+| FACT | `Bariona/fact-wam` | native FACT server and official client |
 
-The paper says "13 physical attributes" but lists 11 rows; the count matches only if camera modes are counted separately. This implementation follows the table.
-
-</details>
-
-<details>
-<summary><b>Decisions the paper leaves open</b></summary>
-
-These are documented choices, not claims about the authors' code.
-
-- Mass, center of mass, size and force apply to task objects only; the official clutter objects keep nominal properties, while friction and restitution are scene-wide ([docs/com-scope-fresh-pool.md](docs/com-scope-fresh-pool.md)).
-- Table height replaces the upstream random table height rather than adding to it ([docs/reproduction.md](docs/reproduction.md)).
-- Three official tasks read attributes in `check_success` that only the expert's `play_once` assigns. The evaluator derives them from the frozen initial scene instead of running the expert first ([docs/success-context-fix.md](docs/success-context-fix.md)).
-- Fast-WAM is evaluated with `sigma_shift=5.0`, the upstream setting for its released checkpoint ([docs/policies.md](docs/policies.md)).
-- On Blackwell GPUs the SAPIEN-bundled OIDN 2.0.1 denoiser fails silently and policies would see un-denoised frames; the cluster launcher binds OIDN 2.3.3 and proves it with a render probe ([docs/oidn-blackwell.md](docs/oidn-blackwell.md)).
-- The pinned GalaxeaVLA adapter resolves the checkpoint path before reading `.hydra/config.yaml`, so a symlinked G0.5 runtime bundle made it read the original repository-relative config; the bundle is hard-linked instead ([docs/g05-runtime-bundle.md](docs/g05-runtime-bundle.md)).
-- `put_object_cabinet` has a very low expert acceptance rate under the paper's ranges; it is kept as specified ([docs/put-object-cabinet-feasibility.md](docs/put-object-cabinet-feasibility.md)).
-
-</details>
-
-<details>
-<summary><b>Provenance rules</b></summary>
-
-- A manifest stores the sampled condition, its SHA-256, the verified initial state and its SHA-256, the instruction, the expert's result and a fingerprint of `src/robotwin_phys`, `configs/physical_domains.json`, the pinned RoboTwin envs/task configs/embodiment, package versions, GPU name and driver, CuRobo metadata and the asset tree.
-- `pool-index.json` seals the manifests of one experiment; every evaluation run pins the manifest hash and the policy identity (name, config hash, adapter hash) in `run.json`. Results under a different identity are refused rather than silently replaced.
-- Changing `src/` after a pool exists invalidates the fingerprint. The repository therefore ships explicit, reviewed continuation tools that advance saved records under a named rule with backups and receipts (`tools/continue_success_context.py`, `tools/resume_contact_pool.py`) instead of rebuilding pools.
-- The patch ZIPs in `reports/` are immutable once a cluster job has mounted them. Packagers refuse to overwrite a delivered archive.
-
-</details>
+Revisions and inference arguments are pinned in [`configs/policies`](configs/policies), and preparation steps are in [`docs/policies.md`](docs/policies.md). The bf16 policies need an Ampere or newer GPU.
 
 ## 🗂 Repository layout
 
 ```text
-src/robotwin_phys/   evaluation library and CLI (conditions, simulator hooks, manifests, worker, RPC, provenance)
-configs/             physical_domains.json, policy profiles (checkpoint, adapter, inference args), requirements
-tools/               environment setup, pool/evaluation schedulers, provenance continuations, patch packagers
-analysis/            read-only analysis of evaluation records (per-task rates vs. the paper, log triage), dataset export/verification
-data/                published evaluation pools and results (`data/<experiment>/`, see data/README.md)
-cluster/             Slurm/Open OnDemand launchers for the CSI cluster (Apptainer image + reviewed patch ZIPs)
-docker/              CUDA 12.1 (Turing) and CUDA 12.8 (Blackwell) images, per-policy runtime images, bundle image
-tests/               319 CPU tests; the simulator is faked or driven through recorded fixtures
-docs/                design notes, incident reviews and validation records (Korean, indexed in docs/README.md)
-reports/             machine-readable validation results and the immutable patch ZIPs mounted by cluster jobs
-references/          pinned upstream metadata (model cards, HF file lists, the local RoboTwin diff, paper Table 4 rates)
-vendor/              pinned RoboTwin 2.0 (stable_2.0 @ 13c3c47) and CuRobo v0.7.8 checkouts (not committed)
+src/robotwin_phys/   randomization, simulator hooks, episode pools, policy server and evaluation CLI
+configs/             physical attribute ranges and policy profiles
+data/                published pool and results
+analysis/            per-task comparison with the paper, dataset export and verification
+tools/               environment setup and multi-GPU schedulers
+docker/              simulator and policy images
+tests/               CPU tests (no simulator needed)
+docs/                design notes and decisions (Korean)
 ```
-
-## 🤖 Policies
-
-| Model | Checkpoint | Adapter | Replicas per job |
-|---|---|---|---:|
-| Fast-WAM | `yuanty/fastwam` | official FastWAM RoboTwin client | 4 |
-| G0.5 | `OpenGalaxea/G05` (gated) | official GalaxeaVLA RoboTwin adapter | 4 |
-| π0.5 | `motus-robotics/pi0.5_robotwin2` | OpenPI PyTorch, card transforms | 4 |
-| Motus | `motus-robotics/Motus_robotwin2` | official Motus adapter | 2 (VRAM) |
-| FACT | `Bariona/fact-wam` | native FACT server + official client | 1 (native server) |
-
-Revisions and inference arguments are pinned in [`configs/policies`](configs/policies); preparation and caveats are in [`docs/policies.md`](docs/policies.md). bf16 policies need Ampere or newer GPUs.
 
 ## 📄 License and citation
 
-The code and the published data in this repository are released under the [MIT License](LICENSE). Vendor code (RoboTwin 2.0, CuRobo, the policy repositories) and model checkpoints keep their own licenses; copies of the RoboTwin and CuRobo licenses accompany the fixtures in `tests/fixtures/`.
+The code and the published data are released under the [MIT License](LICENSE). RoboTwin 2.0, CuRobo, the policy repositories and the model checkpoints keep their own licenses.
 
 If you use this reimplementation, please cite the original paper:
 

@@ -1,136 +1,270 @@
-# RoboTwin-Phys 평가 기반
+<div align="center">
 
-이 저장소는 **arXiv:2609.26292v1에 근거한 독립 재구현**입니다. 2026-10-08 확인 시 RoboTwin-Phys 공식 저장소에는 실행 코드·task 설정·평가 seed 목록이 공개되지 않았습니다. 따라서 저자 코드와 수치가 완전히 같은 공식 구현으로 표시하면 안 됩니다. 논문 수치 범위, 9개 task 예외, expert filtering, policy 간 동일 조건 재사용을 구현했습니다. [근거와 구현 가정](docs/reproduction.md)을 먼저 확인하세요.
+# RoboTwin-Phys · independent reimplementation
 
-현재 머신에는 Python 3.10, PyTorch 2.4.1+cu121, CUDA Toolkit 12.1, SAPIEN 3.0.0b1, MPLib 0.2.1, CuRobo v0.7.8, ffmpeg와 공식 assets가 설치되어 있습니다. NVIDIA 드라이버를 변경하지 않습니다. GPU 1을 기본으로 사용하며 `CUDA_VISIBLE_DEVICES=0`으로 바꿀 수 있습니다. 자세한 실제 점검값은 [reports/hardware.json](reports/hardware.json)에 있습니다.
+**논문을 바탕으로 다시 구현한 RoboTwin 2.0 물리 랜덤화 평가**
 
-## 실행
+[![paper](https://img.shields.io/badge/arXiv-2609.26292-b31b1b.svg)](https://arxiv.org/abs/2609.26292)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![tests](https://github.com/joowan1108/RoboTwin-Phys-impl/actions/workflows/tests.yml/badge.svg)](https://github.com/joowan1108/RoboTwin-Phys-impl/actions/workflows/tests.yml)
+![python](https://img.shields.io/badge/python-3.10-3776ab.svg)
 
-**v6 평가 단계 수정 (잡 1681 이후 사용):** [세 task의 check_success 속성 수정과 같은 pool 계속 실행](docs/success-context-fix.md), [ZIP v7](reports/robotwin-success-context-fix-v7.zip) (v5: OIDN 2.3.3 [oidn-blackwell.md](docs/oidn-blackwell.md), v6·v7: G0.5 bundle·sim_task [g05-runtime-bundle.md](docs/g05-runtime-bundle.md)), [OOD 스크립트](cluster/ood-fastwam-pro6000x2-v6-context.txt). pool과 저장된 progress를 보존하고 FastWAM 평가로 이어간다.
+[구현 내용](#-구현-내용) · [결과](#-결과) · [우리 seed로 벤치마크하기](#-우리-seed로-벤치마크하기) · [데이터](data/README.md) · [English](README.md)
 
-**공개 데이터셋:** 실험의 seed·조건·결과는 `python3 analysis/export_release.py --root ~/robotwin-data --experiment phys-pro6000-100-v6`로 묶어 `data/<experiment>/`에 올리고, 받는 쪽은 `python3 analysis/verify_release.py data/<experiment>`로 모든 조건 해시를 seed에서 재계산해 검증한다 ([analysis/README.md](analysis/README.md)).
+</div>
 
-**현재 권장 경로 (v6 새 pool):** [CoM offset 적용 범위 수정과 v6 pool 안내](docs/com-scope-fresh-pool.md), [새 ZIP](reports/robotwin-fresh-pool-v2.zip), [pool 전용 OOD 스크립트](cluster/ood-pool-pro6000-v6-fresh.txt), [pool + FastWAM 평가 스크립트 (PRO 6000 2장)](cluster/ood-fastwam-pro6000x2-v6-all.txt). 공식 clutter에는 물체 속성(CoM·질량·크기)과 외력을 적용하지 않도록 simulator를 수정했으므로 v5 pool을 이어받지 않고 `phys-pro6000-100-v6`을 새로 준비한다. v1–v3 expert 수정을 모두 포함한다. `put_object_cabinet`의 낮은 채택률은 [분석 기록](docs/put-object-cabinet-feasibility.md)을 참고한다.
+> [!NOTE]
+> 작업을 시작한 2026-10-08 기준으로 [RoboTwin-Phys](https://arxiv.org/abs/2609.26292) 저자들은 코드, task 설정, seed 목록을 공개하지 않았습니다. 이 저장소의 모든 것은 논문을 바탕으로 다시 구현한 것이며 공식 구현이 아닙니다.
 
-**현재 v5 pool의 `086_woodenblock`·`021_cup` 집기점 오류와 `put_bottles_dustbin` planner 실패 뒤 `IndexError` 후 재개:** [원인과 재개 안내 (v3)](docs/planner-failure-recovery.md), [새 패치 ZIP](reports/robotwin-planner-failure-fix-v3.zip), [OOD 재개 스크립트](cluster/ood-pool-pro6000-v5-planfail.txt). v3는 [집기점 패치 v2](docs/grasp-contact-recovery.md)를 포함한다. 완료한 task와 저장된 seed를 보존하며 전체 50개 task의 pool 준비를 이어간다.
+## ✨ 구현 내용
 
-**현재 선택한 PRO 6000 한 장:** [FastWAM 단독 평가 및 v5 이미지 빌드 안내](docs/evaluation-pro6000-single.md), [OOD 스크립트 (.txt)](cluster/ood-fastwam-pro6000-single-v5.txt). 시뮬레이션과 추론이 한 GPU를 공유하며, 50 tasks × Physical Random × 100 episodes를 평가합니다. 공통 episode pool을 다음 모델에서도 그대로 재사용합니다.
+RoboTwin-Phys는 RoboTwin 2.0의 50개 양팔 조작 task에서 episode마다 물리 조건을 바꿔 가며 policy를 평가합니다. 이 저장소는 그 프로토콜 전체를 구현합니다.
 
-**별도 GPU 구성이 가능한 경우:** [RTX 5090 두 장 + PRO 6000 한 장](docs/parallel-evaluation-5090.md), [5060 두 장 + PRO 6000 한 장](docs/parallel-evaluation.md). 현재 제공받은 CSI Slurm 조회 결과에는 PRO 6000만 등록되어 있습니다.
+- **물리 랜덤화.** 논문 Table 2의 11개 속성을 episode마다 seed에서 샘플링합니다. 민감한 9개 task는 Appendix B의 범위를 씁니다.
 
-이후 실행은 **Docker 환경을 사용합니다**. [Docker 빌드·GPU·렌더링 안내](docs/docker.md)를 확인하세요. Docker 접근 권한이 있는 서버 터미널에서:
+  | 속성 | 범위 | 적용 대상 |
+  |---|---|---|
+  | 물체 질량 | 0.125 ~ 4 × (관성도 함께) | task 물체 |
+  | 질량 중심 | 축마다 ±0.015 m | task 물체 |
+  | 크기 배율 | 0.85 ~ 1.05 × | task 물체 |
+  | 테이블 기울기 | 0 ~ 2° | 테이블 |
+  | 테이블 높이 | −0.08 ~ 0 m | 테이블 |
+  | 외력 | 0 ~ 0.1 mg, policy 실행 중에만 | task 물체 |
+  | 카메라 | 궤도 0–0.10 m, 이동 0–0.03 m 또는 회전 0–10° | head 카메라 |
+  | 마찰 | 0.01 ~ 1.25 | 모든 재질 |
+  | 반발 계수 | 0 ~ 0.5 | 모든 재질 |
+  | 물체 관절 damping | 0 ~ 25 | 관절 물체 |
+  | 팔·그리퍼 damping | 0.5 ~ 3 × | 로봇 |
+
+- **expert로 거른 episode pool.**
+  - task마다 seed 100000부터 차례로 올라가며 검사합니다.
+  - seed마다 샘플링된 물리 조건에서 공식 RoboTwin 2.0 expert를 실행하고, expert가 성공한 seed만 남깁니다.
+  - 100개가 채워지면 멈추고, 모든 policy를 정확히 이 100개 episode로 평가합니다.
+- **policy 평가.** 각 policy는 자기 환경에서 서버로 실행되며, 공식 RoboTwin adapter(`get_model / eval / reset_model`)를 그대로 씁니다. policy 실패는 항상 분모에 남고 seed를 교체하지 않습니다.
+- **논문의 baseline 5종.** Fast-WAM, G0.5, π0.5, Motus, FACT. checkpoint와 추론 설정은 [`configs/policies`](configs/policies)에 고정했습니다.
+- **공개 pool.** 채택된 seed 5000개, 각 seed의 물리 조건, Fast-WAM의 모든 episode 결과가 [`data/`](data/README.md)에 있습니다.
+
+논문에 명시되지 않은 부분의 선택은 [`docs/`](docs/README.md)에 기록했습니다. 주요 선택은 두 가지입니다.
+- 질량, 질량 중심, 크기, 외력은 task 물체에만 적용합니다.
+- 테이블 높이는 upstream의 랜덤 테이블 높이를 대체합니다.
+
+## 📊 결과
+
+Physical Random, 50 task × 100 episode, task별 성공률의 평균(%).
+
+| 모델 | 이 저장소 | 논문 (Table 1) |
+|---|---:|---:|
+| **Fast-WAM** | **45.18** | 44.24 |
+| G0.5 | 진행 중 | 37.82 |
+| π0.5 | 진행 중 | 31.60 |
+| Motus | 미실행 | 39.60 |
+| FACT | 미실행 | 39.14 |
+
+환경: NVIDIA RTX PRO 6000 Blackwell 2장, RoboTwin 2.0 `stable_2.0 @ 13c3c47`, Fast-WAM checkpoint `yuanty/fastwam @ 8eaceeb`, `sigma_shift=5.0`.
+
+### Fast-WAM은 논문과 얼마나 비슷한가
+
+| 지표 | 값 |
+|---|---:|
+| 전체 성공률 (우리 / 논문) | 45.18 / 44.24 (Δ +0.94) |
+| task별 성공률 50개의 Pearson 상관 | 0.84 |
+| Spearman 순위 상관 | 0.85 |
+| task별 차이의 평균 절댓값 | 8.3%p |
+| task별 차이의 중앙값 | 6.0%p |
+| ±10%p 안에 든 task | 35 / 50 |
+| ±15%p 안에 든 task | 44 / 50 |
+| p < 0.05로 유의하게 다른 task (양측 검정) | 9 / 50 (우연이라면 2.5개 예상) |
+| Bonferroni 보정 뒤에도 유의한 task (p < 0.001) | 3 / 50 |
+
+양쪽 모두 task당 100 episode로 추정한 값이라 task 하나에 약 ±10%p의 표본 잡음이 있습니다. 보정 뒤에도 차이가 남는 task는 세 개입니다.
+
+| task | 우리 | 논문 |
+|---|---:|---:|
+| `grab_roller` | 86 | 65 |
+| `place_fan` | 64 | 38 |
+| `place_dual_shoes` | 6 | 28 |
+
+<details>
+<summary><b>task별 비교 (50개)</b> 🟩 |Δ| ≤ 10 · 🟨 ≤ 20 · 🟥 > 20 · ❗ p &lt; 0.05 · ‼️ p &lt; 0.001</summary>
+
+| Task | Ours | Paper | Δ | |
+|---|---:|---:|---:|:---:|
+| `adjust_bottle` | 64 | 64 | +0 | 🟩 |
+| `beat_block_hammer` | 11 | 17 | -6 | 🟩 |
+| `blocks_ranking_rgb` | 51 | 57 | -6 | 🟩 |
+| `blocks_ranking_size` | 43 | 56 | -13 | 🟨 |
+| `click_alarmclock` | 54 | 69 | -15 | 🟨❗ |
+| `click_bell` | 45 | 57 | -12 | 🟨 |
+| `dump_bin_bigbin` | 38 | 32 | +6 | 🟩 |
+| `grab_roller` | 86 | 65 | +21 | 🟥‼️ |
+| `handover_block` | 30 | 33 | -3 | 🟩 |
+| `handover_mic` | 62 | 54 | +8 | 🟩 |
+| `hanging_mug` | 22 | 26 | -4 | 🟩 |
+| `lift_pot` | 37 | 29 | +8 | 🟩 |
+| `move_can_pot` | 42 | 50 | -8 | 🟩 |
+| `move_pillbottle_pad` | 41 | 43 | -2 | 🟩 |
+| `move_playingcard_away` | 54 | 59 | -5 | 🟩 |
+| `move_stapler_pad` | 22 | 17 | +5 | 🟩 |
+| `open_laptop` | 64 | 59 | +5 | 🟩 |
+| `open_microwave` | 31 | 17 | +14 | 🟨❗ |
+| `pick_diverse_bottles` | 15 | 17 | -2 | 🟩 |
+| `pick_dual_bottles` | 17 | 33 | -16 | 🟨❗ |
+| `place_a2b_left` | 61 | 54 | +7 | 🟩 |
+| `place_a2b_right` | 54 | 49 | +5 | 🟩 |
+| `place_bread_basket` | 61 | 50 | +11 | 🟨 |
+| `place_bread_skillet` | 59 | 39 | +20 | 🟨❗ |
+| `place_burger_fries` | 48 | 53 | -5 | 🟩 |
+| `place_can_basket` | 26 | 17 | +9 | 🟩 |
+| `place_cans_plasticbox` | 33 | 28 | +5 | 🟩 |
+| `place_container_plate` | 68 | 66 | +2 | 🟩 |
+| `place_dual_shoes` | 6 | 28 | -22 | 🟥‼️ |
+| `place_empty_cup` | 46 | 57 | -11 | 🟨 |
+| `place_fan` | 64 | 38 | +26 | 🟥‼️ |
+| `place_mouse_pad` | 31 | 35 | -4 | 🟩 |
+| `place_object_basket` | 35 | 41 | -6 | 🟩 |
+| `place_object_scale` | 37 | 46 | -9 | 🟩 |
+| `place_object_stand` | 58 | 53 | +5 | 🟩 |
+| `place_phone_stand` | 41 | 52 | -11 | 🟨 |
+| `place_shoe` | 62 | 63 | -1 | 🟩 |
+| `press_stapler` | 64 | 58 | +6 | 🟩 |
+| `put_bottles_dustbin` | 9 | 11 | -2 | 🟩 |
+| `put_object_cabinet` | 42 | 39 | +3 | 🟩 |
+| `rotate_qrcode` | 45 | 43 | +2 | 🟩 |
+| `scan_object` | 44 | 29 | +15 | 🟨❗ |
+| `shake_bottle` | 81 | 69 | +12 | 🟨 |
+| `shake_bottle_horizontally` | 81 | 75 | +6 | 🟩 |
+| `stack_blocks_three` | 40 | 30 | +10 | 🟩 |
+| `stack_blocks_two` | 53 | 63 | -10 | 🟩 |
+| `stack_bowls_three` | 42 | 52 | -10 | 🟩 |
+| `stack_bowls_two` | 65 | 62 | +3 | 🟩 |
+| `stamp_seal` | 24 | 24 | +0 | 🟩 |
+| `turn_switch` | 50 | 34 | +16 | 🟨❗ |
+
+논문 값: arXiv 2609.26292v1 Table 4 (Appendix D). 우리 값: [`data/phys-pro6000-100-v6/results/fastwam/episodes.csv`](data/phys-pro6000-100-v6/results/fastwam/episodes.csv).
+
+</details>
+
+## 🎯 우리 seed로 벤치마크하기
+
+우리 pool은 [`data/phys-pro6000-100-v6`](data/phys-pro6000-100-v6/)에 있습니다.
+
+| 파일 | 내용 |
+|---|---|
+| `pool/seeds.json` | task별: episode 순서대로 채택된 seed 100개와, 탈락한 seed 전체 및 탈락 이유 |
+| `pool/conditions.csv` | episode별: 샘플링된 물리 속성 11개와 언어 지시문 |
+| `results/fastwam/episodes.csv` | episode별: Fast-WAM 성공 여부, action 수, 실행 시간 |
+
+episode의 물리 조건은 `(task, seed)`만으로 정해지므로 어느 머신에서나 같습니다. 같은 5000개 episode로 내 policy를 평가하는 순서는 다음과 같습니다.
+
+**1. simulator 준비.** 저장소를 clone하고 Docker 이미지를 빌드합니다. 이미지에는 고정된 revision의 RoboTwin 2.0, SAPIEN, CuRobo, 공식 assets가 들어갑니다([docs/docker.md](docs/docker.md)). 그다음 조건이 재현되는지 확인합니다.
 
 ```bash
-cd /home/guest/robotwin-workspace
+git clone https://github.com/joowan1108/RoboTwin-Phys-impl.git && cd RoboTwin-Phys-impl
 bash tools/docker.sh build
-bash tools/docker.sh doctor
-bash tools/docker.sh validate
+bash tools/docker.sh doctor      # GPU, Vulkan 렌더링, CUDA 확인
+bash tools/docker.sh shell       # 이후 명령은 모두 이 컨테이너 안에서 실행
+python3 analysis/verify_release.py data/phys-pro6000-100-v6   # 5000개 조건을 seed에서 다시 계산해 확인
 ```
 
-아래의 `robotwin-phys ...` 명령은 `bash tools/docker.sh run robotwin-phys ...`로 실행하거나 `bash tools/docker.sh shell` 안에서 실행합니다. 이미지에 CUDA/Python 의존성을 다시 설치하며 기존 assets·manifest·영상은 재사용합니다. `python3 tools/docker_parallel.py validate --gpus auto`로 사용 가능한 GPU를 자동 감지하여 검증합니다. `freeze --gpus 0`으로 한 대만 쓰거나 `freeze --gpus 0 1`로 task를 나누어 처리할 수 있습니다. [GPU별 포트·로그와 실행 방식](docs/docker.md)을 확인하세요.
-
-아래는 이전에 설치·검증한 **호스트 환경의 기록**입니다. Docker 사용 시 호스트 환경을 활성화하거나 bootstrap을 다시 실행할 필요가 없습니다.
+**2. 같은 시작 seed로 pool 고정.** expert가 내 머신에서 seed를 하나씩 다시 검사하고 초기 장면을 저장합니다.
 
 ```bash
-cd /home/guest/robotwin-workspace
-source tools/activate.sh
-python tools/doctor.py
-robotwin-phys tasks
+for task in $(robotwin-phys tasks); do
+  robotwin-phys freeze --task $task --protocol physical_random --episodes 100 --seed 100000 \
+    --output manifests/$task.json
+done
 ```
 
-`tools/bootstrap.sh`는 이전 호스트 설치를 기록한 스크립트입니다. 앞으로의 의존성 설치는 Dockerfile로 진행합니다. asset 다운로드는 약 15GB, 압축 해제 후 assets는 약 16GB입니다.
-
-## 1. 모든 policy가 공유할 episode 목록 확정
+채택된 seed가 우리와 같은지 확인합니다.
 
 ```bash
-# task당 expert가 성공한 100개 조건을 확정. 기존 manifest는 덮어쓰지 않음.
-robotwin-phys freeze \
-  --task stack_blocks_two --protocol physical_random \
-  --episodes 100 --seed 100000 \
-  --output manifests/physical_random/stack_blocks_two.json
-
-# 중간에 중단한 expert 검증 재개
-robotwin-phys freeze \
-  --task stack_blocks_two --protocol physical_random \
-  --episodes 100 --seed 100000 --resume \
-  --output manifests/physical_random/stack_blocks_two.json
-
-# 공식 50-task registry 전체. 상당한 시간이 드는 실제 expert rollout 작업.
-bash tools/freeze_suite.sh physical_random
+python3 - <<'EOF'
+import json
+ours = json.load(open('data/phys-pro6000-100-v6/pool/seeds.json'))['tasks']
+for task, entry in ours.items():
+    mine = [e['seed'] for e in json.load(open(f'manifests/{task}.json'))['episodes']]
+    print(task, 'OK' if mine == entry['accepted'] else 'DIFFERS')
+EOF
 ```
 
-`freeze`는 매 candidate마다 별도 프로세스를 사용하고 expert 실패/불안정 episode만 제외합니다. dependency, asset, 코드 오류를 실패 episode로 조용히 제외하지 않고 중단합니다. seed는 100000부터 순차 검사합니다. 이는 RoboTwin의 `100000 * (1 + run_seed)`에서 `run_seed=0`인 시작값입니다. RoboTwin-Phys 저자가 사용한 실제 seed 목록은 미공개입니다.
+expert는 seed마다 결정적이지만, GPU나 드라이버가 다르면 경계에 있는 seed 몇 개가 바뀔 수 있습니다. 다르다면 결과와 함께 알려 주세요.
 
-집기 후보를 찾지 못한 경우의 공식 실행 루프와 재현 worker 차이를 확인하고 수정했습니다. 유효한 접촉점에 대한 집기 탐색이 모두 실패하면 `expert_failed`로 기록하며, asset 누락 등은 중단합니다. 기존 v5 이미지의 OOD 패치와 seed 비교 방법은 [expert 실패 처리 대조](docs/expert-planning-review.md)를 확인하세요.
+**3. policy 감싸기.** 공식 RoboTwin policy와 같은 함수 세 개로 adapter를 만들고, 이를 가리키는 profile을 작성합니다.
 
-잡 1628의 placement NaN 오류는 공통 rotation helper를 수정했습니다. 이제 task 하나의 실행 오류는 다른 task 준비를 취소하지 않습니다. 이전 v2→v3 단계의 기록은 [공통 수학 오류 수정 안내](docs/geometry-failure-review.md)에 있습니다.
+```python
+# my_policy/deploy_policy.py
+def get_model(args):               # args = profile의 "args" 블록
+    return load_my_model(args["ckpt"])
 
-잡 1640의 CuRobo batch shape mismatch는 IK/result 마스크를 분리해 수정했습니다. 이전 v4 단계는 [CuRobo 수정 기록](docs/curobo-mask-review.md), 이후 v5의 결과 형식 수정은 [v5 pool 안내](docs/fresh-pool.md)에 있습니다. 현재 재개는 위의 v5 재개 스크립트를 사용합니다.
+def reset_model(model):            # episode 시작마다 호출
+    model.reset()
 
-manifest에는 실제 채택된 seed, 물리 파라미터, instruction, 초기 pose/velocity/qpos, camera pose, 적용된 mass/inertia/CoM/material/damping, 코드·asset·환경 fingerprint가 저장됩니다. **동일 task·protocol·ablation을 비교할 때는 같은 manifest 파일을 그대로 재사용하세요.** seed만 같고 config 또는 assets가 다르면 같은 조건이 아닙니다. 서로 다른 protocol은 의도적으로 조건이 달라지고 expert 통과 목록도 다를 수 있습니다.
+def eval(env, model, observation): # episode가 끝날 때까지 반복 호출
+    for action in model.predict(observation):
+        env.take_action(action)
+```
 
-`candidates`는 simulator 실행 없이 조건을 미리 보는 명령입니다. 이 결과는 미검증 상태이므로 평가기가 거부합니다.
+```yaml
+# configs/policies/my_policy.yaml
+name: my_policy
+adapter: my_policy/deploy_policy.py
+python_paths: [my_policy]
+args:
+  ckpt: /path/to/checkpoint
+```
 
-## 2. policy 서버 연결과 평가
+[`src/robotwin_phys/noop_policy.py`](src/robotwin_phys/noop_policy.py)가 가장 짧은 동작 예시이고, [`configs/policies`](configs/policies)에서 baseline 5종의 profile을 볼 수 있습니다.
 
-클러스터에서는 [전체 자동 평가 안내](docs/cluster.md)의 `PHASE="all"`로 다섯 모델 평가를 실행합니다. 아래는 서버를 직접 연결하는 개별 실행 방법입니다. 다섯 checkpoint와 공식 adapter 연결 설정은 [configs/policies](configs/policies), 모델별 준비 절차는 [docs/policies.md](docs/policies.md)에 있습니다. 모델 환경과 simulator 환경을 분리해 Python/Torch/SAPIEN 버전 충돌을 피합니다.
+**4. 평가.** policy의 Python 환경에서 policy 서버를 띄운 뒤 50개 task를 실행합니다.
 
 ```bash
-# 모델을 설치한 별도 환경의 Python으로 실행. simulator activate.sh를 쓰지 않음.
-export PYTHONPATH=/home/guest/robotwin-workspace/src
-/path/to/model-env/bin/python -m robotwin_phys.policy_server \
-  --config /home/guest/robotwin-workspace/configs/policies/fastwam.yaml --port 9000
+PYTHONPATH=$PWD/src /path/to/my-policy-env/bin/python -m robotwin_phys.policy_server \
+  --config configs/policies/my_policy.yaml --port 9000 &
+
+for task in $(robotwin-phys tasks); do
+  robotwin-phys evaluate --manifest manifests/$task.json --output runs/my_policy/$task --policy-port 9000
+done
 ```
 
-다른 터미널에서 simulator 컨테이너를 실행합니다:
+task 폴더마다 두 종류의 결과가 생깁니다.
+- `runs/my_policy/<task>/summary.json`에는 task의 `success_rate`가 들어갑니다.
+- `episode-NNNN.result.json`에는 seed별 결과가 들어갑니다.
 
-```bash
-cd /home/guest/robotwin-workspace
-bash tools/docker.sh run robotwin-phys evaluate \
-  --manifest manifests/physical_random/stack_blocks_two.json \
-  --output runs/fastwam/stack_blocks_two \
-  --host 127.0.0.1 --policy-port 9000 --live --video
+episode별 MP4가 필요하면 `--video`를 붙이세요.
+
+**5. 비교.** 벤치마크 점수는 task 50개 성공률의 평균입니다. 두 가지로 비교할 수 있습니다.
+- episode 단위로 `results/fastwam/episodes.csv`의 Fast-WAM과 비교합니다.
+- task 단위로 [`references/paper-table4-physical-random.json`](references/paper-table4-physical-random.json)의 논문 값과 비교합니다.
+
+<details>
+<summary><b>우리와 완전히 같은 환경에서 실행하기</b></summary>
+
+Release 파일 [`phys-pro6000-100-v6-full.zip`](https://github.com/joowan1108/RoboTwin-Phys-impl/releases/tag/data-phys-pro6000-100-v6)에는 검증된 초기 장면을 포함한 manifest 50개가 들어 있습니다. `robotwin-phys evaluate`는 소스, assets, 패키지 버전, GPU 모델, 드라이버가 모두 같을 때만 이 manifest를 받아들입니다. 다른 머신에서는 2단계를 따르세요.
+
+</details>
+
+## 🤖 Baseline
+
+| 모델 | Checkpoint | Adapter |
+|---|---|---|
+| Fast-WAM | `yuanty/fastwam` | 공식 FastWAM RoboTwin client |
+| G0.5 | `OpenGalaxea/G05` (접근 승인 필요) | 공식 GalaxeaVLA RoboTwin adapter |
+| π0.5 | `motus-robotics/pi0.5_robotwin2` | OpenPI PyTorch |
+| Motus | `motus-robotics/Motus_robotwin2` | 공식 Motus adapter |
+| FACT | `Bariona/fact-wam` | FACT 자체 서버와 공식 client |
+
+revision과 추론 인자는 [`configs/policies`](configs/policies)에, 준비 방법은 [`docs/policies.md`](docs/policies.md)에 있습니다. bf16 policy는 Ampere 이상 GPU가 필요합니다. 클러스터 실행과 개발 중 운영 기록은 [`docs/operations.md`](docs/operations.md)에 있습니다.
+
+## 📄 라이선스와 인용
+
+코드와 공개 데이터는 [MIT License](LICENSE)로 배포합니다. RoboTwin 2.0, CuRobo, 각 policy 저장소, 모델 checkpoint는 각자의 라이선스를 따릅니다.
+
+이 재구현을 사용한다면 원 논문을 인용해 주세요.
+
+```bibtex
+@article{robotwinphys2026,
+  title   = {RoboTwin-Phys},
+  journal = {arXiv preprint arXiv:2609.26292},
+  year    = {2026}
+}
 ```
-
-모든 policy 평가에서 이 manifest를 사용하고 `--output`만 모델별로 바꿉니다. 초기 장면이 manifest와 다르면 평가를 중단합니다. policy 실패는 분모에 남으며 다른 seed로 교체되지 않습니다. 실행 중 오류는 task 성공률로 처리하지 않습니다. 같은 설정으로 `--resume`을 붙이면 완료된 episode는 재사용합니다. 100개를 모두 완료해야 benchmark 규모의 결과로 표시됩니다.
-
-## 3. 실시간 rendering과 MP4
-
-`--live` 실행 중 **http://127.0.0.1:8765**에서 head-camera 영상과 seed/stage를 볼 수 있습니다. 창 시스템이 없는 서버에서도 작동합니다. episode가 바뀌는 초기화 구간에는 재연결을 기다립니다. `--video`는 episode마다 320×240 MP4를 30fps로 저장합니다. 영상 획득은 simulation clock 기준이며 실제 wall-clock 실시간 속도를 보장하는 의미는 아닙니다. 느린 policy 추론 중에는 마지막 프레임이 표시됩니다.
-
-```bash
-# desktop DISPLAY가 연결되어 있을 때만 native SAPIEN viewer 사용
-robotwin-phys evaluate --manifest manifests/physical_random/stack_blocks_two.json \
-  --output runs/fastwam/desktop --viewer --video
-
-# GUI 없이 검증된 초기 상태만 새 프로세스에서 재현
-robotwin-phys replay --manifest manifests/physical_random/stack_blocks_two.json \
-  --output runs/replay/stack_blocks_two --video
-```
-
-원격 policy GPU를 쓰는 경우 로컬에서 `ssh -L 9000:127.0.0.1:9000 user@policy-machine`으로 연결합니다. simulator까지 원격이면 `ssh -L 8765:127.0.0.1:8765 user@simulator-machine`으로 실시간 영상을 볼 수 있습니다. 기본 서비스는 localhost에만 바인딩합니다.
-
-## 재현 범위와 검증
-
-지원 protocol은 `clean`, `official_random`, `physical_random`입니다. 추가 실험용 `physical_only`, `--only mass`, `--without camera`도 제공합니다. 이 추가 ablation은 이 구현에서 제공하는 분석 도구이며, 미공개 논문 실험 결과로 주장하지 않습니다.
-
-```bash
-robotwin-phys freeze --task grab_roller --protocol physical_random --only mass \
-  --output manifests/ablations/grab_roller_mass.json
-pytest -q
-python tools/validate_sensitive_tasks.py
-```
-
-`reports/`에 환경 점검, 단위/통합 검사, 실제 simulator 영상이 남습니다. 학습된 5개 모델의 실제 성공률이나 논문 leaderboard 재현 결과는 이번 작업에서 산출하지 않습니다. 포인트클라우드 모델용 PyTorch3D는 설치하지 않았으며, 요청한 RGB 기반 평가 경로를 사용합니다.
-
-이번 실행의 [검증 결과](docs/validation.md), [expert MP4](manifests/verified-smoke-stack-blocks-verification/seed-100000.mp4), [테스트 policy MP4](runs/verified-smoke/policy/episode-0000.mp4), [검증된 소규모 manifest](manifests/verified-smoke-stack-blocks.json)를 직접 확인할 수 있습니다.
-
-![물리 randomization을 적용한 실제 SAPIEN head camera](reports/verified-preview.png)
-
-## CSI Lab / RTX PRO 6000 한 장·RTX 5090 두 장 배포와 결과 표
-
-전체 task의 pool을 처음부터 새로 준비할 때는 [v5 새 pool 실행 안내](docs/fresh-pool.md)를 사용합니다. 기존 pool의 재검증·이전 없이 50개 task에서 각각 100개 episode를 준비합니다.
-
-Blackwell CUDA 12.8 이미지, 모델별 정책 이미지, OOD·SLURM·Apptainer 잡과 논문 형식 결과 표는 [클러스터 실행 안내](docs/cluster.md)를 따릅니다. 기존 CUDA 12.1 이미지는 2080 Ti용입니다. `tools/build_bundle.sh`로 기존 여섯 환경을 통합 이미지 한 개에 담습니다. OOD default script의 고정 실행부·캐시는 유지하며, build/push 명령은 클러스터 안내에 있습니다.
-
-기본 `APPTAINERENV_ROBOTWIN_PHASE="all"`은 작은 실험 없이 50 tasks × 3 conditions × 100 episodes × 5 models를 순서대로 평가합니다. 같은 task/seed/randomization 설정은 모델과 독립적으로 같은 환경을 생성하며, 모든 모델이 공유하는 manifest 및 초기 상태와 대조합니다. `tables/randomization.csv`, `randomization.jsonl`, `condition_consistency.csv`와 모델/task/episode별 `*.randomization.json`에서 실제 사용 조건과 일치 여부를 확인할 수 있습니다. 성공률은 `results.md`, `results.tex`, `summary.csv`로 저장됩니다.

@@ -4,6 +4,7 @@ The notes below were written in Korean during development and are kept as the pr
 
 | File | Topic |
 |---|---|
+| [operations.md](operations.md) | Former Korean README: running notes for the cluster, patch ZIPs, live view and each pool version, in chronological order. |
 | [reproduction.md](reproduction.md) | What the paper and the official repositories publish, the pinned RoboTwin revision, Appendix A/B ranges, seed and fairness rules, and every interpretation this implementation made. |
 | [validation.md](validation.md) | Infrastructure validation records (Docker, dual-GPU, live view, MP4, reproducibility of frozen episodes). |
 | [docker.md](docker.md) | Building and running the simulator image; GPU and Vulkan rendering notes. |
