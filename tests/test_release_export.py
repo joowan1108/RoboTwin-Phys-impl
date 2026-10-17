@@ -121,3 +121,20 @@ def test_export_refuses_result_whose_condition_differs_from_manifest(tmp_path):
     path.write_text(json.dumps(r))
     with pytest.raises(ValueError, match='condition hash differs'):
         e.export(tmp_path, EXP, tmp_path / 'release' / EXP, 'physical_random')
+
+
+def test_discarded_run_folders_are_skipped_and_refresh_rewrites_summary(tmp_path):
+    sealed = make_data(tmp_path)
+    folder = tmp_path / 'runs' / EXP / 'fastwam-discarded/physical_random/adjust_bottle'
+    e.shutil.copytree(tmp_path / 'runs' / EXP / 'fastwam/physical_random/adjust_bottle', folder)
+    out = e.export(tmp_path, EXP, tmp_path / 'release' / EXP, 'physical_random')
+    assert sorted(p.name for p in (out / 'results').iterdir()) == ['fastwam']
+    assert list(json.loads((out / 'provenance.json').read_text())['policy_identities']) == ['fastwam']
+    summary = (out / 'summary.md').read_text()
+    assert 'discarded' not in summary and 'paper fastwam' in summary and '| adjust_bottle | 67% (2/3) | 64% |' in summary
+    (out / 'summary.md').write_text('stale')
+    e.main(['--refresh', str(out)])
+    assert (out / 'summary.md').read_text() == summary
+    # Without the large manifests (GitHub layout) the remaining checks still pass.
+    e.shutil.rmtree(out / 'full/manifests')
+    assert v.verify(out)['manifests_sealed'] == 0 and v.verify(out)['pool_index_sealed'] == 1

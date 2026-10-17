@@ -1,0 +1,6 @@
+complete_tasks,completed_episodes,expected_episodes,expected_tasks,model,protocol,success_rate
+0,0,5000,50,g05,physical_random,
+0,0,5000,50,pi05,physical_random,
+0,0,5000,50,fact,physical_random,
+0,0,5000,50,motus,physical_random,
+50,5000,5000,50,fastwam,physical_random,0.4517999999999999

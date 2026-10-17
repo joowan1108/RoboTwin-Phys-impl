@@ -39,6 +39,9 @@ Writes <out>/ and <out>.zip:
 
 Standard library only; run it on the machine that holds the data:
   python3 export_release.py --root ~/robotwin-data --experiment phys-pro6000-100-v6
+Rewrite summary.md/README.md/provenance identities of an existing export from its results/ folders:
+  python3 export_release.py --refresh data/phys-pro6000-100-v6
+Only the suite's models are exported; other run folders (e.g. *-discarded) are skipped.
 Verify a copy with analysis/verify_release.py (recomputes every condition hash from the seeds).
 """
 from __future__ import annotations
@@ -133,6 +136,9 @@ def export(root, experiment, out, protocol, models=None):
         model = model_dir.name
         if models and model not in models:
             continue
+        if not models and suite is not None and model not in suite['models']:
+            print(f'skipping {model}: not a model of the suite (e.g. a discarded run folder)')
+            continue
         rows_m, pinned, identity = [], {}, None
         for task_dir in sorted((model_dir / protocol).iterdir()):
             if not task_dir.is_dir() or task_dir.name not in seeds:
@@ -175,32 +181,73 @@ def export(root, experiment, out, protocol, models=None):
                       runtime_fingerprint_is_uniform=len(provenances) == 1, pool_counts=counts, policy_identities=identities)
     (out / 'provenance.json').write_text(json.dumps(provenance, indent=1) + '\n')
 
-    lines = [f'# {experiment} / {protocol}', '', f'{len(tasks)} tasks; accepted episodes per task: '
-             + ', '.join(sorted({str(c["accepted"]) for c in counts.values()})) + '.', '']
-    if results:
-        model_names = sorted(results)
-        lines.append('| task | ' + ' | '.join(model_names) + ' |')
-        lines.append('|---|' + '---:|' * len(model_names))
-        for task in tasks:
-            cells = []
-            for m in model_names:
-                cell = results[m].get(task)
-                cells.append(f'{100 * cell["rate"]:.0f}% ({cell["successes"]}/{cell["episodes"]})' if cell else '-')
-            lines.append(f'| {task} | ' + ' | '.join(cells) + ' |')
-        means = []
-        for m in model_names:
-            complete = [v['rate'] for v in results[m].values() if v['episodes'] == counts[next(iter(counts))]['accepted']]
-            means.append(f'{100 * sum(complete) / len(complete):.2f}% over {len(complete)} complete tasks' if complete else '-')
-        lines.append('| **mean of task rates** | ' + ' | '.join(means) + ' |')
-    else:
-        lines.append('No policy results in this export.')
-    (out / 'summary.md').write_text('\n'.join(lines) + '\n')
+    write_summary(out, experiment, protocol, tasks, counts, results)
     (out / 'README.md').write_text(README.format(experiment=experiment, protocol=protocol, tasks=len(tasks)))
     archive = shutil.make_archive(str(out), 'zip', root_dir=out.parent, base_dir=out.name)
     size = Path(archive).stat().st_size
     print(f'{out}  ({sum(p.stat().st_size for p in out.rglob("*") if p.is_file()) / 1e6:.1f} MB unpacked)')
     print(f'{archive}  ({size / 1e6:.1f} MB, sha256 {sha(Path(archive))})')
     return out
+
+
+def results_from_csv(out):
+    results = {}
+    for path in sorted((out / 'results').glob('*/episodes.csv')):
+        per_task = defaultdict(lambda: [0, 0])
+        with path.open(newline='') as f:
+            for r in csv.DictReader(f):
+                if r['status'] == 'completed':
+                    per_task[r['task']][0] += int(r['success'])
+                    per_task[r['task']][1] += 1
+        results[path.parent.name] = {t: dict(successes=s, episodes=n, rate=s / n) for t, (s, n) in per_task.items()}
+    return results
+
+
+def write_summary(out, experiment, protocol, tasks, counts, results):
+    lines = [f'# {experiment} / {protocol}', '', f'{len(tasks)} tasks; accepted episodes per task: '
+             + ', '.join(sorted({str(c["accepted"]) for c in counts.values()})) + '.', '']
+    if results:
+        model_names = sorted(results)
+        ref_path = Path(__file__).resolve().parents[1] / 'references/paper-table4-physical-random.json'
+        paper = json.loads(ref_path.read_text()) if protocol == 'physical_random' and ref_path.exists() else None
+        paper_cols = [m for m in model_names if paper and m in paper['overall']]
+        header = model_names + [f'paper {m}' for m in paper_cols]
+        lines.append('| task | ' + ' | '.join(header) + ' |')
+        lines.append('|---|' + '---:|' * len(header))
+        for task in tasks:
+            cells = []
+            for m in model_names:
+                cell = results[m].get(task)
+                cells.append(f'{100 * cell["rate"]:.0f}% ({cell["successes"]}/{cell["episodes"]})' if cell else '-')
+            cells += [f'{paper["tasks"][task][m]}%' if task in paper['tasks'] else '-' for m in paper_cols]
+            lines.append(f'| {task} | ' + ' | '.join(cells) + ' |')
+        means = []
+        for m in model_names:
+            complete = [v['rate'] for v in results[m].values() if v['episodes'] == counts[next(iter(counts))]['accepted']]
+            means.append(f'{100 * sum(complete) / len(complete):.2f}% over {len(complete)} complete tasks' if complete else '-')
+        means += [f'{paper["overall"][m]:.2f}%' for m in paper_cols]
+        lines.append('| **mean of task rates** | ' + ' | '.join(means) + ' |')
+        if paper_cols:
+            lines += ['', 'Paper columns: arXiv 2609.26292v1 Table 4 (per task) and Table 1 (overall), Physical Random, 100 episodes per task.']
+    else:
+        lines.append('No policy results in this export.')
+    (out / 'summary.md').write_text('\n'.join(lines) + '\n')
+
+
+def refresh(out):
+    """Rewrite summary.md, README.md and provenance.policy_identities of an existing export from its results/ folders."""
+    out = Path(out)
+    seeds = json.loads((out / 'pool/seeds.json').read_text())
+    tasks = sorted(seeds['tasks'])
+    counts = {t: dict(accepted=len(v['accepted']), rejected=len(v['rejected']), candidates=len(v['accepted']) + len(v['rejected']))
+              for t, v in seeds['tasks'].items()}
+    results = results_from_csv(out)
+    write_summary(out, seeds['experiment'], seeds['protocol'], tasks, counts, results)
+    (out / 'README.md').write_text(README.format(experiment=seeds['experiment'], protocol=seeds['protocol'], tasks=len(tasks)))
+    prov = json.loads((out / 'provenance.json').read_text())
+    prov['policy_identities'] = {m: json.loads((out / 'results' / m / 'identity.json').read_text())['policy'] for m in results}
+    (out / 'provenance.json').write_text(json.dumps(prov, indent=1) + '\n')
+    return results
 
 
 README = '''# RoboTwin-Phys reproduction dataset: {experiment} ({protocol})
@@ -222,6 +269,8 @@ Independent reimplementation of RoboTwin-Phys (arXiv 2609.26292); not the author
 - `tables/`: aggregate tables as written by `tools/experiment.py` (if present).
 - `full/`: the sealed manifests verbatim (sampled condition, verified initial scene state, expert
   result, runtime fingerprint), the pool index and the experiment suite. `provenance.json` summarises them.
+  In the GitHub repository only `full/pool-index.json` and `full/suite.json` are committed; the manifests
+  (several hundred MB) and `tables/randomization.jsonl` are in the release ZIP attached to the GitHub release.
 
 ## Using the pool elsewhere
 
@@ -234,13 +283,19 @@ the accepted seed list should match `pool/seeds.json`, and any difference is vis
 
 
 def main(argv=None):
+    import sys
+    args = list(sys.argv[1:] if argv is None else argv)
+    if args[:1] == ['--refresh']:
+        if len(args) != 2:
+            raise SystemExit('usage: export_release.py --refresh <exported folder>')
+        return refresh(args[1])
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('--root', required=True, help='folder holding manifests/ and runs/')
     p.add_argument('--experiment', required=True)
     p.add_argument('--protocol', default='physical_random')
     p.add_argument('--models', nargs='*')
     p.add_argument('--out', help='default: <root>/release/<experiment>')
-    a = p.parse_args(argv)
+    a = p.parse_args(args)
     return export(a.root, a.experiment, a.out or str(Path(a.root).expanduser() / 'release' / a.experiment), a.protocol, a.models)
 
 

@@ -14,3 +14,7 @@ videos/
 *.lock
 .venv/
 .ci/
+# Published datasets: large parts go to the GitHub release ZIP, not git (100 MB file limit).
+data/*.zip
+data/*/full/manifests/
+data/*/tables/randomization.jsonl

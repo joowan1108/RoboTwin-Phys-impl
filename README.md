@@ -41,6 +41,15 @@ These are documented choices, not claims about the authors' code. Each is explai
 - The pinned GalaxeaVLA adapter resolves the checkpoint path before reading `.hydra/config.yaml`, so a symlinked G0.5 runtime bundle made it read the original repository-relative config; the bundle is hard-linked instead ([docs/g05-runtime-bundle.md](docs/g05-runtime-bundle.md)).
 - `put_object_cabinet` has a very low expert acceptance rate under the paper's ranges; it is kept as specified ([docs/put-object-cabinet-feasibility.md](docs/put-object-cabinet-feasibility.md)).
 
+## Results
+
+| Model | Physical Random, ours (50 tasks × 100) | Paper (Table 1) |
+|---|---:|---:|
+| Fast-WAM | 45.18 | 44.24 |
+| G0.5, π0.5 | running | 37.82, 31.60 |
+
+Per-task rates next to the paper's Table 4, the seeds, the sampled conditions and every episode outcome are in [data/phys-pro6000-100-v6](data/README.md). Conditions are reproducible from the seeds on any machine (`analysis/verify_release.py`).
+
 ## Repository layout
 
 ```text
@@ -48,10 +57,10 @@ src/robotwin_phys/   evaluation library and CLI (conditions, simulator hooks, ma
 configs/             physical_domains.json, policy profiles (checkpoint, adapter, inference args), requirements
 tools/               environment setup, pool/evaluation schedulers, provenance continuations, patch packagers
 analysis/            read-only analysis of evaluation records (per-task rates vs. the paper, log triage), dataset export/verification
-data/                published evaluation pools and results (`data/<experiment>/`, written by `analysis/export_release.py`)
+data/                published evaluation pools and results (`data/<experiment>/`, see data/README.md)
 cluster/             Slurm/Open OnDemand launchers for the CSI cluster (Apptainer image + reviewed patch ZIPs)
 docker/              CUDA 12.1 (Turing) and CUDA 12.8 (Blackwell) images, per-policy runtime images, bundle image
-tests/               318 CPU tests; the simulator is faked or driven through recorded fixtures
+tests/               319 CPU tests; the simulator is faked or driven through recorded fixtures
 docs/                design notes, incident reviews and validation records (Korean, indexed in docs/README.md)
 reports/             machine-readable validation results and the immutable patch ZIPs mounted by cluster jobs
 references/          pinned upstream metadata (model cards, HF file lists, the local RoboTwin diff, paper Table 4 rates)

@@ -1,0 +1,16 @@
+{
+  "all_models_match": 0,
+  "evidence": "Worker request conditions + completed result hashes; no completion is inferred from a planned manifest alone.",
+  "expected_shared_episodes": 5000,
+  "invalid_cells": [],
+  "invalid_episodes": 0,
+  "mismatch": 0,
+  "missing_or_invalid_manifests": 0,
+  "partial": 5000,
+  "pending": 0,
+  "recorded_episodes": 5000,
+  "schema": "randomization-audit-v1",
+  "shared_episodes": 5000,
+  "suite_sha256": "a9c81a1c0d8c2a7b68dc237326d7995039895074aa9b68d1320b064a40fd1350",
+  "verified_episodes": 5000
+}

@@ -11,7 +11,8 @@ Checks, and prints a count for each:
   - full/manifests/*.json (if present): seal intact, seeds and hashes match the CSV, status verified;
   - full/pool-index.json (if present): seal intact and manifest hashes match;
   - results/<model>/episodes.csv: every (task, episode_index) exists in the pool and identity.json
-    pins the manifest hashes of the exported manifests.
+    pins the manifest hashes recorded in pool/seeds.json (and in full/pool-index.json).
+full/manifests/ is optional (it is distributed as a release asset); the other checks run without it.
 Exit status 1 on the first failed check.
 """
 from __future__ import annotations
@@ -92,6 +93,8 @@ def verify(folder):
             raise AssertionError('pool-index.json: seal broken')
         if hashes and any(index['manifests'].get(t) != h for t, h in hashes.items()):
             raise AssertionError('pool-index.json: manifest hashes differ from the exported manifests')
+        if any(index['manifests'].get(t) != rec['manifest_sha256'] for t, rec in seeds.items()):
+            raise AssertionError('pool-index.json: manifest hashes differ from pool/seeds.json')
         checks['pool_index_sealed'] = 1
     keys = {(r['task'], r['episode_index']) for r in rows}
     for model_dir in sorted((folder / 'results').iterdir()) if (folder / 'results').exists() else []:
@@ -102,7 +105,7 @@ def verify(folder):
                 raise AssertionError(f'{model_dir.name}: result for unknown episode {r["task"]}/{r["episode_index"]}')
         identity = json.loads((model_dir / 'identity.json').read_text())
         for task, h in identity['manifests'].items():
-            if task in hashes and h != hashes[task]:
+            if h != seeds[task]['manifest_sha256']:
                 raise AssertionError(f'{model_dir.name}: pinned manifest hash for {task} differs from the exported manifest')
         checks[f'results_{model_dir.name}'] = len(res)
     return checks
