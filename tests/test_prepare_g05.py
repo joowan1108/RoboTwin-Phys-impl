@@ -1,4 +1,4 @@
-"""prepare_g05 builds a bundle whose checkpoint resolves inside the bundle (job 1690 failure)."""
+"""prepare_g05 builds a bundle whose checkpoint resolves inside the bundle."""
 import json
 import os
 from pathlib import Path

@@ -1,23 +1,32 @@
 # Published evaluation data
 
-Each folder is one experiment exported with `analysis/export_release.py` and checked with `analysis/verify_release.py`.
-
-| Experiment | Protocol | Tasks × episodes | Models with results | Release asset |
+| Dataset | Protocol | Tasks × episodes | Results | Full archive |
 |---|---|---|---|---|
-| [phys-pro6000-100-v6](phys-pro6000-100-v6/) | physical_random | 50 × 100 (seeds from 100000) | Fast-WAM 45.18% (paper 44.24%) | `phys-pro6000-100-v6-full.zip` (80 MB): adds the 50 sealed manifests and `tables/randomization.jsonl` |
+| [physical-random-100](physical-random-100/) | Physical Random | 50 × 100, seeds scanned from 100000 | Fast-WAM 45.18% (paper 44.24%) | [`physical-random-100-full.zip`](https://github.com/joowan1108/RoboTwin-Phys-impl/releases/tag/data-physical-random-100) (80 MB) |
 
-Runtime of `phys-pro6000-100-v6`: 2× NVIDIA RTX PRO 6000 Blackwell, Apptainer image `joowan1108/robotwin-phys:bundle-cu128-v5`, RoboTwin 2.0 at 13c3c47, OIDN 2.3.3 denoiser, success-context fix v5 ZIP for the Fast-WAM run. The exact fingerprint is in `provenance.json`.
+The experiment ID `phys-pro6000-100-v6` that appears inside the files is recorded in the sealed manifests and pool index, so it is kept unchanged.
 
-## What you can do with it
+Runtime: 2× NVIDIA RTX PRO 6000 Blackwell, bundle image `joowan1108/robotwin-phys:bundle-cu128-v5`, RoboTwin 2.0 `stable_2.0 @ 13c3c47`, OIDN 2.3.3 denoiser. The exact fingerprint is in `provenance.json`.
 
-- **Use the same episodes.** `pool/seeds.json` lists, per task, the accepted seeds in episode order and every rejected seed with its reason. `pool/conditions.csv` has the 11 sampled physical attributes per episode. Conditions are a pure function of `(task, seed)`, so they are identical on any machine.
-- **Compare a policy episode by episode.** `results/<model>/episodes.csv` has success, actions taken and wall time per `(task, episode_index, seed)`; `identity.json` pins the checkpoint revision, profile hash and adapter hash.
-- **Re-freeze the pool on your hardware.** The sealed manifests carry the verified initial scene and a runtime fingerprint; `robotwin-phys evaluate` only accepts them on an identical runtime. Elsewhere, freeze from the same start seed and compare the accepted seeds against `pool/seeds.json`.
+## Contents
+
+| Path | Contents |
+|---|---|
+| `pool/seeds.json` | per task: accepted seeds in episode order, and every rejected seed with its reason |
+| `pool/conditions.csv` | per episode: the 11 sampled physical attributes, condition and initial-state hashes, instruction |
+| `results/<model>/episodes.csv` | per episode: success, actions taken, wall time |
+| `results/<model>/identity.json` | checkpoint revision, profile hash and adapter hash of the evaluated policy |
+| `tables/`, `summary.md` | aggregate tables and the per-task comparison with the paper |
+| `full/pool-index.json`, `full/suite.json` | the sealed pool index and experiment settings |
+
+The full archive adds the 50 sealed manifests (verified initial scenes, expert results, runtime fingerprint) and `tables/randomization.jsonl`. Unpack it into `data/`.
 
 ## Verify
 
 ```bash
-python3 analysis/verify_release.py data/phys-pro6000-100-v6
+python3 analysis/verify_release.py data/physical-random-100
 ```
 
-recomputes all 5000 condition hashes from the seeds and checks the pool-index seal, the per-task manifest hashes and the result rows. With the release ZIP unpacked over the folder it also checks the 50 manifest seals.
+This recomputes all 5000 condition hashes from the seeds, checks the pool-index seal and cross-checks the results. With the full archive unpacked it also checks the 50 manifest seals.
+
+To evaluate your own policy on these episodes, see [Benchmark your policy with our seeds](../README.md#-benchmark-your-policy-with-our-seeds).

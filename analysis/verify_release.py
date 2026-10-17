@@ -2,7 +2,7 @@
 """Verify an exported dataset against this repository's condition sampler and seals.
 
 Run inside the repository (needs src/ and configs/physical_domains.json):
-  python3 analysis/verify_release.py data/phys-pro6000-100-v6
+  python3 analysis/verify_release.py data/physical-random-100
 
 Checks, and prints a count for each:
   - every row of pool/conditions.csv: sample(task, seed, protocol) reproduces condition_sha256 and the

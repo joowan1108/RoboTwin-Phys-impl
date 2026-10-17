@@ -1,19 +1,28 @@
 # Tools
 
-Scripts outside the runtime fingerprint. `tools/` is mounted from the patch ZIP on the cluster, and its checksum is pinned by every launcher, so new read-only helpers go to [`analysis/`](../analysis/README.md) instead (`analysis/analyze_episodes.py` summarizes every episode record and log of a model at once).
+Command-line helpers around the `robotwin_phys` package. None of them is part of the runtime fingerprint.
 
 ## Environment and assets
 
-`bootstrap.sh`, `activate.sh` (host install record), `docker.sh`, `docker_parallel.py` (local Docker runs), `build_bundle.sh`, `build_cluster.sh` (bundle image for the cluster), `clone_policy_repos.py`, `download_models.py`, `prepare_g05.py` (policy repositories and checkpoints), `download_assets.py` (official RoboTwin assets, verified against `references/assets-tree.json`), `patch_robotwin.py` (guarded local diff of the pinned RoboTwin), `doctor.py`, `cluster_preflight.py` (hardware and runtime evidence), `prepare_cluster.py` (checksum-verified downloads inside a job).
+| Script | Purpose |
+|---|---|
+| `docker.sh`, `docker_parallel.py` | Build, check (`doctor`) and validate the simulator image; run it on one or several local GPUs |
+| `build_bundle.sh`, `build_cluster.sh` | Build the bundle image (simulator plus the five policy environments) used with Apptainer on Slurm |
+| `bootstrap.sh`, `activate.sh` | Host installation without Docker (kept for reference) |
+| `download_assets.py` | Download the official RoboTwin 2.0 assets and verify them against `references/assets-tree.json` |
+| `clone_policy_repos.py`, `download_models.py` | Clone the pinned policy repositories and download the pinned checkpoints |
+| `prepare_g05.py` | Assemble the G0.5 runtime bundle (hard-linked checkpoint and dataset statistics) |
+| `patch_robotwin.py` | Apply the guarded local changes to the pinned RoboTwin checkout |
+| `doctor.py`, `cluster_preflight.py`, `prepare_cluster.py` | Hardware and runtime checks; checksum-verified downloads inside a job |
 
-## Pools, evaluation, reports
+## Pools and evaluation
 
-`parallel_eval.py` (scheduler: pool preparation with N workers per GPU, policy replicas, resume, reporting), `parallel_freeze_task.py` (finish one task's pool with concurrent seed workers, committed in seed order), `freeze_suite.sh`, `reverify_pool.py`, `serve_policy.py`, `wait_policy.py`, `policy_runtime.py` (policy server supervision in the model's own environment), `experiment.py` (tables and audits), `randomization_audit.py`, `validate_sensitive_tasks.py`, `smoke_e2e.py`.
-
-## Provenance continuations
-
-`continue_success_context.py`, `resume_contact_pool.py`, `diagnose_provenance.py`: advance saved manifests and progress under one named rule when a reviewed source change would otherwise invalidate the fingerprint. Each writes backups and receipts under `reports/pool-preservation/`.
-
-## Delivery packagers
-
-`package_*.py` build the immutable patch ZIPs in `reports/` and regenerate the matching launcher in `cluster/`. Each packager checks that only the reviewed files changed relative to its baseline ZIP and refuses to overwrite a delivered archive. The newest is `package_success_context_fix.py` (v7). `package_pool_parallel.py` embeds the scheduler into the v5 parallel launcher whenever `parallel_eval.py` changes.
+| Script | Purpose |
+|---|---|
+| `experiment.py` | Single-machine experiment driver: `init`, `freeze`, `evaluate`, `report` |
+| `parallel_eval.py` | Multi-GPU scheduler: pool preparation with several workers per GPU, then evaluation with several policy replicas |
+| `parallel_freeze_task.py` | Finish one task's pool with concurrent seed workers, committed in seed order |
+| `freeze_suite.sh` | Freeze all 50 tasks sequentially |
+| `serve_policy.py`, `wait_policy.py`, `policy_runtime.py` | Start and supervise a policy server in the model's own environment |
+| `randomization_audit.py` | Check that every simulator request applied exactly the sampled condition |
+| `validate_sensitive_tasks.py`, `smoke_e2e.py` | Smoke tests for the sensitive tasks and the end-to-end pipeline |

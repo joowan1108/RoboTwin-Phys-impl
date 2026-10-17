@@ -1,4 +1,4 @@
-"""Run the unchanged OOD tail through a mock runtime and the real bundle controller."""
+"""Run the unchanged template tail through a mock runtime and the real bundle controller."""
 import json
 import os
 from pathlib import Path
@@ -31,7 +31,7 @@ FAKE_APPTAINER = '''#!/usr/bin/python3
 import json,os,sys
 args=sys.argv[1:]
 assert args[:2]==['exec','--nv']
-assert ':bundle-cu128-v2' in args[2]
+assert ':bundle-cu128' in args[2]
 with open(os.environ['TEST_LOG'],'a') as f: f.write(json.dumps(dict(tool='apptainer',args=args))+'\\n')
 env=os.environ.copy()
 for key,value in os.environ.items():
@@ -58,14 +58,14 @@ def run_bundle(tmp_path, template, **extra):
     script=tmp_path/'job.sh';script.write_text(text)
     log=tmp_path/'calls.jsonl'
     env=dict(os.environ,PATH=str(bindir)+':'+os.environ['PATH'],TEST_LOG=str(log),
-             SLURM_JOB_ID='test-bundle',CUDA_VISIBLE_DEVICES='GPU-A,GPU-B' if '5090' in template else 'GPU-A',
+             SLURM_JOB_ID='test-bundle',CUDA_VISIBLE_DEVICES='GPU-A,GPU-B' if '2gpu' in template else 'GPU-A',
              APPTAINERENV_ROBOTWIN_BUNDLE_SIM_ROOT=str(simroot),APPTAINERENV_ROBOTWIN_BUNDLE_POLICY_ROOT=str(policies),**extra)
     result=subprocess.run(['bash',str(script)],env=env,text=True,capture_output=True,timeout=20)
     records=[json.loads(l) for l in log.read_text().splitlines()]
     return result,records
 
 
-@pytest.mark.parametrize('template',['job.sbatch','job-rtx5090x2.sbatch'])
+@pytest.mark.parametrize('template',['bundle-1gpu.sbatch','bundle-2gpu.sbatch'])
 def test_protected_default_tail_and_cache_are_unchanged(template):
     protected=(ROOT/'cluster/default-protected.txt').read_text()
     assert (ROOT/'cluster'/template).read_text().endswith(protected)
@@ -73,7 +73,7 @@ def test_protected_default_tail_and_cache_are_unchanged(template):
     assert 'apptainer exec --nv "$IMAGE" $CMD' in protected
 
 
-@pytest.mark.parametrize('template',['job.sbatch','job-rtx5090x2.sbatch'])
+@pytest.mark.parametrize('template',['bundle-1gpu.sbatch','bundle-2gpu.sbatch'])
 def test_one_apptainer_call_runs_all_models_in_isolated_environments(tmp_path,template):
     result,records=run_bundle(tmp_path,template)
     assert result.returncode==0,result.stdout+result.stderr
@@ -86,19 +86,19 @@ def test_one_apptainer_call_runs_all_models_in_isolated_environments(tmp_path,te
         model=record['args'][1]
         assert record['runtime']==str(tmp_path/'policies'/model/'workspace')
         assert record['venv']==str(tmp_path/'policies'/model/'venv')
-        assert record['gpu']==('GPU-A' if template=='job.sbatch' else ('GPU-B,GPU-A' if model=='motus' else 'GPU-B'))
+        assert record['gpu']==('GPU-A' if template=='bundle-1gpu.sbatch' else ('GPU-B,GPU-A' if model=='motus' else 'GPU-B'))
         with pytest.raises(ProcessLookupError): os.kill(record['pid'],0)
     assert all(r['gpu']=='GPU-A' for r in records if r['tool']=='experiment.py')
 
 
 def test_bundle_skips_completed_models(tmp_path):
-    result,records=run_bundle(tmp_path,'job.sbatch',COMPLETED='pi05,motus')
+    result,records=run_bundle(tmp_path,'bundle-1gpu.sbatch',COMPLETED='pi05,motus')
     assert result.returncode==0,result.stderr
     assert [r['args'][1] for r in records if r['tool']=='serve_policy.py']==['fact','fastwam','g05']
 
 
 def test_pipeline_failure_propagates_through_unmodified_default_tail(tmp_path):
-    result,records=run_bundle(tmp_path,'job.sbatch',FAIL_FREEZE='1')
+    result,records=run_bundle(tmp_path,'bundle-1gpu.sbatch',FAIL_FREEZE='1')
     assert result.returncode==23
     assert 'Job end:' not in result.stdout
     assert not any(r['tool']=='serve_policy.py' for r in records)

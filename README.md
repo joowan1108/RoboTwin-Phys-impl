@@ -44,7 +44,7 @@ RoboTwin-Phys evaluates bimanual manipulation policies on the 50 RoboTwin 2.0 ta
 - **Five baselines from the paper.** Fast-WAM, G0.5, π0.5, Motus and FACT. Their checkpoints and inference settings are pinned in [`configs/policies`](configs/policies).
 - **Published pool.** The 5000 accepted seeds, their sampled physical conditions and every Fast-WAM episode outcome are in [`data/`](data/README.md).
 
-Where the paper is silent, the choice made here is documented in [`docs/`](docs/README.md). The main ones:
+Where the paper is silent, the choice made here is documented in [`docs/design.md`](docs/design.md). The main ones:
 - Mass, center of mass, size and force apply to task objects only.
 - Table height replaces the upstream random table height.
 
@@ -140,13 +140,13 @@ Both sides are 100-episode estimates, so a single task carries roughly ±10 poin
 | `stamp_seal` | 24 | 24 | +0 | 🟩 |
 | `turn_switch` | 50 | 34 | +16 | 🟨❗ |
 
-Paper values: arXiv 2609.26292v1, Table 4 (Appendix D). Ours: [`data/phys-pro6000-100-v6/results/fastwam/episodes.csv`](data/phys-pro6000-100-v6/results/fastwam/episodes.csv).
+Paper values: arXiv 2609.26292v1, Table 4 (Appendix D). Ours: [`data/physical-random-100/results/fastwam/episodes.csv`](data/physical-random-100/results/fastwam/episodes.csv).
 
 </details>
 
 ## 🎯 Benchmark your policy with our seeds
 
-Our pool is published in [`data/phys-pro6000-100-v6`](data/phys-pro6000-100-v6/):
+Our pool is published in [`data/physical-random-100`](data/physical-random-100/):
 
 | File | Contents |
 |---|---|
@@ -156,14 +156,14 @@ Our pool is published in [`data/phys-pro6000-100-v6`](data/phys-pro6000-100-v6/)
 
 An episode's physical condition depends only on `(task, seed)`, so it is identical on any machine. To evaluate your policy on the same 5000 episodes:
 
-**1. Set up the simulator.** Clone this repository and build the Docker image. The image installs RoboTwin 2.0 at the pinned revision, SAPIEN, CuRobo and the official assets ([docs/docker.md](docs/docker.md)). Then check that the conditions reproduce:
+**1. Set up the simulator.** Clone this repository and build the Docker image. The image installs RoboTwin 2.0 at the pinned revision, SAPIEN, CuRobo and the official assets ([docs/setup.md](docs/setup.md)). Then check that the conditions reproduce:
 
 ```bash
 git clone https://github.com/joowan1108/RoboTwin-Phys-impl.git && cd RoboTwin-Phys-impl
 bash tools/docker.sh build
 bash tools/docker.sh doctor      # GPU, Vulkan rendering and CUDA check
 bash tools/docker.sh shell       # all following commands run inside this container
-python3 analysis/verify_release.py data/phys-pro6000-100-v6   # recomputes all 5000 conditions from their seeds
+python3 analysis/verify_release.py data/physical-random-100   # recomputes all 5000 conditions from their seeds
 ```
 
 **2. Freeze the pool from the same start seed.** The expert re-checks every seed on your machine and stores the initial scenes:
@@ -180,7 +180,7 @@ Check that your accepted seeds are ours:
 ```bash
 python3 - <<'EOF'
 import json
-ours = json.load(open('data/phys-pro6000-100-v6/pool/seeds.json'))['tasks']
+ours = json.load(open('data/physical-random-100/pool/seeds.json'))['tasks']
 for task, entry in ours.items():
     mine = [e['seed'] for e in json.load(open(f'manifests/{task}.json'))['episodes']]
     print(task, 'OK' if mine == entry['accepted'] else 'DIFFERS')
@@ -239,7 +239,7 @@ Add `--video` to record an MP4 per episode.
 <details>
 <summary><b>Run it on exactly our runtime</b></summary>
 
-The release asset [`phys-pro6000-100-v6-full.zip`](https://github.com/joowan1108/RoboTwin-Phys-impl/releases/tag/data-phys-pro6000-100-v6) contains our 50 sealed manifests, including the verified initial scenes. `robotwin-phys evaluate` accepts them only on an identical runtime: same source, assets, package versions, GPU model and driver. On any other machine, use step 2 instead.
+The release asset [`physical-random-100-full.zip`](https://github.com/joowan1108/RoboTwin-Phys-impl/releases/tag/data-physical-random-100) contains our 50 sealed manifests, including the verified initial scenes. `robotwin-phys evaluate` accepts them only on an identical runtime: same source, assets, package versions, GPU model and driver. On any other machine, use step 2 instead.
 
 </details>
 
@@ -265,7 +265,9 @@ analysis/            per-task comparison with the paper, dataset export and veri
 tools/               environment setup and multi-GPU schedulers
 docker/              simulator and policy images
 tests/               CPU tests (no simulator needed)
-docs/                design notes and decisions (Korean)
+cluster/             Slurm templates (Apptainer + bundle image)
+docs/                setup, design notes, policies, validation
+references/          pinned upstream metadata and the paper's per-task rates
 ```
 
 ## 📄 License and citation

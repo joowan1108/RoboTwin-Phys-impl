@@ -1,87 +1,143 @@
-# 선택한 5개 RoboTwin checkpoint 연결
+# Policies
 
-초기 평가 기반 구현에서 준비한 adapter와 checkpoint 정보입니다. 이후 추가한 Blackwell 모델별 Docker 이미지와 CSI Lab 실행은 [cluster.md](cluster.md)를 따릅니다. 아래 실제 학습 모델은 checkpoint load/inference 검증하지 않았습니다. 공식 adapter 코드와 checkpoint metadata를 확인해 연결 경로를 준비했으며, 현재 PC에서는 dummy policy를 통해 같은 RPC/observation/action 경로를 검증합니다. 이를 실제 모델 성공률로 보고하지 않습니다.
+The five baselines of the paper are connected through their official RoboTwin 2.0 adapters. Every policy runs as a server in its own Python environment and is evaluated on the same frozen episode manifests ([design.md](design.md#evaluation)). That shared manifest is what makes the environment conditions identical across models. Precision, normalization and action chunking follow each model's own specification and are pinned in its profile under [configs/policies](../configs/policies).
 
-## 모델·artifact·환경 차이
+## Checkpoints and code
 
-| 모델 | 요청한 공식 HF repo와 사용할 파일 | 코드/추론 경로 |
+| Model | Checkpoint (Hugging Face) | Files used | Code | Adapter |
+|---|---|---|---|---|
+| Fast-WAM | [`yuanty/fastwam`](https://huggingface.co/yuanty/fastwam) @ `8eaceeb24c3c` | `robotwin_uncond_3cam_384.pt`, `robotwin_uncond_3cam_384_dataset_stats.json` | [FastWAM](https://github.com/yuantianyuan01/FastWAM) @ `7faa71108368` | `experiments/robotwin/fastwam_policy/deploy_policy.py` |
+| G0.5 | [`OpenGalaxea/G05`](https://huggingface.co/OpenGalaxea/G05) @ `e312be81e90c` (gated) | `g05-robotwin20/` (checkpoint, dataset stats, Hydra config), `action_tokenizer.pt`, `qwen3_5_2b_base_processor/` | [GalaxeaVLA](https://github.com/OpenGalaxea/GalaxeaVLA) @ `89f2322b4ad0` | `experiments/robotwin/galaxeafm_policy/deploy_policy.py` |
+| π0.5 | [`motus-robotics/pi0.5_robotwin2`](https://huggingface.co/motus-robotics/pi0.5_robotwin2) @ `effc6e1a99bd` | `model.safetensors`, `assets/pi0.5_clean_randomize_joint_training/norm_stats.json` | OpenPI from RoboTwin's `policy/pi05` (pinned RoboTwin revision) | [src/robotwin_phys/pi05_policy.py](../src/robotwin_phys/pi05_policy.py) |
+| Motus | [`motus-robotics/Motus_robotwin2`](https://huggingface.co/motus-robotics/Motus_robotwin2) @ `ab74bc214f7f` | `mp_rank_00_model_states.pt` | [Motus](https://github.com/thu-ml/Motus) @ `f771216802b8` | `inference/robotwin/Motus/deploy_policy.py` |
+| FACT | [`Bariona/fact-wam`](https://huggingface.co/Bariona/fact-wam) @ `887f66bc0be8` | `transformer/`, `norm_stats_delta.json` | [FACT](https://github.com/Bariona/FACT) @ `5b299a2059f0` | `evaluation/robotwin/model2robotwin_interface.py` (client of FACT's native server) |
+
+The full revisions are in the profiles. The Hugging Face metadata captured at those revisions is kept in `references/*-info.json`, and the public model cards in `references/*-card.md`.
+
+Backbones, from [configs/backbones.json](../configs/backbones.json):
+
+| Model | Additional files |
+|---|---|
+| Fast-WAM | `Wan-AI/Wan2.2-TI2V-5B`, UMT5 tokenizer from `Wan-AI/Wan2.1-T2V-1.3B` |
+| Motus | `Wan-AI/Wan2.2-TI2V-5B` (including the T5 encoder and VAE, which the code loads), `Qwen/Qwen3-VL-2B-Instruct` (config and tokenizer files) |
+| FACT | `Wan-AI/Wan2.2-TI2V-5B-Diffusers` (VAE, text encoder, tokenizer, scheduler) |
+| π0.5 | PaliGemma tokenizer (`big_vision/paligemma_tokenizer.model`) |
+
+## Inference settings
+
+| Model | Native bf16 GPU required | Action execution | Other pinned arguments |
+|---|---|---|---|
+| Fast-WAM | yes (`mixed_precision: bf16`) | `replan_steps: 24` | `sigma_shift: 5.0`, `sim_task: robotwin_uncond_3cam_384_1e-4`, `sim_cfg_name: sim_robotwin.yaml` |
+| G0.5 | yes (`mixed_precision: bf16`) | `replan_steps: 24` | `sim_task: robotwin`, `sim_cfg_name: sim_robotwin.yaml`; inference steps from the model config (10) |
+| π0.5 | yes | `replan_steps: 32` (horizon 32) | `num_inference_steps: 10`, `adapt_to_pi=True`, delta joint actions with absolute grippers |
+| Motus | yes, plus `minimum_vram_gb: 24` | official adapter default | Wan and Qwen backbone paths |
+| FACT | not checked by the bridge | `execute_actions_per_plan: 48` | native server at `127.0.0.1:8093` |
+
+These values come from the public evaluation code and checkpoint cards. They are not confirmed to match the RoboTwin-Phys authors' unpublished hyperparameters. Changing any of them changes the profile hash, and therefore the policy identity, so results must go to a new run directory.
+
+Notes per model:
+
+- **Fast-WAM.** The pinned README states that the released checkpoints are evaluated with `EVALUATION.sigma_shift=5.0`. Upstream `sim_robotwin.yaml` leaves it null, and the action scheduler then falls back to `infer_shift: 1.0` from `configs/model/fastwam.yaml`, a later training default. The profile sets 5.0 explicitly. The image sets `redirect_common_files: false` in the FastWAM model configs, so the Wan files load from the pinned Hugging Face downloads instead of an automatically downloaded ModelScope conversion. Loader and weights are unchanged.
+- **G0.5.** The profile points to `checkpoints/g05-runtime/`, built by [tools/prepare_g05.py](../tools/prepare_g05.py). The adapter resolves the checkpoint path and reads `../../.hydra/config.yaml` next to the resolved file. The runtime bundle therefore contains a rewritten config with absolute processor and action tokenizer paths, and hard links (or copies) of the checkpoint and dataset stats. Symlinks would resolve back into the original download, whose config uses repository-relative paths. The original download and its checksums stay untouched. `sim_task: robotwin` reproduces what the upstream evaluator `eval_robotwin_single.py` always passes: the adapter turns it into the Hydra override `task=robotwin`, which selects the `data`, `model` and `tokenizer` groups. The upstream training config's `seed: 7` has no effect here, because the policy server reseeds every episode.
+- **π0.5.** [pi05_policy.py](../src/robotwin_phys/pi05_policy.py) implements the transforms documented on the checkpoint card: Aloha data config, `adapt_to_pi=True`, delta joints with absolute grippers, action horizon 32 and the supplied normalization statistics. RoboTwin's stock pi05 configuration uses `adapt_to_pi=False` and is not used. The model runs as a PyTorch checkpoint. JAX is restricted to the CPU so it does not reserve GPU memory.
+- **Motus.** The model card gives about 41 GB of GPU memory with the T5 encoder on the same device and about 24 GB with T5 pre-encoding. The profile enforces `minimum_vram_gb`. An optional placement puts only the T5 encoder on a second GPU. It is patched into the official adapter as an explicit `t5_device` argument ([docker/policies/patch_motus.py](../docker/policies/patch_motus.py)) and recorded in the profile hash. The default keeps the original placement.
+- **FACT.** The RPC bridge runs FACT's official RoboTwin client, which talks to FACT's native inference server. The native server holds the model's RNG, so [docker/policies/patch_fact.py](../docker/policies/patch_fact.py) forwards an episode-derived seed to it instead of a time-based seed. Keep the native server's settings with the results. The scheduler runs exactly one FACT replica, because the native port is part of the policy identity.
+
+## Environments
+
+Each model needs its own environment, because the stacks conflict with each other and with the simulator (Python 3.10, NumPy 1.26, SAPIEN 3):
+
+| Model | Upstream environment | Notes |
 |---|---|---|
-| G0.5 | [OpenGalaxea/G05](https://huggingface.co/OpenGalaxea/G05), `g05-robotwin20/checkpoints/model_state_dict.pt` | [GalaxeaVLA](https://github.com/OpenGalaxea/GalaxeaVLA), official RoboTwin adapter |
-| π0.5 | [motus-robotics/pi0.5_robotwin2](https://huggingface.co/motus-robotics/pi0.5_robotwin2), `model.safetensors` | RoboTwin pi05의 OpenPI runtime + model card의 training transform을 구현한 adapter |
-| FACT | [Bariona/fact-wam](https://huggingface.co/Bariona/fact-wam), `transformer/` 및 `norm_stats_delta.json` | [FACT](https://github.com/Bariona/FACT) native inference server + official RoboTwin client adapter |
-| Motus | [motus-robotics/Motus_robotwin2](https://huggingface.co/motus-robotics/Motus_robotwin2), `mp_rank_00_model_states.pt` | [Motus](https://github.com/thu-ml/Motus), `inference/robotwin/Motus/deploy_policy.py` |
-| Fast-WAM | [yuanty/fastwam](https://huggingface.co/yuanty/fastwam), `robotwin_uncond_3cam_384.pt` | [FastWAM](https://github.com/yuantianyuan01/FastWAM), official RoboTwin adapter |
+| Fast-WAM | PyTorch 2.7.1+cu128, NumPy 2.2.6 | |
+| G0.5 | Python 3.10, PyTorch 2.7.1, Transformers 4.57.1 | Its default SAPIEN 2.x dependency conflicts with the simulator. Benchmark and training-only dependencies are left out, and the code's default attention fallback is allowed. |
+| π0.5 | Python ≥ 3.11, OpenPI with JAX, Transformers, PyTorch | Transformers 4.53.2 with OpenPI's `transformers_replace`. LeRobot is installed with `--no-deps` for OpenPI's type imports, so its missing training extras are expected in `pip check`. |
+| Motus | CUDA ≥ 12.6 plus model dependencies | FlashAttention 2.8.3.post1 wheel, verified by SHA-256 and checked for sm_120 kernels |
+| FACT | PyTorch 2.6 / cu124 upstream | Raised to 2.7.1 / cu128 in the Blackwell image |
 
-checkpoint와 code revision은 `configs/policies/*.yaml`에 고정되어 있습니다. HF API 응답은 `references/*-info.json`, 공개 model card는 `references/*-card.md`에 저장했습니다. G0.5는 gated repo여서 model card 원문 다운로드가 401로 거부되었으며, 공개 웹페이지/API metadata로 RoboTwin 파일 존재를 확인했습니다. 접근 권한을 사용자가 받은 뒤 다운로드해야 합니다.
+The bundle image ([setup.md](setup.md#6-blackwell-bundle-image)) contains these environments under `/opt/robotwin-policies/<model>/venv`, built from [docker/Dockerfile.policy](../docker/Dockerfile.policy) and the requirement files in [docker/policies](../docker/policies). Package freezes and code hashes of each environment are recorded with the image. They are not claimed to equal the authors' environment.
 
-- G0.5 공식 environment는 Python 3.10, Torch 2.7.1, Transformers 4.57.1 등이며 기본 SAPIEN 2.x dependency가 simulator와 충돌합니다.
-- Fast-WAM 공식 environment는 Torch 2.7.1+cu128와 NumPy 2.2.6을 사용합니다. simulator의 NumPy 1.26/Torch 2.4.1에 함께 설치하지 않습니다.
-- Motus 공식 RoboTwin guide는 CUDA ≥12.6과 추가 model dependency를 요구합니다. model card의 GPU 메모리 요구는 T5 pre-encoding 사용 시 약 24GB, 그렇지 않으면 약 41GB입니다.
-- π0.5의 OpenPI runtime은 Python ≥3.11, JAX/Transformers/PyTorch의 별도 dependency를 사용합니다. 모델은 PyTorch checkpoint로 로드합니다. `adapt_to_pi=True`, delta joint actions, absolute grippers, horizon 32는 요청한 checkpoint card 기준입니다. stock RoboTwin pi05 config의 `adapt_to_pi=False`를 그대로 쓰지 않습니다.
-- FACT native inference server는 별도 모델 환경이 필요합니다. 본 RPC bridge가 FACT client를 실행하고 그 client가 FACT server에 연결합니다. 이 경우 모델 random seed/identity의 최종 권한은 native server에 있으므로 native server 설정도 함께 보존해야 합니다.
+The bridge itself needs only NumPy and PyYAML and never imports SAPIEN or CuRobo. In a model environment, expose it with `PYTHONPATH=<repo>/src` rather than `pip install -e .`, because the project package is restricted to the simulator's Python 3.10.
 
-RTX 2080 Ti에서는 이 문서의 공식 BF16 profile을 실행하지 않고 명확한 오류를 내도록 했습니다. 이는 모든 FP16/CPU-offload 변형이 불가능하다는 뜻은 아닙니다. 그런 변형은 별도 구현·성능 검증 후 다른 profile로 기록해야 합니다. 현재 제공하는 `minimum_vram_gb` 검사 외에 다른 모델의 VRAM 적합성을 실제 load 없이 보장하지 않습니다.
-
-## 추후 다운로드
-
-모델 repo를 simulator 환경에 설치하지 않고 소스만 가져옵니다.
+## Preparation
 
 ```bash
-cd /home/guest/robotwin-workspace
-source tools/activate.sh
-python tools/clone_policy_repos.py
-python -m pip install huggingface-hub==0.34.4
-
-# training optimizer와 LIBERO weights를 제외하고 RoboTwin weights/stats만 다운로드
+python tools/clone_policy_repos.py                              # policy code at pinned revisions
 python tools/download_models.py --models pi05 fact motus fastwam
-
-# HF 웹에서 G05 조건에 동의하고 권한을 얻은 뒤 사용자의 인증을 설정
-huggingface-cli login
+huggingface-cli login                                           # after accepting the G05 terms
 python tools/download_models.py --models g05
-python tools/prepare_g05.py
+python tools/prepare_cluster.py --models fastwam                # backbones (+ prepare_g05.py for g05)
 ```
 
-다운로드 도구는 SHA-256 검증과 `download-lock.json`을 남깁니다. 모델 실행을 추후로 정한 시점에 대용량 다운로드는 중단했으므로 현재 `checkpoints/`의 partial 파일을 완성된 모델로 사용하면 안 됩니다. 같은 명령으로 재개할 수 있습니다.
+[tools/download_models.py](../tools/download_models.py) downloads only the RoboTwin weights and statistics, never optimizer states or other benchmarks. It verifies SHA-256 against the captured metadata and writes `download-lock.json`. Partial files are resumed by the same command and must not be used before it completes. G0.5 is gated: access must be granted on Hugging Face before the download works.
 
-필수 부가 backbone도 모델별 공식 설명에 따라 준비합니다. Motus는 `checkpoints/backbones/Wan2.2-TI2V-5B`, `checkpoints/backbones/Qwen3-VL-2B-Instruct`를 사용하도록 설정했습니다. FACT는 `Wan-AI/Wan2.2-TI2V-5B-Diffusers`의 VAE/T5/tokenizer 등이 필요합니다. Fast-WAM 공식 runtime은 설정의 Wan2.2 및 Wan2.1 tokenizer asset을 추가로 로드합니다. task checkpoint 하나만으로 모든 backbone 다운로드가 끝났다고 가정하지 않습니다.
-
-G0.5의 `prepare_g05.py`는 원래 download bundle을 보존하고 `g05-runtime/.hydra/config.yaml`에 로컬 processor/tokenizer 경로를 연결합니다. 모델 구조나 weight 값은 바꾸지 않습니다. gated config를 아직 실제로 읽을 수 없으므로 이 bundle 준비 단계는 권한을 얻은 뒤 검증해야 합니다.
-
-## 모델 환경과 서버
-
-각 공식 repository의 고정 revision 설치 안내를 따라 **서로 분리된 환경**을 만듭니다. 공통 bridge는 NumPy/PyYAML만 추가로 필요하고 SAPIEN/CuRobo를 import하지 않습니다. Python 3.11 환경에서는 이 프로젝트를 `pip install -e .`하지 말고 `PYTHONPATH`로 bridge를 노출합니다. 프로젝트의 simulator package는 Python 3.10으로 제한되어 있습니다.
+## Running a policy server
 
 ```bash
-export PYTHONPATH=/home/guest/robotwin-workspace/src
-export CUDA_VISIBLE_DEVICES=0
-
-# 원하는 모델 config 하나 선택. 한 서버가 순차적으로 여러 task를 처리 가능.
+export PYTHONPATH=/path/to/RoboTwin-Phys-impl/src
 /path/to/fastwam-env/bin/python -m robotwin_phys.policy_server \
-  --config /home/guest/robotwin-workspace/configs/policies/fastwam.yaml --port 9000
-
-# 같은 명령 형식으로 g05.yaml, pi05.yaml, motus.yaml 사용
+  --config configs/policies/fastwam.yaml --port 9000
 ```
 
-FACT는 먼저 native server를 시작합니다. model paths와 dependency 설치는 공식 [FACT checkpoint 안내](https://huggingface.co/Bariona/fact-wam)를 기준으로 합니다.
+Use the same form with `g05.yaml`, `pi05.yaml` and `motus.yaml`. One server can process many tasks sequentially, but serves only one evaluation at a time. FACT needs its native server first, in the FACT environment:
 
 ```bash
-cd /home/guest/robotwin-workspace/vendor/FACT
+cd vendor/FACT
 /path/to/fact-env/bin/python -m scripts.inference_server \
-  --model_id /path/to/Wan2.2-TI2V-5B-Diffusers \
-  --transformer_path /home/guest/robotwin-workspace/checkpoints/fact/transformer \
-  --stats_path /home/guest/robotwin-workspace/checkpoints/fact/norm_stats_delta.json \
-  --port 8093
-
-# 다른 터미널, 같은 FACT 환경
-PYTHONPATH=/home/guest/robotwin-workspace/src \
-  /path/to/fact-env/bin/python -m robotwin_phys.policy_server \
-  --config /home/guest/robotwin-workspace/configs/policies/fact.yaml --port 9000
+  --model_id checkpoints/backbones/Wan2.2-TI2V-5B-Diffusers \
+  --transformer_path checkpoints/fact/transformer \
+  --stats_path checkpoints/fact/norm_stats_delta.json --port 8093
+# second terminal, same environment
+PYTHONPATH=/path/to/RoboTwin-Phys-impl/src /path/to/fact-env/bin/python -m robotwin_phys.policy_server \
+  --config configs/policies/fact.yaml --port 9000
 ```
 
-simulator는 어떤 모델이든 `robotwin-phys evaluate --manifest ... --policy-port 9000 --live --video`로 연결합니다. RPC는 upstream의 `get_model / eval / reset_model` interface를 유지하며, RGB·14차원 qpos·instruction을 전달하고 adapter가 원래대로 preprocessing/normalization/action chunk를 처리합니다. NumPy 배열은 길이 제한 JSON/base64로 전달합니다. pickle을 이용한 임의 객체 역직렬화를 사용하지 않습니다.
+Use paths that match your checkout. Then connect the simulator with `robotwin-phys evaluate --manifest ... --policy-port 9000`. Inside the bundle image, [tools/parallel_eval.py](../tools/parallel_eval.py) starts and supervises the servers itself.
 
-Fast-WAM profile은 `args.sigma_shift: 5.0`을 넘깁니다. 상류 README(고정 revision)는 "When evaluating the original released checkpoints, set `EVALUATION.sigma_shift=5.0` to reproduce the original setting"이라고 명시하며, 상류 `configs/sim_robotwin.yaml`의 기본값은 null이고 그 경우 action scheduler는 `configs/model/fastwam.yaml`의 `infer_shift: 1.0`(이후 바뀐 학습 기본값)을 씁니다. 2026-10-16 이전 profile은 이 값을 빠뜨려 잡 1685의 Fast-WAM 결과는 shift 1.0으로 돌았고 폐기했습니다(`runs/phys-pro6000-100-v6/fastwam-sigma1-discarded/`). G0.5의 상류 `sim_robotwin.yaml`은 `replan_steps: 24`, `sigma_shift: null`이고 README 평가 명령에 override가 없으므로 현재 profile과 일치합니다.
+On startup the server checks the adapter's git revision, the required checkpoint paths, `minimum_vram_gb` and, for the bf16 profiles, a GPU of compute capability 8.0 or newer. On an older GPU such as the RTX 2080 Ti (sm_75) it exits with an error instead of running at a different precision. An FP16 or CPU-offload variant would be a different profile and would need its own validation. Apart from `minimum_vram_gb`, memory fit is not checked without actually loading the model.
 
-현재 profile의 replan 길이는 Fast-WAM 24, G0.5 24, Motus 공식 adapter, FACT 48, π0.5 32입니다. 이는 공개 평가 코드/체크포인트 설정에서 선택한 값이며 RoboTwin-Phys 저자의 미공개 상세 hyperparameter와 동일하다고 확인된 것은 아닙니다. 변경하면 model profile/config hash가 달라지며 새로운 run 폴더를 사용해야 합니다.
+## Status
 
-모든 모델에 대해 같은 **시뮬레이터 manifest**를 쓰는 것이 환경 조건의 공정성을 보장하는 핵심입니다. 모델 checkpoint별 추론 정밀도·normalization·chunk 길이는 각 모델 사양으로 따로 기록합니다.
+Fast-WAM is fully evaluated on the published pool: 45.18% against 44.24% in the paper's Table 1 (Physical Random, mean of 50 per-task rates). Per-episode outcomes are in [data/physical-random-100](../data/physical-random-100/README.md). The other baselines have not been fully evaluated yet.
+
+## Adding your own policy
+
+1. Write an adapter module with the three functions of the official RoboTwin policies:
+
+   ```python
+   # my_policy/deploy_policy.py
+   def get_model(args):                 # args = the "args" block of the profile; called once
+       return load_my_model(args["ckpt"])
+
+   def reset_model(model):              # called before every episode, after the server reseeds RNGs
+       model.reset()
+
+   def eval(env, model, observation):   # called until the episode ends; must take at least one action
+       for action in model.predict(observation, env.get_instruction()):
+           env.take_action(action)       # 14-dim joint target (qpos) by default
+   ```
+
+   `observation` is RoboTwin's observation dictionary (camera RGB images and `joint_action`). `env` is a proxy that forwards `get_obs`, `get_instruction`, `take_action` and `check_success`, plus attributes such as `take_action_cnt`, `step_lim` and `eval_success`, to the simulator. [src/robotwin_phys/noop_policy.py](../src/robotwin_phys/noop_policy.py) is a minimal working adapter that holds the current joint positions.
+
+2. Write a profile, following [configs/policies/noop.yaml](../configs/policies/noop.yaml):
+
+   ```yaml
+   # configs/policies/my_policy.yaml
+   name: my_policy
+   adapter: my_policy/deploy_policy.py      # relative to the repository root
+   python_paths: [my_policy]                # prepended to sys.path
+   args:
+     ckpt: /path/to/checkpoint
+   ```
+
+   Optional keys: `working_directory`, `code_revision` (checked against the adapter's git checkout), `checkpoint` (recorded in the identity), `required_paths`, `requires_native_bf16` and `minimum_vram_gb`. `${ROOT}` expands to the repository root.
+
+3. Start the server in your policy's own environment and evaluate:
+
+   ```bash
+   PYTHONPATH=$PWD/src /path/to/my-env/bin/python -m robotwin_phys.policy_server \
+     --config configs/policies/my_policy.yaml --port 9000
+   robotwin-phys evaluate --manifest manifests/<task>.json --output runs/my_policy/<task> --policy-port 9000
+   ```
+
+The profile hash and adapter hash become part of the run's identity, so editing either requires a new output directory.

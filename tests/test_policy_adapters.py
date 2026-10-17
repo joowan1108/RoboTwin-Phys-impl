@@ -47,7 +47,7 @@ def test_fastwam_profile_reproduces_upstream_released_checkpoint_setting():
 
 
 def test_g05_profile_passes_the_upstream_hydra_task():
-    # Upstream eval_robotwin_single.py forwards task=robotwin as sim_task; without it cfg.data is missing (job 1693).
+    # Upstream eval_robotwin_single.py forwards task=robotwin as sim_task; without it cfg.data is missing.
     import yaml
     from pathlib import Path
     args = yaml.safe_load((Path(__file__).parents[1] / 'configs/policies/g05.yaml').read_text())['args']

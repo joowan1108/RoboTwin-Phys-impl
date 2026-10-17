@@ -18,3 +18,5 @@ videos/
 data/*.zip
 data/*/full/manifests/
 data/*/tables/randomization.jsonl
+ops/
+reports/

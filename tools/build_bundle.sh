@@ -22,4 +22,4 @@ for source in "${sources[@]}"; do
 done
 docker build --platform linux/amd64 -f docker/Dockerfile.bundle "${args[@]}" \
   -t "$repo:bundle-cu128-$tag" .
-printf 'Built %s:bundle-cu128-%s. Push this one image for the OOD default template.\n' "$repo" "$tag"
+printf 'Built %s:bundle-cu128-%s. Push this one image and reference it in the cluster templates.\n' "$repo" "$tag"

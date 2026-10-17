@@ -1,53 +1,73 @@
-# 실제 검증 결과
+# Validation
 
-## Docker 이전 검증 — 2026-10-09
+This page lists what has been checked and what has not. Unit tests run on the CPU without a simulator (`pytest -q`, [tests/](../tests)). The GPU checks were run with the Docker images on NVIDIA RTX 2080 Ti (Turing) and RTX PRO 6000 Blackwell GPUs.
 
-`robotwin-phys:cuda12.1` 이미지를 실제 빌드했습니다. 자세한 이미지 ID와 실행 근거는 [docker-migration.json](../reports/docker-migration.json)에 있습니다. 이 과정에서 호스트 CUDA·NVIDIA 드라이버·Container Toolkit을 설치하거나 변경하지 않았습니다. 기존 `.env`는 보존했습니다.
+## Conditions and determinism
 
-| 검사 | 결과 |
+- **Ranges and overrides.** [tests/test_conditions.py](../tests/test_conditions.py) samples all 50 tasks × 100 seeds and checks every value against the global ranges and the Appendix B overrides.
+- **Independence.** The same test file checks that a condition is identical in a separate process and after arbitrary consumption of the global NumPy and Python RNGs, that disabling a factor leaves the other factors' draws unchanged, that `EnvironmentRNG` restores the caller's RNG state, and that tampered or unverified manifests and changed initial scenes are rejected.
+- **Published pool.** [analysis/verify_release.py](../analysis/verify_release.py) recomputes every published condition from its `(task, seed)` and compares it with the condition hash recorded in the sealed manifest.
+- **External force.** [tests/test_force_physics.py](../tests/test_force_physics.py) checks in PhysX that the force is zero during the expert stage, and that during the policy stage it produces a 0.1 g acceleration independent of the body's mass.
+- **Robot links.** Inspection of the sensitive tasks in the real simulator showed that robot link masses stay nominal while object properties change.
+- **Clutter scope.** [tests/test_com_scope.py](../tests/test_com_scope.py) checks that task objects receive the CoM offset, mass scale and force while clutter (rigid and articulated) keeps nominal values, that materials apply to both, and that the per-body record says which is which. On real scenes (50 tasks, up to 5 candidates each), this scoping lowered `unstable_initialization` from 66% to 18% of candidates, and the number of tasks with an accepted episode within 5 candidates rose from 36 to 48.
+
+## Frozen episodes
+
+- **Fresh-process replay.** Episodes frozen by the expert were rebuilt in new processes and matched the stored initial state within the 2e-6 absolute / 1e-6 relative tolerance. This was checked on the host install, and in Docker on each of two GPUs.
+- **Rejection reasons.** A rejected candidate keeps its reason in the manifest. In the first smoke pool, seed 100001 of `stack_blocks_two` was rejected as `unstable_initialization`.
+- **Expert determinism across GPUs.** Rejected `put_object_cabinet` seeds from the Blackwell pool were re-run on an RTX 2080 Ti, and all were rejected again for the same reason.
+- **Parallel freeze.** [tests/test_parallel_freeze_task.py](../tests/test_parallel_freeze_task.py) checks that the concurrent seed scanner with 1, 3 and 8 workers writes manifests and evidence files byte-identical to the sequential freeze, resumes from a saved prefix, and leaves progress untouched when a worker fails.
+- **Resume.** Resuming an evaluation does not modify completed episode files, and a changed `run.json` identity is refused.
+
+## Docker
+
+On a two-GPU RTX 2080 Ti host, with the `robotwin-phys:cuda12.1` image:
+
+| Check | Result |
 |---|---|
-| GPU 선택·launcher·실패 처리 | 8개 테스트 통과; 단일 GPU 자동 선택, 여러 GPU 선택, 중복 UUID 거부 포함 |
-| 이미지 내부 simulator 테스트 | 23개 통과 |
-| RTX 2080 Ti GPU 0 / GPU 1 | 각각 별도 non-root 컨테이너에서 CUDA 연산·Vulkan 렌더·23개 테스트 통과 |
-| 기존 고정 episode 재현 | 각 GPU에서 seed 100000·100002의 초기 상태 일치 |
-| 두 GPU 동시 expert rollout | GPU 0: stack_blocks_two, GPU 1: grab_roller, 모두 seed 100000 성공 |
-| live 영상 | 포트 8765·8766에서 실제 JPEG frame과 task/seed status 수신 |
-| Docker MP4 | stack_blocks_two 522 frame, grab_roller 184 frame; 모두 320×240, 30fps, decoding 확인 |
-| 한 GPU로 순차 실행 | GPU 0에서 두 task의 기존 pool을 순서대로 source/runtime fingerprint와 검증 |
-| 환경 격리 | assets 읽기 전용, 호스트 `.env` mount 없음, privileged 미사용, UID 1001 실행 |
+| GPU selection and launcher | Single-GPU auto-selection, multi-GPU selection and rejection of duplicate GPU ids pass. |
+| In-image test suite | Passes in separate non-root containers on GPU 0 and GPU 1, together with CUDA kernels and a real Vulkan camera render. |
+| Frozen-episode replay | Initial states of seeds 100000 and 100002 match on each GPU. |
+| Concurrent expert rollouts | `stack_blocks_two` on GPU 0 and `grab_roller` on GPU 1, both seed 100000, succeed at the same time. |
+| Sequential use of one GPU | Two task pools processed in turn on GPU 0, with source and runtime fingerprints verified. |
+| Isolation | Assets mounted read-only, no host environment mounted, no privileged mode, unprivileged UID. |
 
-현재 호스트에는 NVIDIA Container Toolkit이 없어 개별 GPU 장치와 기존 driver 파일을 컨테이너에 직접 연결하는 경로를 검증했습니다. Toolkit이 설치된 서버를 위한 표준 GPU reservation 구성도 제공하지만 해당 경로를 이 서버에서 실행 검증한 것은 아닙니다. 학습 모델 추론과 전체 50×100 benchmark 평가는 이번 Docker 검증에 포함하지 않았습니다.
+The bundle image was used for the full pool preparation and the Fast-WAM evaluation on two RTX PRO 6000 Blackwell GPUs, in the dual layout.
 
-[stack_blocks_two Docker 영상](../manifests/docker-dual-smoke/stack_blocks_two-verification/seed-100000.mp4) · [grab_roller Docker 영상](../manifests/docker-dual-smoke/grab_roller-verification/seed-100000.mp4) · [환경별 실행 방법](docker.md)
+## Video and live view
 
-## 이전 호스트 환경 검증 — 2026-10-08
+- MP4 files from the Docker runs (`stack_blocks_two`, 522 frames; `grab_roller`, 184 frames) are 320×240 at 30 fps and decode with `ffprobe`.
+- The headless MJPEG live server delivered real JPEG frames with task and seed status, on separate ports for the two GPUs.
+- The native `--viewer` was not exercised on a display. Without `DISPLAY` it exits with an error that points to `--live`.
 
-2026-10-08, 이 workspace의 RTX 2080 Ti에서 실행했습니다. 아래 결과는 모델 학습 성능 평가가 아닌 simulator/평가 infrastructure 검증입니다.
+## Sensitive tasks
 
-| 검사 | 결과 | 증거 |
+[tools/validate_sensitive_tasks.py](../tools/validate_sensitive_tasks.py) initializes the nine Appendix B tasks in the real simulator with their override ranges and checks the applied values. All nine initialize. `scan_object` needed seed 100002, because its first seeds were unstable. This is an initialization check, not a claim that the expert succeeds on every seed.
+
+## Upstream fixes
+
+Each fix in [design.md](design.md#fixes-to-upstream-behaviour) has CPU tests that reproduce the original failure from the pinned upstream code and check the repaired behaviour:
+
+| Fix | Tests | What they check |
 |---|---|---|
-| CUDA kernel 실행 및 실제 Vulkan camera render | 통과 | [hardware.json](../reports/hardware.json) |
-| 설치 dependency 일관성 | `pip check` 통과 | hardware.json |
-| 공식 assets 3개 LFS SHA-256 | 모두 일치 | [assets-verified.json](../reports/assets-verified.json) |
-| sampling/RNG/manifest/RPC/MP4/π0.5 카메라 변환/실제 외력 물리 테스트 | 23개 통과 | [pytest.log](../reports/pytest.log) |
-| 50 task × 100 seed의 물리 값 범위 | 단위 테스트에서 검사 | test_conditions.py |
-| 부록 B의 9개 task 실제 scene 초기화 | 모두 통과 | [sensitive-tasks-summary.json](../reports/sensitive-tasks-summary.json) |
-| robot/object 물리 적용 분리 | robot mass 1.0 유지, 대상 분리 확인 | sensitive-tasks 개별 result.json |
-| external force | expert stage에서 0, policy stage에서 질량에 무관한 0.1g 가속 확인 | test_force_physics.py |
-| physical_random expert rollout | stack_blocks_two 2개 성공 | [verified manifest](../manifests/verified-smoke-stack-blocks.json) |
-| 새 프로세스의 초기 상태 비교 | 2개 모두 일치 | [replay summary](../runs/verified-smoke/replay/summary.json) |
-| 별도 policy process와 실제 action RPC | 2개 완료, 각 3개 action | [policy summary](../runs/verified-smoke/policy/summary.json) |
-| 평가 resume | 완료 episode 파일을 바꾸지 않음 | [e2e-summary.json](../reports/e2e-summary.json) |
-| head camera MP4 | 320×240, 30fps, ffprobe decoding 확인 | e2e-summary.json |
+| Grasp classification | [test_expert_planning.py](../tests/test_expert_planning.py) | The `target_pose cannot be None` assertion is reproduced. Exhausted searches, explicitly empty annotations, out-of-range contact ids and exceptions after a planner failure become structured rejections. Successful searches produce identical actions. Missing or corrupt metadata and unexpected errors still propagate. |
+| Annotation audit | (offline) | All 694 object metadata files of the official `objects.zip` against the 172 contact and functional point requests of the 50 tasks: the only mismatches are `086_woodenblock` and `021_cup` variants 6 and 7. |
+| Transform helpers | [test_transform_numerics.py](../tests/test_transform_numerics.py) | The float32 out-of-range dot product and the `Eigenvalues did not converge` failure are reproduced. Parallel, anti-parallel and orthogonal directions, agreement with the original on ordinary rotations, quaternion sign invariance, and zero/NaN/Inf inputs are covered. |
+| CuRobo IK mask | [test_curobo_mask_compat.py](../tests/test_curobo_mask_compat.py) | The shape mismatch (`[3, 6] → [0, 6]`, `[5, 6] → [0, 6]`) is reproduced on the original method body. Graph-failure fallback, real trajectory failures, invalid queries and refusal of unreviewed sources are covered. |
+| CuRobo batch results | [test_curobo_batch_results.py](../tests/test_curobo_batch_results.py) | The goal-index shape conflict is reproduced. Trajectory, dt, goal index and path length survive clone/copy across failed and successful attempts. |
+| Success context | [test_success_context.py](../tests/test_success_context.py) | The attributes are derived for the three tasks, a mismatch with the expert record is an error, other tasks are unaffected, and the AST scan of the pinned tasks finds exactly these three. In the simulator, frozen `open_laptop` and `place_object_scale` episodes run with the no-op policy complete, where they previously raised `AttributeError`. |
+| G0.5 runtime bundle | [test_prepare_g05.py](../tests/test_prepare_g05.py) | The adapter's path resolution is reproduced: a symlinked bundle reads the original config, while the hard-linked bundle reads the rewritten config. Re-running is idempotent. |
 
-확정된 seed는 **100000, 100002**입니다. 100001은 marker/shampoo가 불안정하여 expert pool 생성 단계에서 제외됐으며 해당 사유를 manifest에 저장했습니다. 두 policy 실행 모두 확정된 같은 seed와 condition hash를 사용했습니다.
+## Rendering on Blackwell
 
-9개 task 검사는 전역 physical range와 task 예외를 실제 simulator에 적용한 초기화 검사입니다. 9개 모두에서 expert rollout까지 성공했다는 뜻은 아닙니다. `scan_object`는 초기 seed 두 개가 불안정하여 100002에서 초기화 검사를 통과했습니다.
+With SAPIEN's bundled OIDN 2.0.1, every denoise call on Blackwell failed (`OIDN Error: invalid handle`), and the policy's head-camera frames were visibly noisier: first-frame Laplacian standard deviation 22.6, against 12.1 on an RTX 2080 Ti. With OIDN 2.3.3 bound in, the render probe loads `libOpenImageDenoise_device_cuda.so.2.3.3` and logs no OIDN errors. On the RTX 2080 Ti, OIDN 2.0.1 and 2.3.3 produce the same noise level. All published policy results were obtained with OIDN 2.3.3.
 
-통신 검증에 사용한 `noop_infrastructure_test`는 현재 qpos를 유지하는 dummy policy입니다. 실제 학습 모델의 성능 수치로 사용할 수 없으며 summary의 `benchmark_eligible`은 false입니다. 실제 5개 학습 모델 추론과 전체 50 task × 100회 expert pool 생성/평가는 사용자 요청에 따라 추후 실행합니다.
+## Results
 
-headless MJPEG HTTP 응답/프레임 전달은 automated test로 검증했고 실제 rollout에서도 live server를 함께 실행했습니다. Native desktop viewer는 현재 shell에 DISPLAY가 없어 실행 검증하지 않았습니다. `--viewer`는 DISPLAY가 없으면 명확히 오류를 내고 `--live` 사용을 안내합니다.
+Fast-WAM on the published pool (50 tasks × 100 episodes, Physical Random) reaches 45.18%, against 44.24% in the paper. The Pearson correlation of the 50 per-task rates with the paper's Table 4 is 0.84. Per-episode outcomes are in [data/physical-random-100](../data/physical-random-100/README.md).
 
-expert 영상은 [seed-100000.mp4](../manifests/verified-smoke-stack-blocks-verification/seed-100000.mp4), [seed-100002.mp4](../manifests/verified-smoke-stack-blocks-verification/seed-100002.mp4)입니다. 각각 524프레임, 513프레임이며, rendering은 정책 관측과 별도로 물리 simulation time에 맞춰 획득합니다.
+## Not validated
 
-![검증한 실제 scene](../reports/verified-preview.png)
+- Bitwise-identical trajectories across GPU models, drivers or PhysX builds. The runtime fingerprint deliberately refuses such comparisons.
+- Peak memory and throughput of every model and layout. Only the configurations described in [design.md](design.md#multi-gpu-scheduling) were run.
+- G0.5, π0.5, Motus and FACT on the full benchmark.

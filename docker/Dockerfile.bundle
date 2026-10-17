@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# Reuse the six already-built images. Only this final image is pushed for OOD.
+# Reuse the six already-built images. Only this final image is pushed.
 ARG SIM_IMAGE=robotwin-phys:sim-cu128
 ARG PI05_IMAGE=robotwin-phys:policy-pi05-cu128
 ARG FACT_IMAGE=robotwin-phys:policy-fact-cu128
@@ -40,7 +40,7 @@ COPY README.md README.md
 COPY docker/bundle_setup.py docker/bundle_setup.py
 COPY docker/policies/probe.py docker/policies/probe.py
 RUN python docker/bundle_setup.py \
-    && bash -n cluster/job.sbatch cluster/job-rtx5090x2.sbatch cluster/run_bundle.sh cluster/run_parallel.sh cluster/job-5060x2-pro6000.sbatch cluster/job-rtx5090x2-pro6000.sbatch cluster/job-pro6000-single.sbatch \
+    && bash -n cluster/*.sbatch cluster/run_bundle.sh cluster/run_parallel.sh \
     && python -m pytest -q -p no:cacheprovider
 LABEL org.opencontainers.image.title="RoboTwin-Phys single-container benchmark bundle" \
       org.opencontainers.image.description="Simulator plus five isolated policy Python environments; one Apptainer exec; no nested containers"

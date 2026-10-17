@@ -1,15 +1,15 @@
-# ---- 캐시를 노드 로컬로 (NAS 홈 부담 방지, 건드리지 마세요) ----
+# ---- Keep the Apptainer cache on node-local disk ----
 export APPTAINER_CACHEDIR="/tmp/apptainer-$(whoami)"
 mkdir -p "$APPTAINER_CACHEDIR"
 
 # ============================================================
-#  아래는 수정할 필요 없습니다.
+#  Nothing below needs to be changed.
 # ============================================================
 
 echo "=== Job start: $(date) on $(hostname) ==="
-nvidia-smi                        # 할당된 GPU 확인
+nvidia-smi                        # show the allocated GPUs
 
-# 컨테이너 실행 (--nv = GPU 전달). 할당된 GPU만 보입니다.
+# Run the container (--nv passes the allocated GPUs through).
 apptainer exec --nv "$IMAGE" $CMD
 
 echo "=== Job end: $(date) ==="

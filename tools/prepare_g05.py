@@ -8,7 +8,7 @@ The bundle files are HARD links (or copies), never symlinks: the pinned
 GalaxeaVLA adapter calls Path(ckpt).resolve() and reads `.hydra/config.yaml`
 next to the resolved file, so a symlink would make it read the original
 download config, whose relative `checkpoints/...` paths only exist in the
-upstream repository layout (job 1690: "HF processor tokenizer.json not found").
+upstream repository layout (symptom: "HF processor tokenizer.json not found").
 """
 from pathlib import Path
 import os

@@ -44,7 +44,7 @@ RoboTwin-Phys는 RoboTwin 2.0의 50개 양팔 조작 task에서 episode마다 �
 - **논문의 baseline 5종.** Fast-WAM, G0.5, π0.5, Motus, FACT. checkpoint와 추론 설정은 [`configs/policies`](configs/policies)에 고정했습니다.
 - **공개 pool.** 채택된 seed 5000개, 각 seed의 물리 조건, Fast-WAM의 모든 episode 결과가 [`data/`](data/README.md)에 있습니다.
 
-논문에 명시되지 않은 부분의 선택은 [`docs/`](docs/README.md)에 기록했습니다. 주요 선택은 두 가지입니다.
+논문에 명시되지 않은 부분의 선택은 [`docs/design.md`](docs/design.md)에 기록했습니다. 주요 선택은 두 가지입니다.
 - 질량, 질량 중심, 크기, 외력은 task 물체에만 적용합니다.
 - 테이블 높이는 upstream의 랜덤 테이블 높이를 대체합니다.
 
@@ -140,13 +140,13 @@ Physical Random, 50 task × 100 episode, task별 성공률의 평균(%).
 | `stamp_seal` | 24 | 24 | +0 | 🟩 |
 | `turn_switch` | 50 | 34 | +16 | 🟨❗ |
 
-논문 값: arXiv 2609.26292v1 Table 4 (Appendix D). 우리 값: [`data/phys-pro6000-100-v6/results/fastwam/episodes.csv`](data/phys-pro6000-100-v6/results/fastwam/episodes.csv).
+논문 값: arXiv 2609.26292v1 Table 4 (Appendix D). 우리 값: [`data/physical-random-100/results/fastwam/episodes.csv`](data/physical-random-100/results/fastwam/episodes.csv).
 
 </details>
 
 ## 🎯 우리 seed로 벤치마크하기
 
-우리 pool은 [`data/phys-pro6000-100-v6`](data/phys-pro6000-100-v6/)에 있습니다.
+우리 pool은 [`data/physical-random-100`](data/physical-random-100/)에 있습니다.
 
 | 파일 | 내용 |
 |---|---|
@@ -156,14 +156,14 @@ Physical Random, 50 task × 100 episode, task별 성공률의 평균(%).
 
 episode의 물리 조건은 `(task, seed)`만으로 정해지므로 어느 머신에서나 같습니다. 같은 5000개 episode로 내 policy를 평가하는 순서는 다음과 같습니다.
 
-**1. simulator 준비.** 저장소를 clone하고 Docker 이미지를 빌드합니다. 이미지에는 고정된 revision의 RoboTwin 2.0, SAPIEN, CuRobo, 공식 assets가 들어갑니다([docs/docker.md](docs/docker.md)). 그다음 조건이 재현되는지 확인합니다.
+**1. simulator 준비.** 저장소를 clone하고 Docker 이미지를 빌드합니다. 이미지에는 고정된 revision의 RoboTwin 2.0, SAPIEN, CuRobo, 공식 assets가 들어갑니다([docs/setup.md](docs/setup.md)). 그다음 조건이 재현되는지 확인합니다.
 
 ```bash
 git clone https://github.com/joowan1108/RoboTwin-Phys-impl.git && cd RoboTwin-Phys-impl
 bash tools/docker.sh build
 bash tools/docker.sh doctor      # GPU, Vulkan 렌더링, CUDA 확인
 bash tools/docker.sh shell       # 이후 명령은 모두 이 컨테이너 안에서 실행
-python3 analysis/verify_release.py data/phys-pro6000-100-v6   # 5000개 조건을 seed에서 다시 계산해 확인
+python3 analysis/verify_release.py data/physical-random-100   # 5000개 조건을 seed에서 다시 계산해 확인
 ```
 
 **2. 같은 시작 seed로 pool 고정.** expert가 내 머신에서 seed를 하나씩 다시 검사하고 초기 장면을 저장합니다.
@@ -180,7 +180,7 @@ done
 ```bash
 python3 - <<'EOF'
 import json
-ours = json.load(open('data/phys-pro6000-100-v6/pool/seeds.json'))['tasks']
+ours = json.load(open('data/physical-random-100/pool/seeds.json'))['tasks']
 for task, entry in ours.items():
     mine = [e['seed'] for e in json.load(open(f'manifests/{task}.json'))['episodes']]
     print(task, 'OK' if mine == entry['accepted'] else 'DIFFERS')
@@ -239,7 +239,7 @@ episode별 MP4가 필요하면 `--video`를 붙이세요.
 <details>
 <summary><b>우리와 완전히 같은 환경에서 실행하기</b></summary>
 
-Release 파일 [`phys-pro6000-100-v6-full.zip`](https://github.com/joowan1108/RoboTwin-Phys-impl/releases/tag/data-phys-pro6000-100-v6)에는 검증된 초기 장면을 포함한 manifest 50개가 들어 있습니다. `robotwin-phys evaluate`는 소스, assets, 패키지 버전, GPU 모델, 드라이버가 모두 같을 때만 이 manifest를 받아들입니다. 다른 머신에서는 2단계를 따르세요.
+Release 파일 [`physical-random-100-full.zip`](https://github.com/joowan1108/RoboTwin-Phys-impl/releases/tag/data-physical-random-100)에는 검증된 초기 장면을 포함한 manifest 50개가 들어 있습니다. `robotwin-phys evaluate`는 소스, assets, 패키지 버전, GPU 모델, 드라이버가 모두 같을 때만 이 manifest를 받아들입니다. 다른 머신에서는 2단계를 따르세요.
 
 </details>
 
@@ -253,7 +253,7 @@ Release 파일 [`phys-pro6000-100-v6-full.zip`](https://github.com/joowan1108/Ro
 | Motus | `motus-robotics/Motus_robotwin2` | 공식 Motus adapter |
 | FACT | `Bariona/fact-wam` | FACT 자체 서버와 공식 client |
 
-revision과 추론 인자는 [`configs/policies`](configs/policies)에, 준비 방법은 [`docs/policies.md`](docs/policies.md)에 있습니다. bf16 policy는 Ampere 이상 GPU가 필요합니다. 클러스터 실행과 개발 중 운영 기록은 [`docs/operations.md`](docs/operations.md)에 있습니다.
+revision과 추론 인자는 [`configs/policies`](configs/policies)에, 준비 방법은 [`docs/policies.md`](docs/policies.md)에 있습니다. bf16 policy는 Ampere 이상 GPU가 필요합니다. 설계 결정과 구현 세부 사항은 [`docs/design.md`](docs/design.md)에 있습니다.
 
 ## 📄 라이선스와 인용
 

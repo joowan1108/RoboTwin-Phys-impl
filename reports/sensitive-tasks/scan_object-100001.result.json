@@ -1,5 +1,0 @@
-{
-  "details": "Objects is unstable in seed(100001), unstable objects: 024_scanner",
-  "reason": "unstable_initialization",
-  "status": "rejected"
-}

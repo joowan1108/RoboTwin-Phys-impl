@@ -1,5 +1,0 @@
-pi05 1
-motus 1
-fact 0
-fastwam 0
-g05 0

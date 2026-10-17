@@ -270,8 +270,7 @@ def test_owned_processes_are_cleaned_up_and_finished_pids_are_forgotten(tmp_path
     assert child.poll() is not None and processes.children == []
 
 
-@pytest.mark.parametrize('template', ['job-5060x2-pro6000.sbatch', 'job-rtx5090x2-pro6000.sbatch',
-                                    'job-pro6000-single.sbatch'])
+@pytest.mark.parametrize('template', ['evaluate-1gpu.sbatch', 'evaluate-3gpu.sbatch'])
 def test_new_cluster_job_keeps_the_protected_template(template):
     protected = (ROOT/'cluster/default-protected.txt').read_text()
     script = (ROOT/'cluster'/template).read_text()

@@ -393,15 +393,6 @@ def freeze_pool(processes, args, suite, base, sim_gpus, fingerprints, job_dir):
                     '--timeout', args.timeout, '--resume', '--output', path]
             print(f'Freezing {task} on GPU {gpu}; log={job_dir / f"freeze-{task}.log"}', flush=True)
             try:
-                previous = getattr(args, 'resume_from_experiment', None)
-                if previous and not path.exists() and not path.with_suffix('.progress.json').exists():
-                    sources = [previous, *getattr(args, 'fallback_experiment', [])]
-                    candidates = [ROOT / 'manifests' / name / PROTOCOL / f'{task}.json' for name in sources]
-                    old = next((old for old in candidates if old.exists() or old.with_suffix('.progress.json').exists()), None)
-                    if old is not None:
-                        processes.run([sys.executable, ROOT / 'tools/reverify_pool.py', '--source', old,
-                                       '--target', path, '--timeout', args.timeout],
-                                      simulator_environment(base, gpu), job_dir / f'reverify-{task}.log')
                 if not path.exists():
                     processes.run(argv, simulator_environment(base, gpu), job_dir / f'freeze-{task}.log')
                 manifest = experiment.check_manifest(suite, PROTOCOL, task)
@@ -410,11 +401,8 @@ def freeze_pool(processes, args, suite, base, sim_gpus, fingerprints, job_dir):
             except Exception as exc:
                 # Keep other independent tasks running, but never mark this one
                 # frozen or seal/evaluate an incomplete pool.
-                error = dict(task=task, error=str(exc), log=str(job_dir / f'freeze-{task}.log'),
-                             reverify_log=str(job_dir / f'reverify-{task}.log'))
+                error = dict(task=task, error=str(exc), log=str(job_dir / f'freeze-{task}.log'))
                 logfile = job_dir / f'freeze-{task}.log'
-                if not logfile.exists():
-                    logfile = job_dir / f'reverify-{task}.log'
                 if logfile.exists():
                     error['log_tail'] = '\n'.join(logfile.read_text(errors='replace').splitlines()[-32:])
                 with progress_guard:
@@ -497,7 +485,7 @@ def evaluate_pool(processes, args, suite, manifests, base, sim_gpus, policy_gpu,
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--model', choices=experiment.MODELS, default='fastwam')
-    parser.add_argument('--experiment', default='phys-5060-100-v1')
+    parser.add_argument('--experiment', default='physical-random-100')
     parser.add_argument('--phase', choices=['all', 'freeze', 'evaluate', 'report'], default='all')
     parser.add_argument('--episodes', type=int, default=100)
     parser.add_argument('--seed', type=int, default=100000)
@@ -506,9 +494,6 @@ def main():
     parser.add_argument('--sim-gpus', nargs='+', help='One shared GPU or two simulator GPUs; defaults to allocation-based selection')
     parser.add_argument('--freeze-workers-per-gpu', type=int, default=1,
                         help='Independent task processes per simulator GPU during pool preparation')
-    parser.add_argument('--resume-from-experiment', help='Reverify saved expert episodes from an older experiment')
-    parser.add_argument('--fallback-experiment', action='append', default=[],
-                        help='Use this older experiment only when the primary source has no saved task pool')
     parser.add_argument('--policy-gpu')
     parser.add_argument('--replicas', type=int, help='Policy replicas (each drives one simulator); default 1 shared, 4 dual, 2 split')
     parser.add_argument('--video', choices=['first', 'none', 'all'], default='first')
@@ -534,14 +519,6 @@ def main():
         parser.error('Invalid seed/episode/candidate count')
     if args.freeze_workers_per_gpu < 1:
         parser.error('Freeze workers per GPU must be positive')
-    if args.resume_from_experiment and (args.phase not in ('freeze', 'all') or
-            not re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9._-]*', args.resume_from_experiment) or
-            args.resume_from_experiment == args.experiment):
-        parser.error('Resume source must be a different experiment during freeze/all')
-    if args.fallback_experiment and (not args.resume_from_experiment or
-            any(not re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9._-]*', name) or name == args.experiment
-                for name in args.fallback_experiment)):
-        parser.error('Fallback requires valid older experiments and a primary resume source')
     suite = seal(dict(schema='robotwin-experiment-v1', name=args.experiment, tasks=tasks,
         protocols=[PROTOCOL], models=list(experiment.MODELS), episodes=args.episodes,
         seed=args.seed, policy_seed=args.policy_seed, instruction_type='unseen'))

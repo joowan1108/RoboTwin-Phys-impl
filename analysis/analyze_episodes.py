@@ -19,8 +19,8 @@ and episode-NNNN.log and prints:
 
 Standard library only, so it also runs on the cluster login shell:
 
-  python3 analysis/analyze_episodes.py --root ~/robotwin-data --experiment phys-pro6000-100-v6 --model fastwam
-  python3 analysis/analyze_episodes.py ... --compare ~/robotwin-data/runs/phys-pro6000-100-v6/fastwam-oidn201-discarded
+  python3 analysis/analyze_episodes.py --root <data-root> --experiment <experiment> --model fastwam
+  python3 analysis/analyze_episodes.py ... --compare <other-run-folder>
   python3 analysis/analyze_episodes.py ... --errors          # log tails of every failed or errored episode
   python3 analysis/analyze_episodes.py ... --json report.json
 """

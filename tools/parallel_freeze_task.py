@@ -11,9 +11,8 @@ the final verified manifest. Results for seeds beyond the one that completed the
 pool are discarded, exactly as the sequential loop never evaluates them.
 
 Lives in tools/ (outside the runtime fingerprint); the worker and the expert are
-the untouched src/vendor code of the bound snapshot. Runs the success-context
-provenance continuation first when the saved records still carry the previous
-source, so the manifest it finishes has the current provenance.
+the untouched src/vendor code. Saved progress must carry the current runtime
+fingerprint, otherwise the task is refused.
 """
 import argparse
 import json
@@ -155,7 +154,6 @@ def main():
     parser.add_argument('--max-candidates', type=int, default=10000)
     args = parser.parse_args()
     import parallel_eval
-    import continue_success_context
     from robotwin_phys.provenance import fingerprint
     folder = ROOT / 'runs' / args.experiment
     suite = parallel_eval.experiment.read_suite(folder)
@@ -165,7 +163,6 @@ def main():
     gpus = allocated.split(',')
     with parallel_eval.lock(ROOT / 'runs/.full-run-locks' / f'{args.experiment}.lock'):
         current = fingerprint()
-        continue_success_context.preserve(ROOT, suite, current)
         manifests = ROOT / 'manifests' / args.experiment / PROTOCOL
         tasks = args.tasks or [t for t in suite['tasks'] if (manifests / (t + '.progress.json')).exists()
                                and not (manifests / (t + '.json')).exists()]

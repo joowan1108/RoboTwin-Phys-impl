@@ -243,32 +243,3 @@ def test_one_task_error_does_not_cancel_other_tasks_or_seal_incomplete_pool(tmp_
     for task in suite['tasks']:
         assert p.experiment.manifest_path(suite, 'physical_random', task).exists() == (task != 'beat_block_hammer')
     assert not (tmp_path / 'manifests/shared/pool-index.json').exists()
-
-
-def test_reverification_prefers_latest_saved_pool_and_falls_back_per_task(tmp_path, monkeypatch):
-    suite = fixture_suite(tmp_path, monkeypatch)
-    suite['name'] = 'v4'
-    suite['tasks'] = ['adjust_bottle', 'beat_block_hammer']
-    first = tmp_path / 'manifests/v3/physical_random/adjust_bottle.progress.json'
-    second = tmp_path / 'manifests/v2/physical_random/beat_block_hammer.json'
-    atomic_json(first, {})
-    atomic_json(second, {})
-    chosen = []
-
-    class Processes:
-        cancelled = threading.Event()
-
-        def run(self, argv, env, logfile):
-            assert '--source' in argv
-            source = Path(argv[argv.index('--source') + 1])
-            target = Path(argv[argv.index('--target') + 1])
-            chosen.append(source)
-            write_manifest(suite, target.stem)
-
-        def close(self):
-            self.cancelled.set()
-
-    args = argparse.Namespace(max_candidates=10000, timeout=1800, freeze_workers_per_gpu=1,
-                              resume_from_experiment='v3', fallback_experiment=['v2'])
-    p.freeze_pool(Processes(), args, suite, {}, ['GPU-a'], [{'test': True}], tmp_path / 'logs')
-    assert chosen == [first.parent / 'adjust_bottle.json', second]

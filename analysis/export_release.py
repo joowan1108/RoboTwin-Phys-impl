@@ -19,9 +19,9 @@ Writes <out>/ and <out>.zip:
   full/pool-index.json, full/suite.json
 
 Standard library only; run it on the machine that holds the data:
-  python3 export_release.py --root ~/robotwin-data --experiment phys-pro6000-100-v6
+  python3 export_release.py --root <data-root> --experiment <experiment>
 Rewrite summary.md/README.md/provenance identities of an existing export from its results/ folders:
-  python3 export_release.py --refresh data/phys-pro6000-100-v6
+  python3 export_release.py --refresh data/physical-random-100
 Only the suite's models are exported; other run folders (e.g. *-discarded) are skipped.
 Verify a copy with analysis/verify_release.py (recomputes every condition hash from the seeds).
 """
