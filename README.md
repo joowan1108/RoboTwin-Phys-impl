@@ -55,37 +55,38 @@ Physical Random, 50 tasks × 100 episodes, mean of per-task success rates (%).
 | Model | This repo | Paper (Table 1) |
 |---|---:|---:|
 | **Fast-WAM** | **45.18** | 44.24 |
-| G0.5 | in progress | 37.82 |
-| π0.5 | in progress | 31.60 |
-| Motus | not yet run | 39.60 |
-| FACT | not yet run | 39.14 |
+| **G0.5** | **38.36** | 37.82 |
 
-Setup: 2× NVIDIA RTX PRO 6000 Blackwell, RoboTwin 2.0 `stable_2.0 @ 13c3c47`, Fast-WAM checkpoint `yuanty/fastwam @ 8eaceeb` with `sigma_shift=5.0`.
+Both reproduce the paper's overall score within one point. Adapters for π0.5, Motus and FACT are included (see [Baselines](#-baselines)), but they were not evaluated for this release.
 
-### How close is Fast-WAM to the paper?
+Setup: 2× NVIDIA RTX PRO 6000 Blackwell, RoboTwin 2.0 `stable_2.0 @ 13c3c47`. Checkpoints: Fast-WAM `yuanty/fastwam @ 8eaceeb` with `sigma_shift=5.0`, G0.5 `OpenGalaxea/G05 @ e312be81e90c`.
 
-| Agreement metric | Value |
-|---|---:|
-| Overall success rate, ours vs. paper | 45.18 vs. 44.24 (Δ +0.94) |
-| Pearson correlation of the 50 per-task rates | 0.84 |
-| Spearman rank correlation | 0.85 |
-| Mean absolute per-task difference | 8.3 points |
-| Median absolute per-task difference | 6.0 points |
-| Tasks within ±10 points | 35 / 50 |
-| Tasks within ±15 points | 44 / 50 |
-| Tasks that differ at p < 0.05, two-sample test | 9 / 50 (2.5 expected by chance) |
-| Tasks that differ after Bonferroni correction (p < 0.001) | 3 / 50 |
+### How close are the results to the paper?
 
-Both sides are 100-episode estimates, so a single task carries roughly ±10 points of sampling noise. Three tasks still differ after correction:
-
-| Task | Ours | Paper |
+| Agreement metric | Fast-WAM | G0.5 |
 |---|---:|---:|
-| `grab_roller` | 86 | 65 |
-| `place_fan` | 64 | 38 |
-| `place_dual_shoes` | 6 | 28 |
+| Overall success rate, ours vs. paper | 45.18 vs. 44.24 (Δ +0.94) | 38.36 vs. 37.82 (Δ +0.54) |
+| Pearson correlation of the 50 per-task rates | 0.84 | 0.84 |
+| Spearman rank correlation | 0.85 | 0.82 |
+| Mean absolute per-task difference | 8.3 points | 6.9 points |
+| Median absolute per-task difference | 6.0 points | 5.5 points |
+| Tasks within ±10 points | 35 / 50 | 41 / 50 |
+| Tasks within ±15 points | 44 / 50 | 45 / 50 |
+| Tasks that differ at p < 0.05, two-sample test | 9 / 50 | 7 / 50 |
+| Tasks that differ after Bonferroni correction (p < 0.001) | 3 / 50 | 1 / 50 |
+
+Both sides are 100-episode estimates, so a single task carries roughly ±10 points of sampling noise, and about 2.5 of 50 tasks are expected to reach p < 0.05 by chance. These tasks still differ after correction:
+
+| Task | Fast-WAM ours | Fast-WAM paper | G0.5 ours | G0.5 paper |
+|---|---:|---:|---:|---:|
+| `grab_roller` | **86** | **65** | 82 | 72 |
+| `place_fan` | **64** | **38** | 54 | 32 |
+| `place_dual_shoes` | **6** | **28** | **3** | **23** |
+
+`place_dual_shoes` is far below the paper for both policies, and `place_fan` is above it for both (G0.5 at p = 0.002). A shared cause in the environment is more likely than a policy issue. One candidate for `place_dual_shoes` is the table-height choice in [docs/design.md](docs/design.md#scope-decisions-where-the-paper-is-silent), which also replaces that task's upstream −0.1 m table offset.
 
 <details>
-<summary><b>Per-task comparison (50 tasks)</b> 🟩 |Δ| ≤ 10 · 🟨 ≤ 20 · 🟥 > 20 · ❗ p &lt; 0.05 · ‼️ p &lt; 0.001</summary>
+<summary><b>Fast-WAM per-task comparison (50 tasks)</b> 🟩 |Δ| ≤ 10 · 🟨 ≤ 20 · 🟥 > 20 · ❗ p &lt; 0.05 · ‼️ p &lt; 0.001</summary>
 
 | Task | Ours | Paper | Δ | |
 |---|---:|---:|---:|:---:|
@@ -141,6 +142,66 @@ Both sides are 100-episode estimates, so a single task carries roughly ±10 poin
 | `turn_switch` | 50 | 34 | +16 | 🟨❗ |
 
 Paper values: arXiv 2609.26292v1, Table 4 (Appendix D). Ours: [`data/physical-random-100/results/fastwam/episodes.csv`](data/physical-random-100/results/fastwam/episodes.csv).
+
+</details>
+
+<details>
+<summary><b>G0.5 per-task comparison (50 tasks)</b> 🟩 |Δ| ≤ 10 · 🟨 ≤ 20 · 🟥 > 20 · ❗ p &lt; 0.05 · ‼️ p &lt; 0.001</summary>
+
+| Task | Ours | Paper | Δ | |
+|---|---:|---:|---:|:---:|
+| `adjust_bottle` | 45 | 65 | -20 | 🟨❗ |
+| `beat_block_hammer` | 6 | 8 | -2 | 🟩 |
+| `blocks_ranking_rgb` | 43 | 36 | +7 | 🟩 |
+| `blocks_ranking_size` | 33 | 44 | -11 | 🟨 |
+| `click_alarmclock` | 55 | 59 | -4 | 🟩 |
+| `click_bell` | 36 | 36 | +0 | 🟩 |
+| `dump_bin_bigbin` | 38 | 24 | +14 | 🟨❗ |
+| `grab_roller` | 82 | 72 | +10 | 🟩 |
+| `handover_block` | 24 | 23 | +1 | 🟩 |
+| `handover_mic` | 53 | 43 | +10 | 🟩 |
+| `hanging_mug` | 22 | 15 | +7 | 🟩 |
+| `lift_pot` | 32 | 30 | +2 | 🟩 |
+| `move_can_pot` | 31 | 34 | -3 | 🟩 |
+| `move_pillbottle_pad` | 30 | 26 | +4 | 🟩 |
+| `move_playingcard_away` | 37 | 43 | -6 | 🟩 |
+| `move_stapler_pad` | 16 | 23 | -7 | 🟩 |
+| `open_laptop` | 55 | 51 | +4 | 🟩 |
+| `open_microwave` | 47 | 33 | +14 | 🟨❗ |
+| `pick_diverse_bottles` | 17 | 27 | -10 | 🟩 |
+| `pick_dual_bottles` | 17 | 35 | -18 | 🟨❗ |
+| `place_a2b_left` | 44 | 51 | -7 | 🟩 |
+| `place_a2b_right` | 49 | 57 | -8 | 🟩 |
+| `place_bread_basket` | 50 | 50 | +0 | 🟩 |
+| `place_bread_skillet` | 47 | 44 | +3 | 🟩 |
+| `place_burger_fries` | 31 | 38 | -7 | 🟩 |
+| `place_can_basket` | 30 | 20 | +10 | 🟩 |
+| `place_cans_plasticbox` | 31 | 15 | +16 | 🟨❗ |
+| `place_container_plate` | 47 | 48 | -1 | 🟩 |
+| `place_dual_shoes` | 3 | 23 | -20 | 🟨‼️ |
+| `place_empty_cup` | 42 | 35 | +7 | 🟩 |
+| `place_fan` | 54 | 32 | +22 | 🟥❗ |
+| `place_mouse_pad` | 23 | 22 | +1 | 🟩 |
+| `place_object_basket` | 27 | 31 | -4 | 🟩 |
+| `place_object_scale` | 33 | 34 | -1 | 🟩 |
+| `place_object_stand` | 44 | 40 | +4 | 🟩 |
+| `place_phone_stand` | 33 | 37 | -4 | 🟩 |
+| `place_shoe` | 55 | 44 | +11 | 🟨 |
+| `press_stapler` | 50 | 42 | +8 | 🟩 |
+| `put_bottles_dustbin` | 39 | 38 | +1 | 🟩 |
+| `put_object_cabinet` | 43 | 42 | +1 | 🟩 |
+| `rotate_qrcode` | 37 | 33 | +4 | 🟩 |
+| `scan_object` | 34 | 39 | -5 | 🟩 |
+| `shake_bottle` | 76 | 71 | +5 | 🟩 |
+| `shake_bottle_horizontally` | 79 | 76 | +3 | 🟩 |
+| `stack_blocks_three` | 32 | 29 | +3 | 🟩 |
+| `stack_blocks_two` | 45 | 50 | -5 | 🟩 |
+| `stack_bowls_three` | 23 | 32 | -9 | 🟩 |
+| `stack_bowls_two` | 41 | 36 | +5 | 🟩 |
+| `stamp_seal` | 24 | 15 | +9 | 🟩 |
+| `turn_switch` | 33 | 40 | -7 | 🟩 |
+
+Paper values: arXiv 2609.26292v1, Table 4 (Appendix D), column Galaxea-VLA. Ours: the same 5000 episodes as Fast-WAM.
 
 </details>
 
@@ -253,7 +314,7 @@ The release asset [`physical-random-100-full.zip`](https://github.com/joowan1108
 | Motus | `motus-robotics/Motus_robotwin2` | official Motus adapter |
 | FACT | `Bariona/fact-wam` | native FACT server and official client |
 
-Revisions and inference arguments are pinned in [`configs/policies`](configs/policies), and preparation steps are in [`docs/policies.md`](docs/policies.md). The bf16 policies need an Ampere or newer GPU.
+Fast-WAM and G0.5 were evaluated for this release. The π0.5, Motus and FACT adapters are implemented and tested on CPU, but have no published results. Revisions and inference arguments are pinned in [`configs/policies`](configs/policies), and preparation steps are in [`docs/policies.md`](docs/policies.md). The bf16 policies need an Ampere or newer GPU.
 
 ## 🗂 Repository layout
 

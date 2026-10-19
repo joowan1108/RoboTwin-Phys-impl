@@ -55,37 +55,38 @@ Physical Random, 50 task × 100 episode, task별 성공률의 평균(%).
 | 모델 | 이 저장소 | 논문 (Table 1) |
 |---|---:|---:|
 | **Fast-WAM** | **45.18** | 44.24 |
-| G0.5 | 진행 중 | 37.82 |
-| π0.5 | 진행 중 | 31.60 |
-| Motus | 미실행 | 39.60 |
-| FACT | 미실행 | 39.14 |
+| **G0.5** | **38.36** | 37.82 |
 
-환경: NVIDIA RTX PRO 6000 Blackwell 2장, RoboTwin 2.0 `stable_2.0 @ 13c3c47`, Fast-WAM checkpoint `yuanty/fastwam @ 8eaceeb`, `sigma_shift=5.0`.
+두 모델 모두 논문의 전체 성공률을 1%p 이내로 재현했습니다. π0.5, Motus, FACT의 adapter도 들어 있지만([Baseline](#-baseline) 참고) 이번 공개에서는 평가하지 않았습니다.
 
-### Fast-WAM은 논문과 얼마나 비슷한가
+환경: NVIDIA RTX PRO 6000 Blackwell 2장, RoboTwin 2.0 `stable_2.0 @ 13c3c47`. checkpoint: Fast-WAM `yuanty/fastwam @ 8eaceeb`(`sigma_shift=5.0`), G0.5 `OpenGalaxea/G05 @ e312be81e90c`.
 
-| 지표 | 값 |
-|---|---:|
-| 전체 성공률 (우리 / 논문) | 45.18 / 44.24 (Δ +0.94) |
-| task별 성공률 50개의 Pearson 상관 | 0.84 |
-| Spearman 순위 상관 | 0.85 |
-| task별 차이의 평균 절댓값 | 8.3%p |
-| task별 차이의 중앙값 | 6.0%p |
-| ±10%p 안에 든 task | 35 / 50 |
-| ±15%p 안에 든 task | 44 / 50 |
-| p < 0.05로 유의하게 다른 task (양측 검정) | 9 / 50 (우연이라면 2.5개 예상) |
-| Bonferroni 보정 뒤에도 유의한 task (p < 0.001) | 3 / 50 |
+### 논문과 얼마나 비슷한가
 
-양쪽 모두 task당 100 episode로 추정한 값이라 task 하나에 약 ±10%p의 표본 잡음이 있습니다. 보정 뒤에도 차이가 남는 task는 세 개입니다.
-
-| task | 우리 | 논문 |
+| 지표 | Fast-WAM | G0.5 |
 |---|---:|---:|
-| `grab_roller` | 86 | 65 |
-| `place_fan` | 64 | 38 |
-| `place_dual_shoes` | 6 | 28 |
+| 전체 성공률 (우리 / 논문) | 45.18 / 44.24 (Δ +0.94) | 38.36 / 37.82 (Δ +0.54) |
+| task별 성공률 50개의 Pearson 상관 | 0.84 | 0.84 |
+| Spearman 순위 상관 | 0.85 | 0.82 |
+| task별 차이의 평균 절댓값 | 8.3%p | 6.9%p |
+| task별 차이의 중앙값 | 6.0%p | 5.5%p |
+| ±10%p 안에 든 task | 35 / 50 | 41 / 50 |
+| ±15%p 안에 든 task | 44 / 50 | 45 / 50 |
+| p < 0.05로 유의하게 다른 task (양측 검정) | 9 / 50 | 7 / 50 |
+| Bonferroni 보정 뒤에도 유의한 task (p < 0.001) | 3 / 50 | 1 / 50 |
+
+양쪽 모두 task당 100 episode로 추정한 값이라 task 하나에 약 ±10%p의 표본 잡음이 있고, 50개 중 2.5개 정도는 우연히 p < 0.05가 나옵니다. 보정 뒤에도 차이가 남는 task는 다음과 같습니다.
+
+| task | Fast-WAM 우리 | Fast-WAM 논문 | G0.5 우리 | G0.5 논문 |
+|---|---:|---:|---:|---:|
+| `grab_roller` | **86** | **65** | 82 | 72 |
+| `place_fan` | **64** | **38** | 54 | 32 |
+| `place_dual_shoes` | **6** | **28** | **3** | **23** |
+
+`place_dual_shoes`는 두 policy 모두 논문보다 크게 낮고, `place_fan`은 두 policy 모두 높습니다(G0.5는 p = 0.002). policy 문제보다는 환경 쪽의 공통 원인일 가능성이 큽니다. `place_dual_shoes`의 후보 하나는 [docs/design.md](docs/design.md#scope-decisions-where-the-paper-is-silent)의 테이블 높이 결정입니다. 이 결정은 이 task의 upstream −0.1 m 테이블 높이 보정도 대체합니다.
 
 <details>
-<summary><b>task별 비교 (50개)</b> 🟩 |Δ| ≤ 10 · 🟨 ≤ 20 · 🟥 > 20 · ❗ p &lt; 0.05 · ‼️ p &lt; 0.001</summary>
+<summary><b>Fast-WAM task별 비교 (50개)</b> 🟩 |Δ| ≤ 10 · 🟨 ≤ 20 · 🟥 > 20 · ❗ p &lt; 0.05 · ‼️ p &lt; 0.001</summary>
 
 | Task | Ours | Paper | Δ | |
 |---|---:|---:|---:|:---:|
@@ -141,6 +142,66 @@ Physical Random, 50 task × 100 episode, task별 성공률의 평균(%).
 | `turn_switch` | 50 | 34 | +16 | 🟨❗ |
 
 논문 값: arXiv 2609.26292v1 Table 4 (Appendix D). 우리 값: [`data/physical-random-100/results/fastwam/episodes.csv`](data/physical-random-100/results/fastwam/episodes.csv).
+
+</details>
+
+<details>
+<summary><b>G0.5 task별 비교 (50개)</b> 🟩 |Δ| ≤ 10 · 🟨 ≤ 20 · 🟥 > 20 · ❗ p &lt; 0.05 · ‼️ p &lt; 0.001</summary>
+
+| Task | Ours | Paper | Δ | |
+|---|---:|---:|---:|:---:|
+| `adjust_bottle` | 45 | 65 | -20 | 🟨❗ |
+| `beat_block_hammer` | 6 | 8 | -2 | 🟩 |
+| `blocks_ranking_rgb` | 43 | 36 | +7 | 🟩 |
+| `blocks_ranking_size` | 33 | 44 | -11 | 🟨 |
+| `click_alarmclock` | 55 | 59 | -4 | 🟩 |
+| `click_bell` | 36 | 36 | +0 | 🟩 |
+| `dump_bin_bigbin` | 38 | 24 | +14 | 🟨❗ |
+| `grab_roller` | 82 | 72 | +10 | 🟩 |
+| `handover_block` | 24 | 23 | +1 | 🟩 |
+| `handover_mic` | 53 | 43 | +10 | 🟩 |
+| `hanging_mug` | 22 | 15 | +7 | 🟩 |
+| `lift_pot` | 32 | 30 | +2 | 🟩 |
+| `move_can_pot` | 31 | 34 | -3 | 🟩 |
+| `move_pillbottle_pad` | 30 | 26 | +4 | 🟩 |
+| `move_playingcard_away` | 37 | 43 | -6 | 🟩 |
+| `move_stapler_pad` | 16 | 23 | -7 | 🟩 |
+| `open_laptop` | 55 | 51 | +4 | 🟩 |
+| `open_microwave` | 47 | 33 | +14 | 🟨❗ |
+| `pick_diverse_bottles` | 17 | 27 | -10 | 🟩 |
+| `pick_dual_bottles` | 17 | 35 | -18 | 🟨❗ |
+| `place_a2b_left` | 44 | 51 | -7 | 🟩 |
+| `place_a2b_right` | 49 | 57 | -8 | 🟩 |
+| `place_bread_basket` | 50 | 50 | +0 | 🟩 |
+| `place_bread_skillet` | 47 | 44 | +3 | 🟩 |
+| `place_burger_fries` | 31 | 38 | -7 | 🟩 |
+| `place_can_basket` | 30 | 20 | +10 | 🟩 |
+| `place_cans_plasticbox` | 31 | 15 | +16 | 🟨❗ |
+| `place_container_plate` | 47 | 48 | -1 | 🟩 |
+| `place_dual_shoes` | 3 | 23 | -20 | 🟨‼️ |
+| `place_empty_cup` | 42 | 35 | +7 | 🟩 |
+| `place_fan` | 54 | 32 | +22 | 🟥❗ |
+| `place_mouse_pad` | 23 | 22 | +1 | 🟩 |
+| `place_object_basket` | 27 | 31 | -4 | 🟩 |
+| `place_object_scale` | 33 | 34 | -1 | 🟩 |
+| `place_object_stand` | 44 | 40 | +4 | 🟩 |
+| `place_phone_stand` | 33 | 37 | -4 | 🟩 |
+| `place_shoe` | 55 | 44 | +11 | 🟨 |
+| `press_stapler` | 50 | 42 | +8 | 🟩 |
+| `put_bottles_dustbin` | 39 | 38 | +1 | 🟩 |
+| `put_object_cabinet` | 43 | 42 | +1 | 🟩 |
+| `rotate_qrcode` | 37 | 33 | +4 | 🟩 |
+| `scan_object` | 34 | 39 | -5 | 🟩 |
+| `shake_bottle` | 76 | 71 | +5 | 🟩 |
+| `shake_bottle_horizontally` | 79 | 76 | +3 | 🟩 |
+| `stack_blocks_three` | 32 | 29 | +3 | 🟩 |
+| `stack_blocks_two` | 45 | 50 | -5 | 🟩 |
+| `stack_bowls_three` | 23 | 32 | -9 | 🟩 |
+| `stack_bowls_two` | 41 | 36 | +5 | 🟩 |
+| `stamp_seal` | 24 | 15 | +9 | 🟩 |
+| `turn_switch` | 33 | 40 | -7 | 🟩 |
+
+논문 값: arXiv 2609.26292v1 Table 4 (Appendix D)의 Galaxea-VLA 열. 우리 값: Fast-WAM과 같은 5000개 episode.
 
 </details>
 
@@ -253,7 +314,7 @@ Release 파일 [`physical-random-100-full.zip`](https://github.com/joowan1108/Ro
 | Motus | `motus-robotics/Motus_robotwin2` | 공식 Motus adapter |
 | FACT | `Bariona/fact-wam` | FACT 자체 서버와 공식 client |
 
-revision과 추론 인자는 [`configs/policies`](configs/policies)에, 준비 방법은 [`docs/policies.md`](docs/policies.md)에 있습니다. bf16 policy는 Ampere 이상 GPU가 필요합니다. 설계 결정과 구현 세부 사항은 [`docs/design.md`](docs/design.md)에 있습니다.
+이번 공개에서 평가한 모델은 Fast-WAM과 G0.5입니다. π0.5, Motus, FACT adapter는 구현과 CPU 테스트까지 되어 있지만 공개 결과는 없습니다. revision과 추론 인자는 [`configs/policies`](configs/policies)에, 준비 방법은 [`docs/policies.md`](docs/policies.md)에 있습니다. bf16 policy는 Ampere 이상 GPU가 필요합니다. 설계 결정과 구현 세부 사항은 [`docs/design.md`](docs/design.md)에 있습니다.
 
 ## 📄 라이선스와 인용
 
